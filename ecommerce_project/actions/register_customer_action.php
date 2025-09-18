@@ -86,30 +86,18 @@ try {
     exit();
 }
 
-// Step 4: Register user
-error_log("Attempting to register user");
-try {
-    $user_id = register_user_ctr($name, $email, $password, $country, $city, $phone_number, $role);
-    error_log("Registration result - User ID: " . ($user_id ? $user_id : "false"));
-    
-    if ($user_id) {
-        // Success → Return success message with redirect
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'Registration successful! Redirecting to login...',
-            'redirect' => '../login/login.php'
-        ]);
-    } else {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Failed to register user. Please try again.'
-        ]);
-    }
-} catch (Exception $e) {
-    error_log("Error during registration: " . $e->getMessage());
+$user_id = register_user_ctr($name, $email, $password, $country, $city, $phone_number, $role);
+
+if ($user_id && !str_starts_with($user_id, "ERROR")) {
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Registration successful! Redirecting to login...',
+        'redirect' => '../login/login.php'
+    ]);
+} else {
     echo json_encode([
         'status' => 'error',
-        'message' => 'Database error during registration: ' . $e->getMessage()
+        'message' => is_string($user_id) ? $user_id : 'Failed to register user. Please try again.'
     ]);
 }
 ?>

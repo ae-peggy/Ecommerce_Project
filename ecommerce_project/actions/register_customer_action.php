@@ -2,11 +2,11 @@
 header('Content-Type: application/json');
 session_start();
 
-// Enable error reporting for debugging
+// Enable error reporting 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Log all POST data for debugging
+// Log all POST data 
 error_log("POST data received: " . print_r($_POST, true));
 
 // Prevent registration if already logged in
@@ -18,7 +18,6 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Include the customer controller
 require_once '../controllers/customer_controller.php';
 
 // Collect form data safely
@@ -44,7 +43,6 @@ if (empty($name) || empty($email) || empty($password) || empty($country) || empt
 }
 
 // Step 2: Basic validation
-// Validate email format
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     error_log("Invalid email format: $email");
     echo json_encode([
@@ -54,7 +52,6 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit();
 }
 
-// Validate password length (minimum 6 characters)
 if (strlen($password) < 6) {
     error_log("Password too short");
     echo json_encode([

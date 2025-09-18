@@ -94,32 +94,26 @@
     <div class="form-container">
         <h2>Customer Login</h2>
         
-        <!-- Simple login form - no functionality yet -->
         <form id="loginForm" method="POST">
             
-            <!-- Email Field -->
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
             </div>
-            
-            <!-- Password Field -->
+
             <div class="form-group">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            
-            <!-- Login Button -->
+
             <button type="submit" class="login-btn">Login</button>
             
         </form>
-        
-        <!-- Forgot Password Link -->
+
         <div class="forgot-password">
             <a href="#">Forgot Password?</a>
         </div>
-        
-        <!-- Link to Registration Page -->
+
         <div class="register-link">
             <p>Don't have an account? <a href="register.php">Register here</a></p>
         </div>

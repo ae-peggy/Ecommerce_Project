@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -154,7 +154,7 @@
         
         <!-- Link to Login Page -->
         <div class="login-link">
-            <p>Already have an account? <a href="login/login.php">Login here</a></p>
+            <p>Already have an account? <a href="login.php">Login here</a></p>
         </div>
         
     </div>

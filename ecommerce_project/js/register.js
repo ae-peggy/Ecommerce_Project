@@ -1,4 +1,3 @@
-// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('registrationForm');
     const submitBtn = document.querySelector('.submit-btn');
@@ -6,8 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission handler
     form.addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent default form submission
-        
-        // Clear any existing error messages
+    
         clearErrorMessages();
         
         // Validate form
@@ -22,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Collect form data
         const formData = new FormData(form);
         
-        // Debug: Log what we're sending
         console.log('Sending form data:');
         for (let [key, value] of formData.entries()) {
             console.log(key + ': ' + value);
@@ -73,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateForm() {
         let isValid = true;
         
-        // Get form fields
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;

@@ -68,6 +68,11 @@
             background-color: #45a049;
         }
         
+        .login-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
         .register-link {
             text-align: center;
             margin-top: 20px;
@@ -88,36 +93,56 @@
             text-decoration: none;
             font-size: 14px;
         }
+        
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h2>Customer Login</h2>
         
-        <form id="loginForm" method="POST">
+        <form id="loginForm">
             
+            <!-- Email Field -->
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
+                <div class="error-message" id="email-error"></div>
             </div>
-
+            
+            <!-- Password Field -->
             <div class="form-group">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
+                <div class="error-message" id="password-error"></div>
             </div>
-
+            
+            <!-- Login Button -->
             <button type="submit" class="login-btn">Login</button>
             
         </form>
-
+        
+        <!-- Forgot Password Link -->
         <div class="forgot-password">
             <a href="#">Forgot Password?</a>
         </div>
-
+        
+        <!-- Link to Registration Page -->
         <div class="register-link">
             <p>Don't have an account? <a href="register.php">Register here</a></p>
         </div>
-        
+
+        <div class="index-link">
+        <a href="../index.php">Home Page</a>
+        </div>
     </div>
+    
+    <!-- Include the JavaScript file -->
+    <script src="../js/login.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -95,25 +95,29 @@
         <h2>Customer Registration</h2>
         
         <form id="registrationForm">
-
+            
+            <!-- Full Name Field -->
             <div class="form-group">
                 <label for="name">Full Name:</label>
                 <input type="text" id="name" name="name" required>
                 <div class="error-message" id="name-error"></div>
             </div>
-
+            
+            <!-- Email Field -->
             <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
                 <div class="error-message" id="email-error"></div>
             </div>
-
+            
+            <!-- Password Field -->
             <div class="form-group">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
                 <div class="error-message" id="password-error"></div>
             </div>
-  
+            
+            <!-- Country Field -->
             <div class="form-group">
                 <label for="country">Country:</label>
                 <select id="country" name="country" required>
@@ -123,32 +127,37 @@
                     <option value="USA">USA</option>
                     <option value="UK">UK</option>
                     <option value="Canada">Canada</option>
+                    <!-- Add more countries as needed -->
                 </select>
                 <div class="error-message" id="country-error"></div>
             </div>
-
+            
+            <!-- City Field -->
             <div class="form-group">
                 <label for="city">City:</label>
                 <input type="text" id="city" name="city" required>
                 <div class="error-message" id="city-error"></div>
             </div>
-
+            
+            <!-- Contact Number Field -->
             <div class="form-group">
                 <label for="phone_number">Contact Number:</label>
                 <input type="tel" id="phone_number" name="phone_number" required>
                 <div class="error-message" id="phone_number-error"></div>
             </div>
-
+            
+            <!-- Submit Button -->
             <button type="submit" class="submit-btn">Register</button>
             
         </form>
-
+        
+        <!-- Link to Login Page -->
         <div class="login-link">
             <p>Already have an account? <a href="login.php">Login here</a></p>
         </div>
-        
     </div>
-
+    
+    <!-- Include the JavaScript file -->
     <script src="../js/register.js"></script>
 </body>
 </html>

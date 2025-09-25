@@ -1,163 +1,120 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Registration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        
-        .form-container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        input[type="tel"],
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        
-        input:focus,
-        select:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-        
-        .submit-btn {
-            width: 100%;
-            background-color: #4CAF50;
-            color: white;
-            padding: 14px;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .submit-btn:hover {
-            background-color: #45a049;
-        }
-        
-        .login-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .login-link a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="form-container">
-        <h2>Customer Registration</h2>
-        
-        <form id="registrationForm">
-            
-            <!-- Full Name Field -->
-            <div class="form-group">
-                <label for="name">Full Name:</label>
-                <input type="text" id="name" name="name" required>
-                <div class="error-message" id="name-error"></div>
-            </div>
-            
-            <!-- Email Field -->
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <div class="error-message" id="email-error"></div>
-            </div>
-            
-            <!-- Password Field -->
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <div class="error-message" id="password-error"></div>
-            </div>
-            
-            <!-- Country Field -->
-            <div class="form-group">
-                <label for="country">Country:</label>
-                <select id="country" name="country" required>
-                    <option value="">Select Country</option>
-                    <option value="Ghana">Ghana</option>
-                    <option value="Nigeria">Nigeria</option>
-                    <option value="USA">USA</option>
-                    <option value="UK">UK</option>
-                    <option value="Canada">Canada</option>
-                    <!-- Add more countries as needed -->
-                </select>
-                <div class="error-message" id="country-error"></div>
-            </div>
-            
-            <!-- City Field -->
-            <div class="form-group">
-                <label for="city">City:</label>
-                <input type="text" id="city" name="city" required>
-                <div class="error-message" id="city-error"></div>
-            </div>
-            
-            <!-- Contact Number Field -->
-            <div class="form-group">
-                <label for="phone_number">Contact Number:</label>
-                <input type="tel" id="phone_number" name="phone_number" required>
-                <div class="error-message" id="phone_number-error"></div>
-            </div>
-            
-            <!-- Submit Button -->
-            <button type="submit" class="submit-btn">Register</button>
-            
-        </form>
-        
-        <!-- Link to Login Page -->
-        <div class="login-link">
-            <p>Already have an account? <a href="login.php">Login here</a></p>
-        </div>
-    </div>
+<?php
+// Include the database connection file
+require_once(__DIR__ . '/../settings/db_class.php');
+
+// Only declare class if it doesn't already exist
+if (!class_exists('customer_class')) {
+
+    class customer_class extends db_connection {
     
-    <!-- Include the JavaScript file -->
-    <script src="../js/register.js"></script>
-</body>
-</html>
+     //Add a new customer to the database
+    public function add_customer($name, $email, $password, $country, $city, $contact, $user_role = 2) {
+        try {
+            // First check if email already exists
+            if ($this->email_exists($email)) {
+                return false; // Email already exists
+            }
+            
+            // Prepare SQL query
+            $sql = "INSERT INTO customer (customer_name, customer_email, customer_pass, customer_country, customer_city, customer_contact, user_role) 
+                    VALUES ('$name', '$email', '$password', '$country', '$city', '$contact', $user_role)";
+            
+            // Execute the query
+            if ($this->db_write_query($sql)) {
+                // Return the last inserted ID
+                return $this->last_insert_id();
+            } else {
+                return false;
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error adding customer: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Check if email already exists in database
+     * @param string $email - Email to check
+     * @return bool - Returns true if email exists, false if not
+     */
+    public function email_exists($email) {
+        try {
+            $sql = "SELECT customer_id FROM customer WHERE customer_email = '$email'";
+            
+            // Use db_fetch_one to get a single record
+            $result = $this->db_fetch_one($sql);
+            
+            // If result is not false, email exists
+            return ($result !== false);
+            
+        } catch (Exception $e) {
+            error_log("Error checking email: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get customer by email
+     * @param string $email - Customer email
+     * @return array|false - Returns customer data array or false if not found
+     */
+    public function get_customer_by_email($email) {
+        try {
+            $sql = "SELECT * FROM customer WHERE customer_email = '$email'";
+            return $this->db_fetch_one($sql);
+        } catch (Exception $e) {
+            error_log("Error getting customer by email: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get customer by ID
+     * @param int $customer_id - Customer ID
+     * @return array|false - Returns customer data array or false if not found
+     */
+    public function get_customer_by_id($customer_id) {
+        try {
+            $sql = "SELECT * FROM customer WHERE customer_id = $customer_id";
+            return $this->db_fetch_one($sql);
+        } catch (Exception $e) {
+            error_log("Error getting customer by ID: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    
+    // Update customer information
+    public function edit_customer($customer_id, $name, $email, $country, $city, $contact) {
+        try {
+            $sql = "UPDATE customer SET 
+                    customer_name = '$name',
+                    customer_email = '$email',
+                    customer_country = '$country',
+                    customer_city = '$city',
+                    customer_contact = '$contact'
+                    WHERE customer_id = $customer_id";
+            
+            return $this->db_write_query($sql);
+            
+        } catch (Exception $e) {
+            error_log("Error updating customer: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+     //Delete customer
+
+    public function delete_customer($customer_id) {
+        try {
+            $sql = "DELETE FROM customer WHERE customer_id = $customer_id";
+            return $this->db_write_query($sql);
+        } catch (Exception $e) {
+            error_log("Error deleting customer: " . $e->getMessage());
+            return false;
+        }
+    }
+    }
+}
+?>

@@ -1,13 +1,17 @@
 <?php
-session_start();
+// Include core session management functions
+require_once 'settings/core.php';
 
-// Destroy all session variables
-session_unset();
+// Log the logout action
+if (is_logged_in()) {
+    log_user_activity("User logged out");
+}
 
-// Destroy the session itself
-session_destroy();
+// Destroy all session data
+session_unset();     // Remove all session variables
+session_destroy();   // Destroy the session
 
-// Redirect to index page
-header("Location: ../index.php");
+// Redirect to homepage with a message
+header("Location: index.php?message=logged_out");
 exit();
 ?>

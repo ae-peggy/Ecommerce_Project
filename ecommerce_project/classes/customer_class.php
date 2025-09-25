@@ -115,6 +115,31 @@ if (!class_exists('customer_class')) {
             return false;
         }
     }
+
+    public function login_customer($email, $password) {
+        try {
+            // First, get customer by email
+            $customer = $this->get_customer_by_email($email);
+            
+            if (!$customer) {
+                error_log("Login failed: Email not found - $email");
+                return false; // Email doesn't exist
+            }
+            
+            // Verify password using password_verify (since we used password_hash during registration)
+            if (password_verify($password, $customer['customer_pass'])) {
+                error_log("Login successful for: $email");
+                return $customer; // Login successful, return customer data
+            } else {
+                error_log("Login failed: Wrong password for - $email");
+                return false; // Wrong password
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error during login: " . $e->getMessage());
+            return false;
+        }
+    }
     }
 }
 ?>

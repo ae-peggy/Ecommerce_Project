@@ -14,38 +14,42 @@ class category_class extends db_connection {
      * @param int $created_by - User ID who created the category
      * @return int|false - Returns category ID if successful, false if failed
      */
-    public function add_category($cat_name, $created_by) {
-        try {
-            // Check if category name already exists for this user
-            if ($this->category_exists($cat_name, $created_by)) {
-                error_log("Category already exists: $cat_name for user: $created_by");
-                return false;
-            }
-            
-            // Escape data to prevent SQL injection
-            $cat_name = mysqli_real_escape_string($this->db_conn(), $cat_name);
-            $created_by = (int)$created_by;
-            
-            // Prepare SQL query
-            $sql = "INSERT INTO categories (cat_name, created_by) VALUES ('$cat_name', $created_by)";
-            
-            error_log("Executing SQL: $sql");
-            
-            // Execute the query
-            if ($this->db_write_query($sql)) {
-                $category_id = $this->last_insert_id();
-                error_log("Category added successfully with ID: $category_id");
-                return $category_id;
-            } else {
-                error_log("Failed to execute insert query");
-                return false;
-            }
-            
-        } catch (Exception $e) {
-            error_log("Error adding category: " . $e->getMessage());
+   public function add_category($cat_name, $created_by) {
+    error_log("=== ADD_CATEGORY METHOD CALLED ===");
+    try {
+        // Check if category name already exists for this user
+        if ($this->category_exists($cat_name, $created_by)) {
+            error_log("Category already exists: $cat_name for user: $created_by");
             return false;
         }
+        
+        // Escape data to prevent SQL injection
+        $cat_name = mysqli_real_escape_string($this->db_conn(), $cat_name);
+        $created_by = (int)$created_by;
+        
+        // Prepare SQL query
+        $sql = "INSERT INTO categories (cat_name, created_by) VALUES ('$cat_name', $created_by)";
+        
+        error_log("Executing SQL: $sql");
+        
+        // Execute the query
+        if ($this->db_write_query($sql)) {
+            $category_id = $this->last_insert_id();
+            error_log("Category added successfully with ID: $category_id");
+            return $category_id;
+        } else {
+            // ADD THIS: Log the actual database error
+            $error = mysqli_error($this->db_conn());
+            error_log("Database insert failed. MySQL error: " . $error);
+            error_log("Failed SQL: " . $sql);
+            return false;
+        }
+        
+    } catch (Exception $e) {
+        error_log("Error adding category: " . $e->getMessage());
+        return false;
     }
+}
     
     /**
      * Check if category name already exists for a specific user
@@ -54,24 +58,32 @@ class category_class extends db_connection {
      * @return bool - Returns true if category exists, false if not
      */
     public function category_exists($cat_name, $created_by) {
-        try {
-            $cat_name = mysqli_real_escape_string($this->db_conn(), $cat_name);
-            $created_by = (int)$created_by;
-            $sql = "SELECT cat_id FROM categories WHERE cat_name = '$cat_name' AND created_by = $created_by";
-            
-            error_log("Checking category exists with SQL: $sql");
-            
-            $result = $this->db_fetch_one($sql);
-            
-            error_log("Category check result: " . ($result ? "exists" : "doesn't exist"));
-            
-            return ($result !== false);
-            
-        } catch (Exception $e) {
-            error_log("Error checking category: " . $e->getMessage());
+    try {
+        $cat_name = mysqli_real_escape_string($this->db_conn(), $cat_name);
+        $created_by = (int)$created_by;
+        $sql = "SELECT cat_id FROM categories WHERE cat_name = '$cat_name' AND created_by = $created_by";
+        
+        error_log("Checking category exists with SQL: $sql");
+        
+        $result = $this->db_fetch_one($sql);
+        
+        // DEBUG: Log what db_fetch_one actually returns
+        error_log("db_fetch_one returned: " . print_r($result, true));
+        
+        // The issue might be here - let's see what db_fetch_one returns for "no results"
+        if ($result === false || $result === null || empty($result)) {
+            error_log("Category check result: doesn't exist");
             return false;
+        } else {
+            error_log("Category check result: exists");
+            return true;
         }
+        
+    } catch (Exception $e) {
+        error_log("Error checking category: " . $e->getMessage());
+        return false;
     }
+}
     
     /**
      * Get all categories created by a specific user

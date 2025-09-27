@@ -1,145 +1,145 @@
 <?php
-// Include the database connection file
-require_once(__DIR__ . '/../settings/db_class.php');
+/**
+ * Core Session Management & Authorization Functions
+ * This file handles session management and user privilege checking
+ */
 
-// Only declare class if it doesn't already exist
-if (!class_exists('customer_class')) {
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-    class customer_class extends db_connection {
-    
-     //Add a new customer to the database
-    public function add_customer($name, $email, $password, $country, $city, $contact, $user_role = 2) {
-        try {
-            // First check if email already exists
-            if ($this->email_exists($email)) {
-                return false; // Email already exists
-            }
-            
-            // Prepare SQL query
-            $sql = "INSERT INTO customer (customer_name, customer_email, customer_pass, customer_country, customer_city, customer_contact, user_role) 
-                    VALUES ('$name', '$email', '$password', '$country', '$city', '$contact', $user_role)";
-            
-            // Execute the query
-            if ($this->db_write_query($sql)) {
-                // Return the last inserted ID
-                return $this->last_insert_id();
-            } else {
-                return false;
-            }
-            
-        } catch (Exception $e) {
-            error_log("Error adding customer: " . $e->getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Check if email already exists in database
-     * @param string $email - Email to check
-     * @return bool - Returns true if email exists, false if not
-     */
-    public function email_exists($email) {
-        try {
-            $sql = "SELECT customer_id FROM customer WHERE customer_email = '$email'";
-            
-            // Use db_fetch_one to get a single record
-            $result = $this->db_fetch_one($sql);
-            
-            // If result is not false, email exists
-            return ($result !== false);
-            
-        } catch (Exception $e) {
-            error_log("Error checking email: " . $e->getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Get customer by email
-     * @param string $email - Customer email
-     * @return array|false - Returns customer data array or false if not found
-     */
-    public function get_customer_by_email($email) {
-        try {
-            $sql = "SELECT * FROM customer WHERE customer_email = '$email'";
-            return $this->db_fetch_one($sql);
-        } catch (Exception $e) {
-            error_log("Error getting customer by email: " . $e->getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Get customer by ID
-     * @param int $customer_id - Customer ID
-     * @return array|false - Returns customer data array or false if not found
-     */
-    public function get_customer_by_id($customer_id) {
-        try {
-            $sql = "SELECT * FROM customer WHERE customer_id = $customer_id";
-            return $this->db_fetch_one($sql);
-        } catch (Exception $e) {
-            error_log("Error getting customer by ID: " . $e->getMessage());
-            return false;
-        }
-    }
-    
-    
-    // Update customer information
-    public function edit_customer($customer_id, $name, $email, $country, $city, $contact) {
-        try {
-            $sql = "UPDATE customer SET 
-                    customer_name = '$name',
-                    customer_email = '$email',
-                    customer_country = '$country',
-                    customer_city = '$city',
-                    customer_contact = '$contact'
-                    WHERE customer_id = $customer_id";
-            
-            return $this->db_write_query($sql);
-            
-        } catch (Exception $e) {
-            error_log("Error updating customer: " . $e->getMessage());
-            return false;
-        }
-    }
-    
-     //Delete customer
+/**
+ * Check if a user is logged in
+ * @return bool - Returns true if user is logged in, false otherwise
+ */
+function is_logged_in() {
+    // Check if user_id exists in session and is not empty
+    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+}
 
-    public function delete_customer($customer_id) {
-        try {
-            $sql = "DELETE FROM customer WHERE customer_id = $customer_id";
-            return $this->db_write_query($sql);
-        } catch (Exception $e) {
-            error_log("Error deleting customer: " . $e->getMessage());
-            return false;
-        }
+/**
+ * Check if the logged-in user has administrative privileges
+ * @return bool - Returns true if user is admin (role = 1), false otherwise
+ */
+function is_admin() {
+    // First check if user is logged in
+    if (!is_logged_in()) {
+        return false;
     }
+    
+    // Check if user role exists and equals 1 (admin)
+    // According to your database schema: 1 = admin, 2 = customer
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] == 1;
+}
 
-    public function login_customer($email, $password) {
-        try {
-            // First, get customer by email
-            $customer = $this->get_customer_by_email($email);
-            
-            if (!$customer) {
-                error_log("Login failed: Email not found - $email");
-                return false; // Email doesn't exist
-            }
-            
-            // Verify password using password_verify (since we used password_hash during registration)
-            if (password_verify($password, $customer['customer_pass'])) {
-                error_log("Login successful for: $email");
-                return $customer; // Login successful, return customer data
-            } else {
-                error_log("Login failed: Wrong password for - $email");
-                return false; // Wrong password
-            }
-            
-        } catch (Exception $e) {
-            error_log("Error during login: " . $e->getMessage());
+/**
+ * Get current user's role
+ * @return int|null - Returns user role or null if not logged in
+ */
+function get_user_role() {
+    if (is_logged_in()) {
+        return $_SESSION['user_role'] ?? null;
+    }
+    return null;
+}
+
+/**
+ * Get current user's ID
+ * @return int|null - Returns user ID or null if not logged in
+ */
+function get_user_id() {
+    if (is_logged_in()) {
+        return $_SESSION['user_id'] ?? null;
+    }
+    return null;
+}
+
+/**
+ * Get current user's name
+ * @return string|null - Returns user name or null if not logged in
+ */
+function get_user_name() {
+    if (is_logged_in()) {
+        return $_SESSION['user_name'] ?? null;
+    }
+    return null;
+}
+
+/**
+ * Get current user's email
+ * @return string|null - Returns user email or null if not logged in
+ */
+function get_user_email() {
+    if (is_logged_in()) {
+        return $_SESSION['user_email'] ?? null;
+    }
+    return null;
+}
+
+/**
+ * Require user to be logged in - redirect if not
+ * @param string $redirect_url - URL to redirect to if not logged in (default: login page)
+ */
+function require_login($redirect_url = 'login/login.php') {
+    if (!is_logged_in()) {
+        header("Location: $redirect_url");
+        exit();
+    }
+}
+
+/**
+ * Require admin privileges - redirect if not admin
+ * @param string $redirect_url - URL to redirect to if not admin (default: index page)
+ */
+function require_admin($redirect_url = 'index.php') {
+    if (!is_admin()) {
+        // Log unauthorized access attempt
+        error_log("Unauthorized admin access attempt by user ID: " . (get_user_id() ?? 'guest'));
+        header("Location: $redirect_url?error=access_denied");
+        exit();
+    }
+}
+
+/**
+ * Check if current user can access a specific resource
+ * @param string $required_role - 'admin' or 'customer' or 'any'
+ * @return bool - Returns true if user can access, false otherwise
+ */
+function can_access($required_role = 'any') {
+    switch ($required_role) {
+        case 'admin':
+            return is_admin();
+        case 'customer':
+            return is_logged_in() && !is_admin();
+        case 'any':
+            return is_logged_in();
+        default:
             return false;
-        }
     }
+}
+
+/**
+ * Get user role name as string
+ * @return string - Returns 'Admin', 'Customer', or 'Guest'
+ */
+function get_user_role_name() {
+    if (!is_logged_in()) {
+        return 'Guest';
     }
+    
+    return is_admin() ? 'Admin' : 'Customer';
+}
+
+/**
+ * Log user activity (optional function for tracking)
+ * @param string $activity - Description of the activity
+ */
+function log_user_activity($activity) {
+    $user_info = is_logged_in() 
+        ? "User ID: " . get_user_id() . " (" . get_user_name() . ")"
+        : "Guest user";
+    
+    error_log("User Activity - $user_info - $activity");
 }
 ?>

@@ -53,23 +53,35 @@ try {
     $customer_data = login_customer_ctr($email, $password);
     
     if ($customer_data) {
-        // Login successful - Set session variables
-        $_SESSION['user_id'] = $customer_data['customer_id'];
-        $_SESSION['user_name'] = $customer_data['customer_name'];
-        $_SESSION['user_email'] = $customer_data['customer_email'];
-        $_SESSION['user_role'] = $customer_data['user_role'];
-        $_SESSION['user_country'] = $customer_data['customer_country'];
-        $_SESSION['user_city'] = $customer_data['customer_city'];
-        
-        error_log("Login successful for user ID: " . $customer_data['customer_id']);
-        
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'Login successful! Redirecting...',
-            'redirect' => '../index.php',
-            'user_name' => $customer_data['customer_name']
-        ]);
-        
+    // Login successful - Set session variables
+    $_SESSION['user_id'] = $customer_data['customer_id'];
+    $_SESSION['user_name'] = $customer_data['customer_name'];
+    $_SESSION['user_email'] = $customer_data['customer_email'];
+    $_SESSION['user_role'] = $customer_data['user_role'];
+    $_SESSION['user_country'] = $customer_data['customer_country'];
+    $_SESSION['user_city'] = $customer_data['customer_city'];
+    
+    error_log("Login successful for user ID: " . $customer_data['customer_id']);
+    
+    // UPDATED: Different redirect based on user role
+    if ($customer_data['user_role'] == 1) {
+        // Admin user - redirect to category management
+        $redirect_url = '../admin/category.php';
+        $message = 'Welcome Admin! Redirecting to dashboard...';
+    } else {
+        // Regular customer - redirect to homepage
+        $redirect_url = '../index.php';
+        $message = 'Login successful! Redirecting...';
+    }
+    
+    echo json_encode([
+        'status' => 'success',
+        'message' => $message,
+        'redirect' => $redirect_url,
+        'user_name' => $customer_data['customer_name'],
+        'user_role' => $customer_data['user_role']
+    ]);
+    
     } else {
         // Login failed
         error_log("Login failed for: $email");

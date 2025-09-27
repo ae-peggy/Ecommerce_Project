@@ -39,7 +39,7 @@
         }
         
         .nav-btn {
-            background-color: #ecf2ecff;
+            background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
             text-decoration: none;
@@ -125,22 +125,22 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">E-Commerce</div>
-
-         <div class="nav-btn">
-        <a href="login/logout.php">Logout</a>
-        </div>   
+            
+            <!-- Navigation buttons - only show when customer is NOT logged in -->
+            <div class="nav-buttons">
+                <a href="login/login.php" class="nav-btn secondary">Login</a>
+                <a href="login/register.php" class="nav-btn">Register</a>
+            </div>
+        </div>
     </nav>
     
     <!-- Main Content -->
     <main class="main-content">
         <div class="welcome-section">
-            <h1>Welcome to my E-Commerce Platform</h1>
-            <p>Come with me on this treacherous journey</p>
+            <h1>Welcome to Our E-Commerce Platform</h1>
+            <p>Discover amazing products and enjoy a seamless shopping experience. 
+               Join our community today and start exploring!</p>
             
-            <div class="cta-buttons">
-                <a href="login/register.php" class="cta-btn">Get Started - Register</a>
-                <a href="login/login.php" class="cta-btn secondary">Already a member? Login</a>
-            </div>
         </div>
     </main>
 </body>

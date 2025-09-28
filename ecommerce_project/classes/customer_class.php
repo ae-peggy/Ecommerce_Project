@@ -55,36 +55,26 @@ if (!class_exists('customer_class')) {
      * @param string $email - Email to check
      * @return bool - Returns true if email exists, false if not
      */
-  public function email_exists($email) {
-    try {
-        $sql = "SELECT customer_id FROM customer WHERE customer_email = '$email'";
-        
-        $result = $this->db_fetch_one($sql);
-        
-        // DEBUG: Log what db_fetch_one actually returns
-        error_log("email_exists - db_fetch_one returned: " . print_r($result, true));
-        
-        if ($result === false || $result === null || empty($result)) {
+ public function email_exists($email) {
+        try {
+            $sql = "SELECT customer_id FROM customer WHERE customer_email = '$email'";
+            $result = $this->db_fetch_one($sql);
+            
+            // Correct logic: check if result is an array with data
+            return ($result !== null && $result !== false);
+            
+        } catch (Exception $e) {
+            error_log("Error checking email: " . $e->getMessage());
             return false;
-        } else {
-            return true;
         }
-        
-    } catch (Exception $e) {
-        error_log("Error checking email: " . $e->getMessage());
-        return false;
     }
-}
     
-    /**
-     * Get customer by email
-     * @param string $email - Customer email
-     * @return array|false - Returns customer data array or false if not found
-     */
+    // These methods should return false when no record is found
     public function get_customer_by_email($email) {
         try {
             $sql = "SELECT * FROM customer WHERE customer_email = '$email'";
-            return $this->db_fetch_one($sql);
+            $result = $this->db_fetch_one($sql);
+            return ($result !== null && $result !== false) ? $result : false;
         } catch (Exception $e) {
             error_log("Error getting customer by email: " . $e->getMessage());
             return false;

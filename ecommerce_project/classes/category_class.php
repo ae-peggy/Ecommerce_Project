@@ -63,21 +63,10 @@ class category_class extends db_connection {
         $created_by = (int)$created_by;
         $sql = "SELECT cat_id FROM categories WHERE cat_name = '$cat_name' AND created_by = $created_by";
         
-        error_log("Checking category exists with SQL: $sql");
-        
         $result = $this->db_fetch_one($sql);
         
-        // DEBUG: Log what db_fetch_one actually returns
-        error_log("db_fetch_one returned: " . print_r($result, true));
-        
-        // The issue might be here - let's see what db_fetch_one returns for "no results"
-        if ($result === false || $result === null || empty($result)) {
-            error_log("Category check result: doesn't exist");
-            return false;
-        } else {
-            error_log("Category check result: exists");
-            return true;
-        }
+        // Correct logic: check if result is an array with data
+        return ($result !== null && $result !== false);
         
     } catch (Exception $e) {
         error_log("Error checking category: " . $e->getMessage());
@@ -157,7 +146,7 @@ class category_class extends db_connection {
      * @param int $exclude_id - Category ID to exclude from check
      * @return bool - Returns true if name exists, false if not
      */
-    private function category_name_exists_except_current($cat_name, $created_by, $exclude_id) {
+       private function category_name_exists_except_current($cat_name, $created_by, $exclude_id) {
         try {
             $cat_name = mysqli_real_escape_string($this->db_conn(), $cat_name);
             $created_by = (int)$created_by;
@@ -166,7 +155,7 @@ class category_class extends db_connection {
             $sql = "SELECT cat_id FROM categories WHERE cat_name = '$cat_name' AND created_by = $created_by AND cat_id != $exclude_id";
             $result = $this->db_fetch_one($sql);
             
-            return ($result !== false);
+            return ($result !== null && $result !== false);
             
         } catch (Exception $e) {
             error_log("Error checking category name exists: " . $e->getMessage());

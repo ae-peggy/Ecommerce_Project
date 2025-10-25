@@ -1,3 +1,7 @@
+<?php
+require_once 'settings/core.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -555,10 +559,16 @@ body::before {
         <span class="logo-subtitle">Authentic Artistry</span>
       </div>
     </div>
-    <div class="nav-buttons">
-      <a href="login/login.php" class="nav-btn secondary"><span>Login</span></a>
-      <a href="login/register.php" class="nav-btn"><span>Register</span></a>
-    </div>
+    <?php if (is_logged_in()): ?>
+        <?php if (is_admin()): ?>
+        <a href="admin/category.php" class="nav-btn secondary"><span>Manage Categories</span></a>
+        <?php endif; ?>
+        <span style="color: #6b7280;">Welcome, <?php echo htmlspecialchars(get_user_name()); ?>!</span>
+        <a href="login/logout.php" class="nav-btn"><span>Logout</span></a>
+    <?php else: ?>
+        <a href="login/login.php" class="nav-btn secondary"><span>Login</span></a>
+        <a href="login/register.php" class="nav-btn"><span>Register</span></a>
+    <?php endif; ?>
   </div>
 </nav>
 

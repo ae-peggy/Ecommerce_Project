@@ -559,17 +559,25 @@ body::before {
         <span class="logo-subtitle">Authentic Artistry</span>
       </div>
     </div>
+    
     <div class="nav-buttons">
-    <?php if (is_logged_in()): ?>
+      <?php if (is_logged_in()): ?>
         <?php if (is_admin()): ?>
-        <a href="admin/category.php" class="nav-btn secondary"><span>Manage Categories</span></a>
+          <!-- Admin Navigation -->
+          <a href="admin/category.php" class="nav-btn secondary"><span>Categories</span></a>
+          <a href="admin/brand.php" class="nav-btn secondary"><span>Brands</span></a>
+          <a href="admin/product.php" class="nav-btn secondary"><span>Products</span></a>
         <?php endif; ?>
-        <span style="color: #6b7280;">Welcome, <?php echo htmlspecialchars(get_user_name()); ?>!</span>
+        
+        <span style="color: #374151; font-weight: 500; padding: 0 10px;">
+          👋 <?php echo htmlspecialchars(get_user_name()); ?>
+        </span>
         <a href="login/logout.php" class="nav-btn"><span>Logout</span></a>
-    <?php else: ?>
+      <?php else: ?>
+        <!-- Guest Navigation -->
         <a href="login/login.php" class="nav-btn secondary"><span>Login</span></a>
         <a href="login/register.php" class="nav-btn"><span>Register</span></a>
-    <?php endif; ?>
+      <?php endif; ?>
     </div>
   </div>
 </nav>

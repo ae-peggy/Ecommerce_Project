@@ -43,7 +43,7 @@ error_log("Deleting brand - ID: $brand_id, User: $created_by");
 if (empty($brand_id)) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'brand ID is required'
+        'message' => 'Brand ID is required'
     ]);
     exit();
 }
@@ -53,7 +53,7 @@ $existing_brand = get_brand_by_id_ctr($brand_id, $created_by);
 if (!$existing_brand) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'brand not found or you do not have permission to delete it'
+        'message' => 'Brand not found or you do not have permission to delete it'
     ]);
     exit();
 }
@@ -64,12 +64,12 @@ try {
     $result = delete_brand_ctr($brand_id, $created_by);
     
     if ($result) {
-        error_log("brand deleted successfully: $brand_id");
+        error_log("Brand deleted successfully: $brand_id");
         log_user_activity("Deleted brand: {$existing_brand['brand_name']} (ID: $brand_id)");
         
         echo json_encode([
             'status' => 'success',
-            'message' => 'brand deleted successfully!',
+            'message' => 'Brand deleted successfully!',
             'deleted_brand' => [
                 'id' => $brand_id,
                 'name' => $existing_brand['brand_name']
@@ -82,7 +82,7 @@ try {
         ]);
     }
     
-} brandch (Exception $e) {
+} catch (Exception $e) {
     error_log("Error deleting brand: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',

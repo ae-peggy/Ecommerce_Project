@@ -44,7 +44,7 @@ error_log("Updating brand - ID: $brand_id, Name: $brand_name, User: $created_by"
 if (empty($brand_id) || empty($brand_name)) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'brand ID and name are required'
+        'message' => 'Brand ID and name are required'
     ]);
     exit();
 }
@@ -53,7 +53,7 @@ if (empty($brand_id) || empty($brand_name)) {
 if (strlen($brand_name) < 2) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'brand name must be at least 2 characters long'
+        'message' => 'Brand name must be at least 2 characters long'
     ]);
     exit();
 }
@@ -61,7 +61,7 @@ if (strlen($brand_name) < 2) {
 if (strlen($brand_name) > 100) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'brand name must be less than 100 characters'
+        'message' => 'Brand name must be less than 100 characters'
     ]);
     exit();
 }
@@ -70,7 +70,7 @@ if (strlen($brand_name) > 100) {
 if (!preg_match('/^[a-zA-Z0-9\s\-&]+$/', $brand_name)) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'brand name can only contain letters, numbers, spaces, hyphens, and ampersands'
+        'message' => 'Brand name can only contain letters, numbers, spaces, hyphens, and ampersands'
     ]);
     exit();
 }
@@ -80,7 +80,7 @@ $existing_brand = get_brand_by_id_ctr($brand_id, $created_by);
 if (!$existing_brand) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'brand not found or you do not have permission to edit it'
+        'message' => 'Brand not found or you do not have permission to edit it'
     ]);
     exit();
 }
@@ -91,12 +91,12 @@ try {
     $result = update_brand_ctr($brand_id, $brand_name, $created_by);
     
     if ($result) {
-        error_log("brand updated successfully: $brand_id");
+        error_log("Brand updated successfully: $brand_id");
         log_user_activity("Updated brand: {$existing_brand['brand_name']} to $brand_name (ID: $brand_id)");
         
         echo json_encode([
             'status' => 'success',
-            'message' => 'brand updated successfully!',
+            'message' => 'Brand updated successfully!',
             'brand_id' => $brand_id,
             'brand_name' => $brand_name,
             'old_name' => $existing_brand['brand_name']
@@ -108,7 +108,7 @@ try {
         ]);
     }
     
-} brandch (Exception $e) {
+} catch (Exception $e) {
     error_log("Error updating brand: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',

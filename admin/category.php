@@ -202,9 +202,9 @@ require_admin('../index.php');
         }
 
         .container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 40px;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
         .content-grid {
@@ -330,6 +330,7 @@ require_admin('../index.php');
                 0 0 0 1px rgba(220, 38, 38, 0.05);
             position: relative;
             height: fit-content;
+            margin-bottom: 30px;
         }
 
         .section.sticky-form {
@@ -369,6 +370,7 @@ require_admin('../index.php');
             margin-top: 5px;
             font-weight: 500;
         }
+        .section-title {
             font-family: 'Cormorant Garamond', serif;
             font-size: 28px;
             color: #1a1a1a;
@@ -666,15 +668,15 @@ require_admin('../index.php');
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div>
-                <div class="logo">Aya Crafts</div>
-                <div class="logo-subtitle">Admin Dashboard</div>
-            </div>
+            <div class="logo">Aya Crafts - Category Management</div>
             <div class="user-info">
                 <span>Welcome, <?php echo htmlspecialchars(get_user_name()); ?>!</span>
                 <div class="nav-links">
                     <a href="../index.php" class="nav-link">Home</a>
-                    <a href="../login/logout.php" class="nav-link logout">Logout</a>
+                    <a href="category.php" class="nav-link">Categories</a>
+                    <a href="brand.php" class="nav-link">Brands</a>
+                    <a href="product.php" class="nav-link" style="background-color: rgba(255,255,255,0.2);">Products</a>
+                    <a href="../login/logout.php" class="nav-link">Logout</a>
                 </div>
             </div>
         </div>

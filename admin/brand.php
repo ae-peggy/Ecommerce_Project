@@ -30,26 +30,64 @@ require_admin('../index.php');
             line-height: 1.6;
         }
 
-        .header {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-            color: white;
-            padding: 1.2rem 0;
-            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
+              .header {
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+            padding: 20px 0;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(220, 38, 38, 0.08);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                #dc2626 0%, #dc2626 10%,
+                #991b1b 10%, #991b1b 20%,
+                #ef4444 20%, #ef4444 30%,
+                #dc2626 30%, #dc2626 40%,
+                #b91c1c 40%, #b91c1c 50%,
+                #dc2626 50%, #dc2626 60%,
+                #991b1b 60%, #991b1b 70%,
+                #ef4444 70%, #ef4444 80%,
+                #dc2626 80%, #dc2626 90%,
+                #b91c1c 90%, #b91c1c 100%
+            );
         }
 
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 40px;
         }
 
         .logo {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 500;
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: #9ca3af;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: -3px;
         }
 
         .user-info {
@@ -64,25 +102,51 @@ require_admin('../index.php');
             padding: 0 20px;
         }
 
-        .page-header {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+          .page-header {
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.06),
+                0 0 0 1px rgba(220, 38, 38, 0.05);
             margin-bottom: 30px;
-            border-top: 4px solid #dc2626;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, 
+                #dc2626 0%, #dc2626 15%,
+                #991b1b 15%, #991b1b 30%,
+                #ef4444 30%, #ef4444 45%,
+                #dc2626 45%, #dc2626 60%,
+                #b91c1c 60%, #b91c1c 75%,
+                #ef4444 75%, #ef4444 100%
+            );
         }
 
         .page-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2rem;
-            color: #1a1a1a;
+            font-size: 42px;
+            font-weight: 500;
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 10px;
+            letter-spacing: -0.5px;
         }
 
         .page-subtitle {
             color: #6b7280;
-            font-size: 1rem;
+            font-size: 16px;
+            font-weight: 400;
         }
 
         .stats {
@@ -276,33 +340,41 @@ require_admin('../index.php');
             display: none;
         }
 
+
         .nav-links {
             display: flex;
-            gap: 12px;
-            align-items: center;
+            gap: 10px;
         }
 
         .nav-link {
-            color: white;
+            color: #374151;
             text-decoration: none;
-            padding: 8px 18px;
-            border-radius: 6px;
+            padding: 10px 24px;
+            border-radius: 50px;
             transition: all 0.3s ease;
             font-size: 14px;
             font-weight: 500;
+            border: 1.5px solid transparent;
         }
 
         .nav-link:hover {
-            background-color: rgba(255,255,255,0.15);
+            background: rgba(220, 38, 38, 0.05);
+            border-color: rgba(220, 38, 38, 0.2);
+            color: #dc2626;
+            transform: translateY(-1px);
         }
 
         .nav-link.logout {
-            background-color: rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
         }
 
         .nav-link.logout:hover {
-            background-color: rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
         }
+
 
         @media (max-width: 768px) {
             .header-content {
@@ -334,14 +406,15 @@ require_admin('../index.php');
     <!-- Header -->
     <header class="header">
         <div class="header-content">
-            <div class="logo">Aya Crafts - Admin Panel</div>
+            <div class="logo">Aya Crafts - Brand Management</div>
             <div class="user-info">
                 <span>Welcome, <?php echo htmlspecialchars(get_user_name()); ?>!</span>
                 <div class="nav-links">
                     <a href="../index.php" class="nav-link">Home</a>
                     <a href="category.php" class="nav-link">Categories</a>
-                    <a href="brand.php" class="nav-link" style="background-color: rgba(255,255,255,0.2);">Brands</a>
-                    <a href="../login/logout.php" class="nav-link logout">Logout</a>
+                    <a href="brand.php" class="nav-link">Brands</a>
+                    <a href="product.php" class="nav-link" style="background-color: rgba(255,255,255,0.2);">Products</a>
+                    <a href="../login/logout.php" class="nav-link">Logout</a>
                 </div>
             </div>
         </div>

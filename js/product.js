@@ -75,17 +75,17 @@ function displayProducts(products) {
             <img src="${imageSrc}" alt="${escapeHtml(product.product_title)}" class="product-image" onerror="this.src='https://via.placeholder.com/280x200?text=No+Image'">
             <div class="product-info">
                 <div class="product-title">${escapeHtml(product.product_title)}</div>
-                <div class="product-price">$${parseFloat(product.product_price).toFixed(2)}</div>
+                <div class="product-price">GHS${parseFloat(product.product_price).toFixed(2)}</div>
                 <div class="product-meta">
                     <strong>Category:</strong> ${escapeHtml(product.cat_name || 'N/A')}<br>
                     <strong>Brand:</strong> ${escapeHtml(product.brand_name || 'N/A')}
                 </div>
                 <div class="product-actions">
                     <button class="btn btn-sm btn-primary" onclick='editProduct(${JSON.stringify(product)})'>
-                        ✏️ Edit
+                        Edit
                     </button>
                     <button class="btn btn-sm btn-secondary" onclick="viewProduct(${product.product_id})">
-                        👁️ View
+                        View
                     </button>
                 </div>
             </div>

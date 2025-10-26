@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (name.length < 2) {
             showFieldError('name', 'Name must be at least 2 characters long');
             isValid = false;
-        } else if (!/^[a-zA-Z\s\-]+$/.test(name)) {
-            showFieldError('name', 'Name can only contain letters, spaces, and hyphens');
+        } else if (!/^[a-zA-Z\s\-']+$/.test(name)) {
+            showFieldError('name', 'Name can only contain letters, spaces, hyphens, and apostrophes');
             isValid = false;
         }
         // Validate email using regex

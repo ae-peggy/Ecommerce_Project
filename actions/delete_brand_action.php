@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: applibrandion/json');
+header('Content-Type: application/json');
 
 // Include core session management functions
 require_once '../settings/core.php';

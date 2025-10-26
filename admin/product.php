@@ -569,7 +569,7 @@ $brands = get_brands_by_user_ctr($user_id);
                     
                     <!-- Price -->
                     <div class="form-group">
-                        <label for="productPrice">Price ($) *</label>
+                        <label for="productPrice">Price (GHS) *</label>
                         <input type="number" id="productPrice" name="product_price" step="0.01" min="0.01" placeholder="0.00" required>
                         <div class="error-message" id="productPrice-error"></div>
                     </div>

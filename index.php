@@ -398,6 +398,47 @@ body::before {
   font-weight: 300;
 }
 
+/* Search Box */
+.search-box {
+  max-width: 600px;
+  margin: 40px auto;
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 18px 60px 18px 24px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+}
+
+.search-box button {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.search-box button:hover {
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
 .cta-buttons {
   display: flex;
   gap: 20px;
@@ -569,9 +610,7 @@ body::before {
           <a href="admin/product.php" class="nav-btn secondary"><span>Products</span></a>
         <?php endif; ?>
         
-        <span style="color: #374151; font-weight: 500; padding: 0 10px;">
-          👋 <?php echo htmlspecialchars(get_user_name()); ?>
-        </span>
+      
         <a href="login/logout.php" class="nav-btn"><span>Logout</span></a>
       <?php else: ?>
         <!-- Guest Navigation -->
@@ -601,13 +640,22 @@ body::before {
     </div>
     <div class="welcome-content">
       <div class="accent-bar"></div>
-      <h1>Welcome to <strong>Aya Crafts</strong></h1>
+      <h1>Welcome to <strong>Aya Crafts</strong>, <?php echo htmlspecialchars(get_user_name()); ?></h1>
       <p>Discover authentic African artistry and craftsmanship. Each piece tells a story, 
       woven with tradition and brought to life by skilled artisans. Join our community 
       and explore a world of unique, handcrafted treasures.</p>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <form action="product_search_result.php" method="GET">
+          <input type="text" name="search" placeholder="🔍 Search for products..." required>
+          <button type="submit">Search</button>
+        </form>
+      </div>
+      
       <div class="cta-buttons">
-        <a href="#" class="cta-btn">Explore Collection</a>
-        <a href="#" class="cta-btn secondary">Learn Our Story</a>
+        <a href="view/all_product.php" class="cta-btn">Explore Collection</a>
+        <a href="#about" class="cta-btn secondary">Learn Our Story</a>
       </div>
     </div>
   </div>

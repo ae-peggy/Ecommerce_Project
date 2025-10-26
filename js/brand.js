@@ -87,10 +87,10 @@ function displayBrands(brands) {
             <td>${formatDate(brand.created_date)}</td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick="editBrand(${brand.brand_id}, '${escapeHtml(brand.brand_name)}')">
-                    ✏️ Edit
+                    Edit
                 </button>
                 <button class="btn btn-sm btn-danger" onclick="confirmDeleteBrand(${brand.brand_id}, '${escapeHtml(brand.brand_name)}')">
-                    🗑️ Delete
+                    Delete
                 </button>
             </td>
         `;

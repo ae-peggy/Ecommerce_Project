@@ -559,6 +559,7 @@ body::before {
         <span class="logo-subtitle">Authentic Artistry</span>
       </div>
     </div>
+    <div class="nav-buttons">
     <?php if (is_logged_in()): ?>
         <?php if (is_admin()): ?>
         <a href="admin/category.php" class="nav-btn secondary"><span>Manage Categories</span></a>
@@ -569,6 +570,7 @@ body::before {
         <a href="login/login.php" class="nav-btn secondary"><span>Login</span></a>
         <a href="login/register.php" class="nav-btn"><span>Register</span></a>
     <?php endif; ?>
+    </div>
   </div>
 </nav>
 

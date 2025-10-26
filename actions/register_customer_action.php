@@ -46,6 +46,16 @@ if (empty($name) || empty($email) || empty($password) || empty($country) || empt
 }
 
 // Step 2: Basic validation
+// Validate name format (letters, spaces, hyphens, and apostrophes only)
+if (!preg_match("/^[a-zA-Z\s\-']+$/", $name)) {
+    error_log("Invalid name format: $name");
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Name can only contain letters, spaces, hyphens, and apostrophes'
+    ]);
+    exit();
+}
+
 // Validate email format
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     error_log("Invalid email format: $email");

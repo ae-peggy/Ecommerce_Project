@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const city = document.getElementById('city').value.trim();
         const phone = document.getElementById('phone_number').value.trim();
         
-        // Validate name (at least 2 characters, only letters and spaces)
+        // Validate name (at least 2 characters, only letters, spaces, and hyphens)
         if (name.length < 2) {
             showFieldError('name', 'Name must be at least 2 characters long');
             isValid = false;
@@ -85,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
             showFieldError('name', 'Name can only contain letters, spaces, and hyphens');
             isValid = false;
         }
-        
         // Validate email using regex
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {

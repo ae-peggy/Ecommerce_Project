@@ -1,18 +1,18 @@
 <?php
 // Include core session management functions
-require_once 'settings/core.php';
+require_once '../settings/core.php';
 
 // Include controllers
-require_once 'controllers/product_controller.php';
-require_once 'controllers/category_controller.php';
-require_once 'controllers/brand_controller.php';
+require_once '../controllers/product_controller.php';
+require_once '../controllers/category_controller.php';
+require_once '../controllers/brand_controller.php';
 
 // Get all products
 $products = get_all_products_ctr();
 
 // Get all categories and brands for filters (from any admin)
-require_once 'classes/category_class.php';
-require_once 'classes/brand_class.php';
+require_once '../classes/category_class.php';
+require_once '../classes/brand_class.php';
 $category_obj = new category_class();
 $brand_obj = new brand_class();
 
@@ -362,17 +362,17 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.php" class="logo">Aya Crafts</a>
+            <a href="../index.php" class="logo">Aya Crafts</a>
             <div class="nav-links">
-                <a href="index.php" class="nav-link">Home</a>
-                <a href="view/all_product.php" class="nav-link">Shop</a>
+                <a href="../index.php" class="nav-link">Home</a>
+                <a href="all_product.php" class="nav-link">Shop</a>
                 <?php if (is_logged_in()): ?>
                     <?php if (is_admin()): ?>
-                        <a href="admin/product.php" class="nav-link">Admin</a>
+                        <a href="../admin/product.php" class="nav-link">Admin</a>
                     <?php endif; ?>
-                    <a href="login/logout.php" class="nav-link">Logout</a>
+                    <a href="../login/logout.php" class="nav-link">Logout</a>
                 <?php else: ?>
-                    <a href="login/login.php" class="nav-link">Login</a>
+                    <a href="../login/login.php" class="nav-link">Login</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -475,7 +475,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
     <script>
         // View product details
         function viewProduct(productId) {
-            window.location.href = `view/single_product.php?id=${productId}`;
+            window.location.href = `single_product.php?id=${productId}`;
         }
 
         // Add to cart (placeholder for now)
@@ -491,7 +491,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
             const category = document.getElementById('categoryFilter').value;
             const brand = document.getElementById('brandFilter').value;
 
-            let url = 'view/product_search_result.php?';
+            let url = 'product_search_result.php?';
             
             if (search) url += `search=${encodeURIComponent(search)}&`;
             if (category) url += `category=${category}&`;

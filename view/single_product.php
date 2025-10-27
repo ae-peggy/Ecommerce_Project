@@ -1,15 +1,15 @@
 <?php
 // Include core session management functions
-require_once 'settings/core.php';
+require_once '../settings/core.php';
 
 // Include product controller
-require_once 'controllers/product_controller.php';
+require_once '../controllers/product_controller.php';
 
 // Get product ID from URL
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($product_id <= 0) {
-    header('Location: view/all_product.php');
+    header('Location: all_product.php');
     exit();
 }
 
@@ -17,7 +17,7 @@ if ($product_id <= 0) {
 $product = get_product_by_id_ctr($product_id);
 
 if (!$product) {
-    header('Location: view/all_product.php');
+    header('Location: all_product.php');
     exit();
 }
 ?>
@@ -288,17 +288,17 @@ if (!$product) {
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.php" class="logo">Aya Crafts</a>
+            <a href="../index.php" class="logo">Aya Crafts</a>
             <div class="nav-links">
-                <a href="index.php" class="nav-link">Home</a>
-                <a href="view/all_product.php" class="nav-link">Shop</a>
+                <a href="../index.php" class="nav-link">Home</a>
+                <a href="all_product.php" class="nav-link">Shop</a>
                 <?php if (is_logged_in()): ?>
                     <?php if (is_admin()): ?>
-                        <a href="admin/product.php" class="nav-link">Admin</a>
+                        <a href="../admin/product.php" class="nav-link">Admin</a>
                     <?php endif; ?>
-                    <a href="login/logout.php" class="nav-link">Logout</a>
+                    <a href="../login/logout.php" class="nav-link">Logout</a>
                 <?php else: ?>
-                    <a href="login/login.php" class="nav-link">Login</a>
+                    <a href="../login/login.php" class="nav-link">Login</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -306,8 +306,8 @@ if (!$product) {
 
     <!-- Breadcrumb -->
     <div class="breadcrumb">
-        <a href="index.php">Home</a> / 
-        <a href="view/all_product.php">Shop</a> / 
+        <a href="../index.php">Home</a> / 
+        <a href="all_product.php">Shop</a> / 
         <span><?php echo htmlspecialchars($product['product_title']); ?></span>
     </div>
 
@@ -383,7 +383,7 @@ if (!$product) {
                     <button class="btn btn-primary" onclick="addToCart(<?php echo $product['product_id']; ?>)">
                         🛒 Add to Cart
                     </button>
-                    <a href="view/all_product.php" class="btn btn-secondary">
+                    <a href="all_product.php" class="btn btn-secondary">
                         ← Back to Shop
                     </a>
                 </div>

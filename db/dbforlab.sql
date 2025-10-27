@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.1deb3
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Oct 02, 2025 at 03:07 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Host: localhost:3306
+-- Generation Time: Oct 27, 2025 at 12:48 AM
+-- Server version: 8.0.43-0ubuntu0.24.04.2
+-- PHP Version: 8.3.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,8 +18,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `shoppn`
+-- Database: `ecommerce_2025A_elorm_ameyibor`
 --
+CREATE DATABASE IF NOT EXISTS `ecommerce_2025A_elorm_ameyibor` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `ecommerce_2025A_elorm_ameyibor`;
 
 -- --------------------------------------------------------
 
@@ -28,9 +30,19 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `brands` (
-  `brand_id` int(11) NOT NULL,
-  `brand_name` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `brand_id` int NOT NULL,
+  `brand_name` varchar(100) NOT NULL,
+  `created_by` int NOT NULL,
+  `created_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `brands`
+--
+
+INSERT INTO `brands` (`brand_id`, `brand_name`, `created_by`, `created_date`) VALUES
+(1, 'Nike', 1, '2025-10-25 23:06:37'),
+(2, 'Adidas', 1, '2025-10-25 23:06:37');
 
 -- --------------------------------------------------------
 
@@ -39,11 +51,11 @@ CREATE TABLE `brands` (
 --
 
 CREATE TABLE `cart` (
-  `p_id` int(11) NOT NULL,
+  `p_id` int NOT NULL,
   `ip_add` varchar(50) NOT NULL,
-  `c_id` int(11) DEFAULT NULL,
-  `qty` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `c_id` int DEFAULT NULL,
+  `qty` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -52,19 +64,18 @@ CREATE TABLE `cart` (
 --
 
 CREATE TABLE `categories` (
-  `cat_id` int(11) NOT NULL,
+  `cat_id` int NOT NULL,
   `cat_name` varchar(100) NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `created_date` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `created_by` int NOT NULL,
+  `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `categories`
 --
 
 INSERT INTO `categories` (`cat_id`, `cat_name`, `created_by`, `created_date`) VALUES
-(2, 'Wood Craft', 2, '2025-09-27 23:35:03'),
-(3, 'Kente', 2, '2025-09-28 11:28:51');
+(1, 'Shoes', 1, '2025-10-02 13:37:05');
 
 -- --------------------------------------------------------
 
@@ -73,7 +84,7 @@ INSERT INTO `categories` (`cat_id`, `cat_name`, `created_by`, `created_date`) VA
 --
 
 CREATE TABLE `customer` (
-  `customer_id` int(11) NOT NULL,
+  `customer_id` int NOT NULL,
   `customer_name` varchar(100) NOT NULL,
   `customer_email` varchar(50) NOT NULL,
   `customer_pass` varchar(150) NOT NULL,
@@ -81,21 +92,18 @@ CREATE TABLE `customer` (
   `customer_city` varchar(30) NOT NULL,
   `customer_contact` varchar(15) NOT NULL,
   `customer_image` varchar(100) DEFAULT NULL,
-  `user_role` int(4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `user_role` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `customer`
 --
 
 INSERT INTO `customer` (`customer_id`, `customer_name`, `customer_email`, `customer_pass`, `customer_country`, `customer_city`, `customer_contact`, `customer_image`, `user_role`) VALUES
-(1, 'dzfgzdfgd', 'dgzdfz@gmail.com', '$2y$10$zK7kh6UsgLLoapMyEt8dxOkwPaLrBFLBUKd1zlEAzTD0EBt9gmaMG', 'Ghana', 'dfgt', '0503040430', NULL, 2),
-(2, 'Test Form', 'peggy@gmail.com', '$2y$10$OkGi5S93wuujCtd2GaJYEOx8iWi8.oIgmbOUdu7CT.lfOP7f9Eyde', 'Ghana', 'Tema', '0304958905', NULL, 1),
-(3, 'Godwin', 'godwin@gmail.com', '$2y$10$DYcYNqbsVKaaxh1I4qF/Yeaqyd6O0OEecsexkKX0CrAKDcjDbQlui', 'Ghana', 'Motown', '0390489049', NULL, 2),
-(4, 'Test', 'test@gmail.com', '$2y$10$kXArrLoTHHTStX1M75aPpeZxp9QwghDkedye8Oww0Ndiefjzdfd7i', 'USA', 'Texas', '0399020202', NULL, 1),
-(5, 'Test User', 'testdb@example.com', 'testpass', 'Test Country', 'Test City', '1234567890', NULL, 2),
-(6, 'Class Test', 'classtest@example.com', 'testpass', 'Ghana', 'Accra', '0123456789', NULL, 2),
-(7, 'Tracy', 'tracy@gmail.cocm', '$2y$10$2kFmNFr9BfWqPEvcppmxUuNhFloCgZyfTTclmif0GQVXwEzQH.LKO', 'USA', 'Waco', '0493849392', NULL, 2);
+(1, 'Peggy', 'test3@gmail.com', '$2y$10$jcgx3EvNpy/kRlPsUhelluqTxtdsK1QzZoN6eMjzbnuEZsoq7Xiy6', 'USA', 'Houston', '2938048496', NULL, 1),
+(9, 'Test One', 'test@gmail.com', '$2y$10$YWr6/97Ha1hraF2X3WfbNOvxQnASXxvmZiDeKbwiKlCsEqaLN3px.', 'Canada', 'Ontario', '0394029394', NULL, 1),
+(10, 'Test Two', 'test2@gmail.com', '$2y$10$vJ72O9Sf9TT9b.KZi3VaHuuvZfxfqwpOU/hS8VOPrv.Dk3f9mJY9W', 'Ghana', 'Tema', '0495038495', NULL, 2),
+(12, 'Elikem GaleZoyiku', 'egalezoyiku@gmail.com', '$2y$10$u92ghzlmemoVlFCjKjWBJ.XSFQWVRM9jTqW5Vl0zMVoucDnnxPx7q', 'Ghana', 'Aburi', '+233507586382', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -104,10 +112,10 @@ INSERT INTO `customer` (`customer_id`, `customer_name`, `customer_email`, `custo
 --
 
 CREATE TABLE `orderdetails` (
-  `order_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `qty` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `order_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `qty` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -116,12 +124,12 @@ CREATE TABLE `orderdetails` (
 --
 
 CREATE TABLE `orders` (
-  `order_id` int(11) NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `invoice_no` int(11) NOT NULL,
+  `order_id` int NOT NULL,
+  `customer_id` int NOT NULL,
+  `invoice_no` int NOT NULL,
   `order_date` date NOT NULL,
   `order_status` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -130,13 +138,13 @@ CREATE TABLE `orders` (
 --
 
 CREATE TABLE `payment` (
-  `pay_id` int(11) NOT NULL,
+  `pay_id` int NOT NULL,
   `amt` double NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `order_id` int(11) NOT NULL,
+  `customer_id` int NOT NULL,
+  `order_id` int NOT NULL,
   `currency` text NOT NULL,
   `payment_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -145,15 +153,25 @@ CREATE TABLE `payment` (
 --
 
 CREATE TABLE `products` (
-  `product_id` int(11) NOT NULL,
-  `product_cat` int(11) NOT NULL,
-  `product_brand` int(11) NOT NULL,
+  `product_id` int NOT NULL,
+  `product_cat` int NOT NULL,
+  `product_brand` int NOT NULL,
   `product_title` varchar(200) NOT NULL,
   `product_price` double NOT NULL,
   `product_desc` varchar(500) DEFAULT NULL,
   `product_image` varchar(100) DEFAULT NULL,
-  `product_keywords` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `product_keywords` varchar(100) DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `created_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`product_id`, `product_cat`, `product_brand`, `product_title`, `product_price`, `product_desc`, `product_image`, `product_keywords`, `created_by`, `created_date`) VALUES
+(5, 1, 1, 'Nike Air Max', 120, 'Comfortable running shoes', 'uploads/u1/p5/img_68fe7553c6a5d9.77457821.jpg', 'nike, shoes, running', 1, '2025-10-25 23:10:21'),
+(6, 1, 2, 'Adidas Ultraboost', 150, 'Premium running shoes', NULL, 'adidas, shoes, running', 1, '2025-10-25 23:10:21');
 
 --
 -- Indexes for dumped tables
@@ -163,7 +181,8 @@ CREATE TABLE `products` (
 -- Indexes for table `brands`
 --
 ALTER TABLE `brands`
-  ADD PRIMARY KEY (`brand_id`);
+  ADD PRIMARY KEY (`brand_id`),
+  ADD KEY `created_by` (`created_by`);
 
 --
 -- Indexes for table `cart`
@@ -215,7 +234,8 @@ ALTER TABLE `payment`
 ALTER TABLE `products`
   ADD PRIMARY KEY (`product_id`),
   ADD KEY `product_cat` (`product_cat`),
-  ADD KEY `product_brand` (`product_brand`);
+  ADD KEY `product_brand` (`product_brand`),
+  ADD KEY `created_by` (`created_by`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -225,41 +245,47 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `brands`
 --
 ALTER TABLE `brands`
-  MODIFY `brand_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `brand_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `cat_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `cat_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `customer_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `order_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `pay_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `pay_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `product_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `brands`
+--
+ALTER TABLE `brands`
+  ADD CONSTRAINT `brands_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `customer` (`customer_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `cart`
@@ -299,7 +325,8 @@ ALTER TABLE `payment`
 --
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`product_cat`) REFERENCES `categories` (`cat_id`),
-  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`product_brand`) REFERENCES `brands` (`brand_id`);
+  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`product_brand`) REFERENCES `brands` (`brand_id`),
+  ADD CONSTRAINT `products_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `customer` (`customer_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

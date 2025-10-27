@@ -476,7 +476,7 @@ if ($search_query) {
             <a href="index.php" class="logo">Aya Crafts</a>
             <div class="nav-links">
                 <a href="index.php" class="nav-link">Home</a>
-                <a href="all_product.php" class="nav-link">Shop</a>
+                <a href="view/all_product.php" class="nav-link">Shop</a>
                 <?php if (is_logged_in()): ?>
                     <?php if (is_admin()): ?>
                         <a href="admin/product.php" class="nav-link">Admin</a>
@@ -610,7 +610,7 @@ if ($search_query) {
                     <h3>No Products Found</h3>
                     <p>We couldn't find any products matching your criteria.</p>
                     <p style="margin-bottom: 25px;">Try adjusting your filters or browse all products.</p>
-                    <a href="all_product.php" class="btn-browse">Browse All Products</a>
+                    <a href="view/all_product.php" class="btn-browse">Browse All Products</a>
                 </div>
             <?php endif; ?>
         </div>
@@ -630,7 +630,7 @@ if ($search_query) {
     <script>
         // View product details
         function viewProduct(productId) {
-            window.location.href = `single_product.php?id=${productId}`;
+            window.location.href = `view/single_product.php?id=${productId}`;
         }
 
         // Add to cart (placeholder)
@@ -645,7 +645,7 @@ if ($search_query) {
             const category = document.getElementById('categoryFilter').value;
             const brand = document.getElementById('brandFilter').value;
 
-            let url = 'product_search_result.php?';
+            let url = 'view/product_search_result.php?';
             
             if (search) url += `search=${encodeURIComponent(search)}&`;
             if (category) url += `category=${category}&`;
@@ -660,15 +660,15 @@ if ($search_query) {
             urlParams.delete(type);
             
             const newUrl = urlParams.toString() ? 
-                'product_search_result.php?' + urlParams.toString() : 
-                'all_product.php';
+                'view/product_search_result.php?' + urlParams.toString() : 
+                'view/all_product.php';
             
             window.location.href = newUrl;
         }
 
         // Clear all filters
         function clearAllFilters() {
-            window.location.href = 'all_product.php';
+            window.location.href = 'view/all_product.php';
         }
 
         // Search on Enter key

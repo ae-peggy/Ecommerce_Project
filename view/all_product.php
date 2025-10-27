@@ -475,7 +475,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
     <script>
         // View product details
         function viewProduct(productId) {
-            window.location.href = `single_product.php?id=${productId}`;
+            window.location.href = `view/single_product.php?id=${productId}`;
         }
 
         // Add to cart (placeholder for now)
@@ -491,7 +491,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
             const category = document.getElementById('categoryFilter').value;
             const brand = document.getElementById('brandFilter').value;
 
-            let url = 'product_search_result.php?';
+            let url = 'view/product_search_result.php?';
             
             if (search) url += `search=${encodeURIComponent(search)}&`;
             if (category) url += `category=${category}&`;

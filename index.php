@@ -283,7 +283,7 @@ body::before {
 /* Floating geometric shapes */
 .geometric-shape {
   position: absolute;
-  opacity: 0.03;
+  opacity: 0.2;
   z-index: 0;
   animation: float 20s ease-in-out infinite;
 }
@@ -516,7 +516,7 @@ body::before {
   height: 4px;
   background: #dc2626;
   border-radius: 50%;
-  opacity: 0.2;
+  opacity: 0.4;
   animation: rise 15s infinite ease-in;
 }
 

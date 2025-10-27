@@ -596,7 +596,7 @@ if ($search_query) {
                                 by <?php echo htmlspecialchars($product['brand_name'] ?? 'Unknown'); ?>
                             </div>
                             <div class="product-price">
-                                $<?php echo number_format($product['product_price'], 2); ?>
+                                GHS <?php echo number_format($product['product_price'], 2); ?>
                             </div>
                             <button class="btn-add-cart" onclick="addToCart(event, <?php echo $product['product_id']; ?>)">
                                 🛒 Add to Cart

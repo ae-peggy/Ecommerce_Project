@@ -1330,12 +1330,42 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
         <div class="products-grid" id="productsGrid">
             <?php if ($products && count($products) > 0): ?>
                 <?php foreach($products as $product): ?>
+
+                    <?php
+                    // FIX: Properly construct image path
+                    $imagePath = '';
+                    if (!empty($product['product_image'])) {
+                        // If the path already starts with '../', use it as is
+                        if (strpos($product['product_image'], '../') === 0) {
+                            $imagePath = $product['product_image'];
+                        } 
+                        // If it starts with 'uploads/', add '../' prefix
+                        elseif (strpos($product['product_image'], 'uploads/') === 0) {
+                            $imagePath = '../' . $product['product_image'];
+                        }
+                        // Otherwise use as-is (might be full URL)
+                        else {
+                            $imagePath = $product['product_image'];
+                        }
+                        
+                        // Verify file exists
+                        $fullPath = __DIR__ . '/' . $imagePath;
+                        if (!file_exists($fullPath)) {
+                            error_log("Image file not found: $fullPath");
+                            $imagePath = ''; // Reset to empty if file doesn't exist
+                        }
+                    }
+                    
+                    // Use placeholder only if no valid image
+                    $displayImage = !empty($imagePath) ? $imagePath : 'https://via.placeholder.com/280x280/fef2f2/dc2626?text=No+Image';
+                    ?>
+
                     <div class="product-card" onclick="viewProduct(<?php echo $product['product_id']; ?>)">
                         <img 
-                            src="<?php echo $product['product_image'] ? $product['product_image'] : 'https://via.placeholder.com/280x280?text=No+Image'; ?>" 
+                             src="<?php echo htmlspecialchars($displayImage); ?>"
                             alt="<?php echo htmlspecialchars($product['product_title']); ?>"
                             class="product-image"
-                            onerror="this.src='https://via.placeholder.com/280x280?text=No+Image'"
+                            onerror="this.src='https://via.placeholder.com/280x280/fef2f2/dc2626?text=No+Image'"
                         >
                         <div class="product-info">
                             <div class="product-category">

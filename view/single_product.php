@@ -1314,7 +1314,7 @@ if (!$product) {
                 </div>
 
                 <div class="product-price">
-                    $<?php echo number_format($product['product_price'], 2); ?>
+                    GHS <?php echo number_format($product['product_price'], 2); ?>
                 </div>
 
                 <?php if (!empty($product['product_desc'])): ?>

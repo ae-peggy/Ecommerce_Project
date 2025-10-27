@@ -1289,38 +1289,11 @@ if (!$product) {
     <!-- Product Section -->
     <section class="product-section">
         <div class="product-container">
-            <?php
-                    // FIX: Properly construct image path
-                    $imagePath = '';
-                    if (!empty($product['product_image'])) {
-                        // If the path already starts with '../', use it as is
-                        if (strpos($product['product_image'], '../') === 0) {
-                            $imagePath = $product['product_image'];
-                        } 
-                        // If it starts with 'uploads/', add '../' prefix
-                        elseif (strpos($product['product_image'], 'uploads/') === 0) {
-                            $imagePath = '../' . $product['product_image'];
-                        }
-                        // Otherwise use as-is (might be full URL)
-                        else {
-                            $imagePath = $product['product_image'];
-                        }
-                        
-                        // Verify file exists
-                        $fullPath = __DIR__ . '/' . $imagePath;
-                        if (!file_exists($fullPath)) {
-                            error_log("Image file not found: $fullPath");
-                            $imagePath = ''; // Reset to empty if file doesn't exist
-                        }
-                    }
-                    
-                    // Use placeholder only if no valid image
-                    $displayImage = !empty($imagePath) ? $imagePath : 'https://via.placeholder.com/280x280/fef2f2/dc2626?text=No+Image';
-                    ?>
+            
             <!-- Product Image -->
             <div class="product-image-section">
                 <img 
-                    src="<?php echo htmlspecialchars($displayImage); ?>"
+                    src="<?php echo htmlspecialchars($productImageSrc); ?>"
                     alt="<?php echo htmlspecialchars($product['product_title']); ?>"
                     class="product-image"
                     onerror="this.src='https://via.placeholder.com/600x600/fef2f2/dc2626?text=Image+Error'; this.onerror=null;"

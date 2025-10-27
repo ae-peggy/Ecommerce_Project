@@ -1292,10 +1292,11 @@ if (!$product) {
             <!-- Product Image -->
             <div class="product-image-section">
                 <img 
-                    src="<?php echo $product['product_image'] ? $product['product_image'] : 'https://via.placeholder.com/600x600?text=No+Image'; ?>"
+                    src="<?php echo htmlspecialchars($productImageSrc); ?>"
                     alt="<?php echo htmlspecialchars($product['product_title']); ?>"
                     class="product-image"
-                    onerror="this.src='https://via.placeholder.com/600x600?text=No+Image'"
+                    onerror="this.src='https://via.placeholder.com/600x600/fef2f2/dc2626?text=Image+Error'; this.onerror=null;"
+                    loading="lazy"
                 >
             </div>
 

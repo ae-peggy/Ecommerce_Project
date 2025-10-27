@@ -654,7 +654,7 @@ body::before {
       </div>
       
       <div class="cta-buttons">
-        <a href="view/all_product.php" class="cta-btn">Explore Collection</a>
+        <a href="./view/all_product.php" class="cta-btn">Explore Collection</a>
         <a href="#about" class="cta-btn secondary">Learn Our Story</a>
       </div>
     </div>

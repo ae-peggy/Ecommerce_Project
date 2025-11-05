@@ -111,6 +111,40 @@ try {
     
     if ($product_id) {
         error_log("Product added successfully with ID: $product_id");
+
+        session_start();
+        if (isset($_SESSION['temp_upload_id']) && !empty($image)) {
+            $user_id = $created_by;
+            $temp_folder = '../uploads/u' . $user_id . '/' . $_SESSION['temp_upload_id'] . '/';
+            $new_folder = '../uploads/u' . $user_id . '/p' . $product_id . '/';
+            
+            if (is_dir($temp_folder)) {
+                // Rename the folder
+                if (rename($temp_folder, $new_folder)) {
+                    error_log("Renamed temp folder to product folder: $temp_folder -> $new_folder");
+                    
+                    // Update image path in database
+                    $old_image_path = $image;
+                    $new_image_path = str_replace($_SESSION['temp_upload_id'], 'p' . $product_id, $image);
+                    
+                    // Update the product with new image path
+                    require_once '../classes/product_class.php';
+                    $product_obj = new product_class();
+                    $update_sql = "UPDATE products SET product_image = '" . 
+                                  mysqli_real_escape_string($product_obj->db_conn(), $new_image_path) . 
+                                  "' WHERE product_id = $product_id";
+                    $product_obj->db_write_query($update_sql);
+                    
+                    error_log("Updated image path: $old_image_path -> $new_image_path");
+                } else {
+                    error_log("Failed to rename temp folder: $temp_folder");
+                }
+                
+                // Clear temp upload session
+                unset($_SESSION['temp_upload_id']);
+            }
+        }
+        
         log_user_activity("Added product: $title (ID: $product_id)");
         
         echo json_encode([

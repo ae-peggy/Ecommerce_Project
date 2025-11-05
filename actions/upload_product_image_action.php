@@ -97,15 +97,7 @@ if (!in_array($file_extension, $allowed_extensions)) {
 $base_upload_dir = '../uploads/';
 $user_dir = $base_upload_dir . 'u' . $user_id . '/';
 
-// For new products (no product_id yet), use temporary folder
-if ($product_id > 0) {
-    $product_dir = $user_dir . 'p' . $product_id . '/';
-} else {
-    // Temporary storage for new products
-    $product_dir = $user_dir . 'temp_' . time() . '/';
-}
-
-// Create directories if they don't exist
+// Create base directories if they don't exist
 if (!is_dir($base_upload_dir)) {
     echo json_encode([
         'status' => 'error',
@@ -124,6 +116,22 @@ if (!is_dir($user_dir)) {
     }
 }
 
+// Determine folder strategy
+if ($product_id > 0) {
+    // Product exists - use product ID folder
+    $product_dir = $user_dir . 'p' . $product_id . '/';
+    $is_temp = false;
+} else {
+    // New product - use temporary session-based folder
+    session_start();
+    if (!isset($_SESSION['temp_upload_id'])) {
+        $_SESSION['temp_upload_id'] = uniqid('temp_', true);
+    }
+    $product_dir = $user_dir . $_SESSION['temp_upload_id'] . '/';
+    $is_temp = true;
+}
+
+// Create product directory if needed
 if (!is_dir($product_dir)) {
     if (!mkdir($product_dir, 0755, true)) {
         echo json_encode([
@@ -134,9 +142,11 @@ if (!is_dir($product_dir)) {
     }
 }
 
-// Generate unique filename
-$unique_filename = uniqid('img_', true) . '.' . $file_extension;
-$target_file = $product_dir . $unique_filename;
+// Count existing images in folder to determine next number
+$existing_images = glob($product_dir . '*.' . $file_extension);
+$image_number = count($existing_images) + 1;
+$filename = $image_number . '.' . $file_extension;
+$target_file = $product_dir . $filename;
 
 // Verify the target path is within uploads directory (security check)
 $real_base = realpath($base_upload_dir);
@@ -164,8 +174,10 @@ if (move_uploaded_file($file['tmp_name'], $target_file)) {
         'status' => 'success',
         'message' => 'Image uploaded successfully',
         'file_path' => $db_path,
-        'file_name' => $unique_filename,
-        'file_size' => $file['size']
+        'file_name' => $filename,
+        'file_size' => $file['size'],
+        'is_temp' => $is_temp,
+        'temp_folder' => $is_temp ? basename($product_dir) : null
     ]);
 } else {
     echo json_encode([

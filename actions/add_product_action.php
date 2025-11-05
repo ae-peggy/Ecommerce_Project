@@ -116,7 +116,7 @@ try {
         if (isset($_SESSION['temp_upload_id']) && !empty($image)) {
             $user_id = $created_by;
             $temp_folder = '../uploads/u' . $user_id . '/' . $_SESSION['temp_upload_id'] . '/';
-            $new_folder = '/p' . $product_id;
+            $new_folder = '../uploads/u' . $user_id . '/p' . $product_id . '/';
             
             if (is_dir($temp_folder)) {
                 // Rename the folder
@@ -144,7 +144,7 @@ try {
                 unset($_SESSION['temp_upload_id']);
             }
         }
-
+        
         log_user_activity("Added product: $title (ID: $product_id)");
         
         echo json_encode([

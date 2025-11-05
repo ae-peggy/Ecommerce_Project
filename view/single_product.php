@@ -1290,7 +1290,7 @@ if (!$product) {
     <section class="product-section">
         <div class="product-container">
             <?php
-                    // FIX: Properly construct image path
+                   // Properly construct image path
                     $imagePath = '';
                     if (!empty($product['product_image'])) {
                         // If the path already starts with '../', use it as is
@@ -1314,8 +1314,12 @@ if (!$product) {
                         }
                     }
                     
-                    // Use placeholder only if no valid image
-                    $displayImage = !empty($imagePath) ? $imagePath : 'https://via.placeholder.com/280x280/fef2f2/dc2626?text=No+Image';
+                    // Use data URI placeholder for no image (prevents recursive loading)
+                    if (empty($imagePath)) {
+                        $displayImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="280" height="280"%3E%3Crect width="280" height="280" fill="%23fef2f2"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="%23dc2626"%3ENo Image%3C/text%3E%3C/svg%3E';
+                    } else {
+                        $displayImage = $imagePath;
+                    }
                     ?>
             <!-- Product Image -->
             <div class="product-image-section">
@@ -1323,8 +1327,9 @@ if (!$product) {
                     src="<?php echo htmlspecialchars($displayImage); ?>"
                     alt="<?php echo htmlspecialchars($product['product_title']); ?>"
                     class="product-image"
-                    onerror="this.src='https://via.placeholder.com/600x600/fef2f2/dc2626?text=Image+Error'; this.onerror=null;"
-                    loading="lazy"
+                    <?php if (!empty($imagePath)): ?>
+                    onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22280%22 height=%22280%22%3E%3Crect width=%22280%22 height=%22280%22 fill=%22%23fef2f2%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial, sans-serif%22 font-size=%2218%22 fill=%22%23dc2626%22%3EImage Error%3C/text%3E%3C/svg%3E';"
+                    <?php endif; ?>
                 >
             </div>
 

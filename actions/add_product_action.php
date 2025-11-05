@@ -115,8 +115,8 @@ try {
         session_start();
         if (isset($_SESSION['temp_upload_id']) && !empty($image)) {
             $user_id = $created_by;
-            $temp_folder = '../uploads/u' . $user_id . '/' . $_SESSION['temp_upload_id'] . '/';
-            $new_folder = '../uploads/u' . $user_id . '/p' . $product_id . '/';
+            $temp_folder = 'u' . $user_id . '/' . $_SESSION['temp_upload_id'] . '/';
+            $new_folder = '/p' . $product_id . '/';
             
             if (is_dir($temp_folder)) {
                 // Rename the folder

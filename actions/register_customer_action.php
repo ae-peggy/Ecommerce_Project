@@ -47,7 +47,7 @@ if (empty($name) || empty($email) || empty($password) || empty($country) || empt
 
 // Step 2: Basic validation
 // Validate name format (letters, spaces, hyphens, and apostrophes only)
-if (!preg_match("/^[a-zA-Z\s\-']+$/", $name)) {
+if (!preg_match("/^[a-zA-Z\s'\-]+$/u", $name)) {
     error_log("Invalid name format: $name");
     echo json_encode([
         'status' => 'error',

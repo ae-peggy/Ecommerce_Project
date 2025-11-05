@@ -77,11 +77,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const city = document.getElementById('city').value.trim();
         const phone = document.getElementById('phone_number').value.trim();
         
-        // Validate name (at least 2 characters, only letters, spaces, and hyphens)
+         // Validate name (at least 2 characters, only letters, spaces, hyphens, and apostrophes)
         if (name.length < 2) {
             showFieldError('name', 'Name must be at least 2 characters long');
             isValid = false;
-        } else if (!/^[a-zA-Z\s\-']+$/.test(name)) {
+        } else if (!/^[a-zA-Z\s'\-]+$/.test(name)) {
+            // Note: Hyphen at the end of character class doesn't need escaping
             showFieldError('name', 'Name can only contain letters, spaces, hyphens, and apostrophes');
             isValid = false;
         }

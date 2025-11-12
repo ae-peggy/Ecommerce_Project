@@ -1271,10 +1271,15 @@ if (!$product) {
                     <?php if (is_admin()): ?>
                         <a href="../admin/product.php" class="nav-link">Admin</a>
                     <?php endif; ?>
+                <a href="../view/cart.php" class="nav-link" style="position: relative;">
+                    🛒 Cart
+                    <span class="cart-count-badge" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; border-radius: 50%; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">0</span>
+                </a>
                     <a href="../login/logout.php" class="nav-link">Logout</a>
                 <?php else: ?>
                     <a href="login/login.php" class="nav-link">Login</a>
                 <?php endif; ?>
+
             </div>
         </div>
     </nav>
@@ -1388,22 +1393,25 @@ if (!$product) {
                 </div>
                 <?php endif; ?>
 
-                <div class="product-actions">
-                    <button class="btn btn-primary" onclick="addToCart(<?php echo $product['product_id']; ?>)">
+               <div class="product-actions">
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-weight: 600; color: #374151; margin-bottom: 8px; display: block;">Quantity:</label>
+                        <input type="number" id="productQuantity" value="1" min="1" max="99" 
+                            style="width: 80px; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; text-align: center;">
+                    </div>
+                    <button class="btn btn-primary" onclick="addProductToCart()">
                         🛒 Add to Cart
                     </button>
                     <a href="all_product.php" class="btn btn-secondary">
                         ← Back to Shop
                     </a>
                 </div>
-            </div>
-        </div>
-    </section>
 
+    <script src="../js/cart.js"></script>
     <script>
-        function addToCart(productId) {
-            alert('Add to cart functionality will be implemented in future labs. Product ID: ' + productId);
-            // TODO: Implement cart functionality
+        function addProductToCart() {
+            const qty = parseInt(document.getElementById('productQuantity').value) || 1;
+            addToCart(<?php echo $product['product_id']; ?>, qty);
         }
     </script>
 </body>

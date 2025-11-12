@@ -1269,6 +1269,10 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
                     <?php if (is_admin()): ?>
                         <a href="../admin/product.php" class="nav-link">Admin</a>
                     <?php endif; ?>
+                <a href="../view/cart.php" class="nav-link" style="position: relative;">
+                    🛒 Cart
+                    <span class="cart-count-badge" style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; border-radius: 50%; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">0</span>
+                </a>
                     <a href="../login/logout.php" class="nav-link">Logout</a>
                 <?php else: ?>
                     <a href="../login/login.php" class="nav-link">Login</a>
@@ -1386,7 +1390,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
                             <div class="product-price">
                                 GHS <?php echo number_format($product['product_price'], 2); ?>
                             </div>
-                            <button class="btn-add-cart" onclick="addToCart(event, <?php echo $product['product_id']; ?>)">
+                            <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(<?php echo $product['product_id']; ?>, 1)">
                                 🛒 Add to Cart
                             </button>
                         </div>
@@ -1442,5 +1446,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
             }
         });
     </script>
+        <!-- Include cart.js for add to cart functionality -->
+    <script src="../js/cart.js"></script>
 </body>
 </html>

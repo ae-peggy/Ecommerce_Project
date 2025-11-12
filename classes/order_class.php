@@ -17,30 +17,48 @@ class order_class extends db_connection {
      * @return int|false - Returns order_id if successful, false if failed
      */
     public function create_order($customer_id, $invoice_no, $order_date, $order_status) {
-        error_log("=== CREATE_ORDER METHOD CALLED ===");
+    error_log("=== CREATE_ORDER METHOD CALLED ===");
         try {
+            // Get connection first
+            $conn = $this->db_conn();
+            
+            if (!$conn) {
+                error_log("Failed to get database connection");
+                return false;
+            }
+            
             $customer_id = (int)$customer_id;
-            $invoice_no = mysqli_real_escape_string($this->db_conn(), $invoice_no);
-            $order_date = mysqli_real_escape_string($this->db_conn(), $order_date);
-            $order_status = mysqli_real_escape_string($this->db_conn(), $order_status);
+            $invoice_no = mysqli_real_escape_string($conn, $invoice_no);
+            $order_date = mysqli_real_escape_string($conn, $order_date);
+            $order_status = mysqli_real_escape_string($conn, $order_status);
             
             $sql = "INSERT INTO orders (customer_id, invoice_no, order_date, order_status) 
                     VALUES ($customer_id, '$invoice_no', '$order_date', '$order_status')";
             
             error_log("Executing SQL: $sql");
             
-            if ($this->db_write_query($sql)) {
-                $order_id = $this->last_insert_id();
+            // Execute directly on the connection
+            $result = mysqli_query($conn, $sql);
+            
+            if ($result) {
+                // Get insert ID immediately from the same connection
+                $order_id = mysqli_insert_id($conn);
                 error_log("Order created successfully with ID: $order_id");
-                return $order_id;
+                
+                if ($order_id > 0) {
+                    return $order_id;
+                } else {
+                    error_log("Insert succeeded but ID is 0");
+                    return false;
+                }
             } else {
-                $error = mysqli_error($this->db_conn());
+                $error = mysqli_error($conn);
                 error_log("Order creation failed. MySQL error: " . $error);
                 return false;
             }
             
         } catch (Exception $e) {
-            error_log("Error creating order: " . $e->getMessage());
+            error_log("Exception in create_order: " . $e->getMessage());
             return false;
         }
     }

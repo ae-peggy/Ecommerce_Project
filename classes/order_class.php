@@ -16,7 +16,7 @@ class order_class extends db_connection {
      * @param string $order_status - Order status (e.g., 'Pending', 'Completed')
      * @return int|false - Returns order_id if successful, false if failed
      */
-    public function create_order($customer_id, $invoice_no, $order_date, $order_status) {
+   public function create_order($customer_id, $invoice_no, $order_date, $order_status) {
     error_log("=== CREATE_ORDER METHOD CALLED ===");
         try {
             // Get connection first

@@ -25,21 +25,24 @@ try {
     // Get cart total
     $cart_total = get_cart_total_ctr($customer_id);
     
-    if ($cart_items !== false) {
-        echo json_encode([
-            'status' => 'success',
-            'items' => $cart_items ? $cart_items : [],
-            'total' => $cart_total,
-            'count' => count($cart_items ? $cart_items : [])
-        ]);
-    } else {
-        echo json_encode([
-            'status' => 'success',
-            'items' => [],
-            'total' => 0,
-            'count' => 0
-        ]);
+    // Ensure cart_items is an array
+    if ($cart_items === false || $cart_items === null) {
+        $cart_items = [];
     }
+    
+    // Ensure cart_total is a number
+    if ($cart_total === false || $cart_total === null) {
+        $cart_total = 0;
+    }
+    
+    error_log("Cart items count: " . count($cart_items) . ", Total: " . $cart_total);
+    
+    echo json_encode([
+        'status' => 'success',
+        'items' => $cart_items,
+        'total' => $cart_total,
+        'count' => count($cart_items)
+    ]);
     
 } catch (Exception $e) {
     error_log("Error getting cart: " . $e->getMessage());

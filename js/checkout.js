@@ -10,30 +10,51 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadCheckoutSummary() {
     const container = document.getElementById('checkoutItemsContainer');
     
-    if (!container) return;
+    if (!container) {
+        console.error('Container not found: checkoutItemsContainer');
+        return;
+    }
     
     // Show loading state
-    container.innerHTML = '<div style="text-align: center; padding: 40px;">Loading order summary...</div>';
+    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Loading order summary...</div>';
+    
+    console.log('Fetching cart data from get_cart_action.php...');
     
     fetch('../actions/get_cart_action.php', {
         method: 'POST'
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            if (data.items && data.items.length > 0) {
-                displayCheckoutItems(data.items, data.total);
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.text();
+    })
+    .then(text => {
+        console.log('Raw response:', text);
+        try {
+            const data = JSON.parse(text);
+            console.log('Parsed data:', data);
+            
+            if (data.status === 'success') {
+                if (data.items && data.items.length > 0) {
+                    console.log('Displaying', data.items.length, 'items');
+                    displayCheckoutItems(data.items, data.total);
+                } else {
+                    console.log('Cart is empty, redirecting...');
+                    // Cart is empty, redirect back
+                    window.location.href = 'cart.php';
+                }
             } else {
-                // Cart is empty, redirect back
-                window.location.href = 'cart.php';
+                console.error('Error status from server:', data.message);
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;">Error loading order summary: ' + (data.message || 'Unknown error') + '</div>';
             }
-        } else {
-            container.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;">Error loading order summary</div>';
+        } catch (e) {
+            console.error('JSON Parse error:', e);
+            console.error('Text was:', text);
+            container.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;">Server response error. Please check console.</div>';
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;">Failed to load order summary</div>';
+        console.error('Fetch error:', error);
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;">Failed to load order summary. Please check your connection.</div>';
     });
 }
 

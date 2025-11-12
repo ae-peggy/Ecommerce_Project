@@ -26,7 +26,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop All Products - Aya Crafts</title>
-    <style>
+  <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap');
 
     * {
@@ -644,6 +644,9 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Make all cards same height */
     }
 
     .product-card::before {
@@ -671,20 +674,22 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
             0 0 0 1px rgba(220, 38, 38, 0.1);
     }
 
-    .product-image {
-        width: 100%;
-        height: 130px;
-        object-fit: cover;
-        background: #f3f4f6;
-        transition: transform 0.4s ease;
+    .product-card:hover::before {
+        opacity: 1;
     }
 
-    .product-card:hover .product-image {
-        transform: scale(1.05);
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.12),
+            0 0 0 1px rgba(220, 38, 38, 0.1);
     }
 
     .product-info {
-        padding: 24px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; /* Allow info section to grow */
     }
 
     .product-category {
@@ -693,40 +698,42 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .product-title {
-        font-size: 1.2rem;
+        font-size: 1.05rem; /* Slightly reduced from 1.2rem */
         font-weight: 600;
         color: #1a1a1a;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 2; /* Limit to 2 lines */
         -webkit-box-orient: vertical;
         overflow: hidden;
         line-height: 1.4;
+        min-height: 2.8em; /* Reserve space for 2 lines */
     }
 
     .product-brand {
-        font-size: 14px;
+        font-size: 13px;
         color: #6b7280;
         margin-bottom: 15px;
     }
 
     .product-price {
-        font-size: 1.6rem;
+        font-size: 1.3rem; /* Reduced from 1.6rem */
         font-weight: 700;
         background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 18px;
+        margin-bottom: 16px; /* Reduced from 18px */
+        margin-top: auto; 
     }
 
     .btn-add-cart {
         width: 100%;
-        padding: 14px;
+        padding: 12px;
         background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
         color: white;
         border: none;
@@ -1090,19 +1097,18 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
         .product-container {
             grid-template-columns: 1fr;
             gap: 40px;
-            padding: 40px 30px;
         }
 
         .product-image {
-            height: 400px;
+            height: 180px;
         }
 
         .product-title {
-            font-size: 2.2rem;
+            font-size: 1rem;
         }
 
         .product-price {
-            font-size: 2rem;
+            font-size: 1.2rem;
         }
 
         .product-actions {
@@ -1145,8 +1151,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
         }
 
         .products-grid {
-            grid-template-columns: 1fr;
-            gap: 25px;
+            grid-template-columns: repeat(2, 1fr);
         }
 
         .hero,

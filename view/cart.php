@@ -79,7 +79,7 @@ require_login('../login/login.php');
         .cart-count-badge {
             position: absolute;
             top: -8px;
-            right: -8px;
+            right: 8px;
             background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
             color: white;
             border-radius: 50%;
@@ -252,7 +252,7 @@ require_login('../login/login.php');
                 <a href="all_product.php" class="nav-link">Shop</a>
                 <a href="cart.php" class="nav-link cart-icon">
                     🛒 Cart
-                    <span class="cart-count-badge" style="display: none;">0</span>
+                    <span class="cart-count-badge" style="display: flex; text-align: center;">0</span>
                 </a>
                 <?php if (is_logged_in()): ?>
                     <a href="../login/logout.php" class="nav-link">Logout</a>

@@ -851,7 +851,7 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
     }
 
     .product-price {
-        font-size: 2.8rem;
+        font-size: 1.6rem;
         font-weight: 700;
         background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
         -webkit-background-clip: text;

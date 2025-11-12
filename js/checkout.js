@@ -91,9 +91,10 @@ function displayCheckoutItems(items, total) {
         container.appendChild(itemDiv);
     });
     
-    // Update total displays
-    document.getElementById('checkoutSubtotal').textContent = `GHS ${parseFloat(total).toFixed(2)}`;
-    document.getElementById('checkoutTotal').textContent = `GHS ${parseFloat(total).toFixed(2)}`;
+    const totalElement = document.getElementById('checkoutTotal');
+    if (totalElement) {
+        totalElement.textContent = `GHS ${parseFloat(total).toFixed(2)}`;
+    }
     
     // Store total for payment modal
     window.checkoutTotal = parseFloat(total).toFixed(2);

@@ -608,9 +608,13 @@ body::before {
           <a href="admin/category.php" class="nav-btn secondary"><span>Categories</span></a>
           <a href="admin/brand.php" class="nav-btn secondary"><span>Brands</span></a>
           <a href="admin/product.php" class="nav-btn secondary"><span>Products</span></a>
+        <?php else: ?>
+          <!-- Customer Navigation -->
+          <a href="view/all_product.php" class="nav-btn secondary"><span>Shop</span></a>
+          <a href="view/cart.php" class="nav-btn secondary"><span>Cart</span></a>
+          <a href="view/orders.php" class="nav-btn secondary"><span>My Orders</span></a>
         <?php endif; ?>
         
-      
         <a href="login/logout.php" class="nav-btn"><span>Logout</span></a>
       <?php else: ?>
         <!-- Guest Navigation -->

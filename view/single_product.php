@@ -951,6 +951,8 @@ if (!$product) {
 
     .btn-secondary {
         background: white;
+        text-align: center;
+        padding-top: 35px;
         color: #374151;
         border: 2px solid #e5e7eb;
     }

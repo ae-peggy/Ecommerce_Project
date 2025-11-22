@@ -57,8 +57,8 @@ if ($file['error'] !== UPLOAD_ERR_OK) {
     exit();
 }
 
-// Validate file size (max 5MB for images)
-$max_size = 5 * 1024 * 1024; // 5MB
+// Validate file size (max 5MB)
+$max_size = 5 * 1024 * 1024;
 if ($file['size'] > $max_size) {
     echo json_encode([
         'status' => 'error',
@@ -67,7 +67,7 @@ if ($file['size'] > $max_size) {
     exit();
 }
 
-// Validate file type (images only)
+// Validate file type
 $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 $finfo = finfo_open(FILEINFO_MIME_TYPE);
 $mime_type = finfo_file($finfo, $file['tmp_name']);
@@ -93,21 +93,18 @@ if (!in_array($file_extension, $allowed_extensions)) {
     exit();
 }
 
-// Create directory structure: uploads/u{user_id}/p{product_id}/
+// Base upload folder (already exists on server)
 $base_upload_dir = '../uploads/';
-$user_dir = $base_upload_dir . 'u' . $user_id . '/';
-
-// Create base directories if they don't exist
 if (!is_dir($base_upload_dir)) {
-    if (!mkdir($base_upload_dir, 0755, true)) {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Failed to create upload directory. Please contact administrator.'
-        ]);
-        exit();
-    }
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Upload directory does not exist. Please contact administrator.'
+    ]);
+    exit();
 }
 
+// User folder
+$user_dir = $base_upload_dir . 'u' . $user_id . '/';
 if (!is_dir($user_dir)) {
     if (!mkdir($user_dir, 0755, true)) {
         echo json_encode([
@@ -124,12 +121,11 @@ if ($product_id > 0) {
     $product_dir = $user_dir . 'p' . $product_id . '/';
     $is_temp = false;
 } else {
-    // New product - use temporary session-based folder
-    // Session already started by core.php
+    // New product - use temp folder with unique user + session hash
     if (!isset($_SESSION['temp_upload_id'])) {
-        $_SESSION['temp_upload_id'] = uniqid('temp_', true);
+        $_SESSION['temp_upload_id'] = uniqid();
     }
-    $product_dir = $user_dir . $_SESSION['temp_upload_id'] . '/';
+    $product_dir = $user_dir . 'temp_' . $user_id . '_' . $_SESSION['temp_upload_id'] . '/';
     $is_temp = true;
 }
 
@@ -144,16 +140,15 @@ if (!is_dir($product_dir)) {
     }
 }
 
-// Count existing images in folder to determine next number
+// Determine filename
 $existing_images = glob($product_dir . '*.' . $file_extension);
 $image_number = count($existing_images) + 1;
 $filename = $image_number . '.' . $file_extension;
 $target_file = $product_dir . $filename;
 
-// Verify the target path is within uploads directory (security check)
+// Security check
 $real_base = realpath($base_upload_dir);
 $real_target = realpath(dirname($target_file));
-
 if ($real_target === false || strpos($real_target, $real_base) !== 0) {
     echo json_encode([
         'status' => 'error',
@@ -164,14 +159,9 @@ if ($real_target === false || strpos($real_target, $real_base) !== 0) {
 
 // Move uploaded file
 if (move_uploaded_file($file['tmp_name'], $target_file)) {
-    // Set proper file permissions
     chmod($target_file, 0644);
-    
-    // Return relative path for database storage
     $db_path = str_replace('../', '', $target_file);
-    
-    error_log("Image uploaded successfully: $db_path");
-    
+
     echo json_encode([
         'status' => 'success',
         'message' => 'Image uploaded successfully',

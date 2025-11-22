@@ -55,7 +55,7 @@ try {
         $_SESSION['user_id'] = $customer_data['customer_id'];
         $_SESSION['user_name'] = $customer_data['customer_name'];
         $_SESSION['user_email'] = $customer_data['customer_email'];
-        $_SESSION['user_role'] = $customer_data['user_role'];
+        $_SESSION['user_role'] = $customer_data['user_role'] ?? 0;
         $_SESSION['user_country'] = $customer_data['customer_country'];
         $_SESSION['user_city'] = $customer_data['customer_city'];
         $_SESSION['last_activity'] = time();
@@ -108,13 +108,15 @@ $artisan = new artisan_class();
     // UPDATED: Different redirect based on user role
     // If not artisan, check for admin or regular customer
     if (!isset($redirect_url)) {
+        // Get user role with default of 0
+        $user_role = $customer_data['user_role'] ?? 0;
 
-        if ($customer_data['user_role'] == 1) {
+        if ($user_role == 1) {
             // Admin user
             $redirect_url = '../admin/category.php';
             $message = 'Welcome Admin! Redirecting to dashboard...';
         } else {
-            // Regular customer
+            // Regular customer (default role 0)
             $redirect_url = '../index.php';
             $message = 'Login successful! Redirecting...';
         }
@@ -125,7 +127,7 @@ $artisan = new artisan_class();
         'message' => $message,
         'redirect' => $redirect_url,
         'user_name' => $customer_data['customer_name'],
-        'user_role' => $customer_data['user_role']
+        'user_role' => $_SESSION['user_role']
     ]);
     
     } else {

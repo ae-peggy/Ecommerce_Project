@@ -12,12 +12,26 @@ require_once '../controllers/order_controller.php';
 $is_admin_view = is_admin();
 $customer_id = get_user_id();
 
+// Debug logging
+error_log("=== ORDERS PAGE DEBUG ===");
+error_log("Is admin view: " . ($is_admin_view ? 'YES' : 'NO'));
+error_log("Customer ID: " . $customer_id);
+
 if ($is_admin_view) {
     $orders = get_all_orders_ctr();
     $page_title = "All Orders | Aya Crafts Admin";
+    error_log("Admin: Fetched " . ($orders ? count($orders) : 0) . " orders");
 } else {
     $orders = get_user_orders_ctr($customer_id);
     $page_title = "My Orders | Aya Crafts";
+    error_log("User: Fetched " . ($orders ? count($orders) : 0) . " orders for customer ID: $customer_id");
+}
+
+// Log orders data for debugging
+if ($orders) {
+    error_log("Orders data: " . print_r($orders, true));
+} else {
+    error_log("Orders is FALSE or empty");
 }
 ?>
 
@@ -728,7 +742,27 @@ if ($is_admin_view) {
   </main>
 
   <script>
+    // Debug: Log orders data from PHP
+    console.log('=== ORDERS PAGE DEBUG ===');
+    console.log('Is admin view:', <?php echo $is_admin_view ? 'true' : 'false'; ?>);
+    console.log('Customer ID:', <?php echo $customer_id; ?>);
+    console.log('Orders count:', <?php echo $orders ? count($orders) : 0; ?>);
+    console.log('Orders data:', <?php echo json_encode($orders); ?>);
+    
+    // Check if orders container exists
+    const ordersContainer = document.querySelector('.orders-container');
+    console.log('Orders container found:', !!ordersContainer);
+    
+    // Check if empty state is showing
+    const emptyState = document.querySelector('.empty-state');
+    console.log('Empty state showing:', !!emptyState);
+    
+    // Check order cards
+    const orderCards = document.querySelectorAll('.order-card');
+    console.log('Order cards found:', orderCards.length);
+    
     function viewOrderDetails(orderId) {
+      console.log('Viewing order details for ID:', orderId);
       window.location.href = 'order_details.php?id=' + orderId;
     }
 

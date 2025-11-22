@@ -188,6 +188,8 @@ class order_class extends db_connection {
         try {
             $customer_id = (int)$customer_id;
             
+            error_log("get_user_orders called with customer_id: $customer_id");
+            
             $sql = "SELECT 
                         o.order_id,
                         o.invoice_no,
@@ -203,10 +205,20 @@ class order_class extends db_connection {
                     GROUP BY o.order_id
                     ORDER BY o.order_date DESC, o.order_id DESC";
             
-            return $this->db_fetch_all($sql);
+            error_log("Executing SQL: $sql");
+            
+            $result = $this->db_fetch_all($sql);
+            
+            error_log("Query result: " . ($result ? count($result) . " orders found" : "FALSE or empty"));
+            if ($result) {
+                error_log("First order sample: " . print_r($result[0] ?? null, true));
+            }
+            
+            return $result;
             
         } catch (Exception $e) {
             error_log("Error getting user orders: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
             return false;
         }
     }
@@ -217,6 +229,8 @@ class order_class extends db_connection {
      */
     public function get_all_orders() {
         try {
+            error_log("get_all_orders called");
+            
             $sql = "SELECT 
                         o.order_id,
                         o.invoice_no,
@@ -235,10 +249,20 @@ class order_class extends db_connection {
                     GROUP BY o.order_id
                     ORDER BY o.order_date DESC, o.order_id DESC";
             
-            return $this->db_fetch_all($sql);
+            error_log("Executing SQL: $sql");
+            
+            $result = $this->db_fetch_all($sql);
+            
+            error_log("Query result: " . ($result ? count($result) . " orders found" : "FALSE or empty"));
+            if ($result) {
+                error_log("First order sample: " . print_r($result[0] ?? null, true));
+            }
+            
+            return $result;
             
         } catch (Exception $e) {
             error_log("Error getting all orders: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
             return false;
         }
     }

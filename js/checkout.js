@@ -191,16 +191,37 @@ function processCheckout() {
         return;
     }
     
-    // Step 1: Initialize Paystack transaction
-    fetch('../actions/paystack_init_transaction.php', {
+    // Step 1: Store delivery info in session before initializing payment
+    // First, save delivery info to session via a separate call
+    console.log('Saving delivery info to session:', window.deliveryInfo);
+    
+    fetch('../actions/save_delivery_info.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            amount: window.checkoutTotal,
-            email: customerEmail
+            delivery_location: window.deliveryInfo.location,
+            recipient_name: window.deliveryInfo.recipient_name,
+            recipient_number: window.deliveryInfo.recipient_number,
+            delivery_notes: window.deliveryInfo.notes
         })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Delivery info saved to session:', data);
+        
+        // Step 2: Initialize Paystack transaction AFTER delivery info is saved
+        return fetch('../actions/paystack_init_transaction.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+            body: JSON.stringify({
+                amount: window.checkoutTotal,
+                email: customerEmail
+            })
+        });
     })
     .then(response => response.json())
     .then(data => {

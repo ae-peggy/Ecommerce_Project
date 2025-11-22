@@ -18,6 +18,7 @@ class order_class extends db_connection {
      */
    public function create_order($customer_id, $invoice_no, $order_date, $order_status, $delivery_location = null, $recipient_name = null, $recipient_number = null, $delivery_notes = null) {
     error_log("=== CREATE_ORDER METHOD CALLED ===");
+    error_log("Delivery info received - Location: " . ($delivery_location ?: 'NULL') . ", Recipient: " . ($recipient_name ?: 'NULL') . ", Phone: " . ($recipient_number ?: 'NULL') . ", Notes: " . ($delivery_notes ?: 'NULL'));
         try {
             // Get connection first
             $conn = $this->db_conn();
@@ -31,28 +32,32 @@ class order_class extends db_connection {
             $invoice_no = mysqli_real_escape_string($conn, $invoice_no);
             $order_date = mysqli_real_escape_string($conn, $order_date);
             $order_status = mysqli_real_escape_string($conn, $order_status);
-            $delivery_location = $delivery_location ? mysqli_real_escape_string($conn, $delivery_location) : 'NULL';
-            $recipient_name = $recipient_name ? mysqli_real_escape_string($conn, $recipient_name) : 'NULL';
-            $recipient_number = $recipient_number ? mysqli_real_escape_string($conn, $recipient_number) : 'NULL';
-            $delivery_notes = $delivery_notes ? mysqli_real_escape_string($conn, $delivery_notes) : 'NULL';
+            
+            // Properly handle delivery fields - trim and escape, but keep as NULL if empty
+            $delivery_location = (!empty($delivery_location) && trim($delivery_location) !== '') ? mysqli_real_escape_string($conn, trim($delivery_location)) : null;
+            $recipient_name = (!empty($recipient_name) && trim($recipient_name) !== '') ? mysqli_real_escape_string($conn, trim($recipient_name)) : null;
+            $recipient_number = (!empty($recipient_number) && trim($recipient_number) !== '') ? mysqli_real_escape_string($conn, trim($recipient_number)) : null;
+            $delivery_notes = (!empty($delivery_notes) && trim($delivery_notes) !== '') ? mysqli_real_escape_string($conn, trim($delivery_notes)) : null;
+            
+            error_log("After processing - Location: " . ($delivery_location ?: 'NULL') . ", Recipient: " . ($recipient_name ?: 'NULL') . ", Phone: " . ($recipient_number ?: 'NULL'));
             
             // Build SQL with optional delivery fields
             $sql = "INSERT INTO orders (customer_id, invoice_no, order_date, order_status";
             $values = "VALUES ($customer_id, '$invoice_no', '$order_date', '$order_status'";
             
-            if ($delivery_location !== 'NULL') {
+            if ($delivery_location !== null) {
                 $sql .= ", delivery_location";
                 $values .= ", '$delivery_location'";
             }
-            if ($recipient_name !== 'NULL') {
+            if ($recipient_name !== null) {
                 $sql .= ", recipient_name";
                 $values .= ", '$recipient_name'";
             }
-            if ($recipient_number !== 'NULL') {
+            if ($recipient_number !== null) {
                 $sql .= ", recipient_number";
                 $values .= ", '$recipient_number'";
             }
-            if ($delivery_notes !== 'NULL') {
+            if ($delivery_notes !== null) {
                 $sql .= ", delivery_notes";
                 $values .= ", '$delivery_notes'";
             }
@@ -68,6 +73,14 @@ class order_class extends db_connection {
                 // Get insert ID immediately from the same connection
                 $order_id = mysqli_insert_id($conn);
                 error_log("Order created successfully with ID: $order_id");
+                
+                // Verify delivery details were saved by querying the order
+                $verify_sql = "SELECT delivery_location, recipient_name, recipient_number, delivery_notes FROM orders WHERE order_id = $order_id";
+                $verify_result = mysqli_query($conn, $verify_sql);
+                if ($verify_result) {
+                    $verify_data = mysqli_fetch_assoc($verify_result);
+                    error_log("Verified saved delivery details: " . print_r($verify_data, true));
+                }
                 
                 if ($order_id > 0) {
                     return $order_id;

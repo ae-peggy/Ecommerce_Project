@@ -25,10 +25,16 @@ $input = json_decode(file_get_contents('php://input'), true);
 $reference = isset($input['reference']) ? trim($input['reference']) : null;
 $cart_items = isset($input['cart_items']) ? $input['cart_items'] : null;
 $total_amount = isset($input['total_amount']) ? floatval($input['total_amount']) : 0;
-$delivery_location = isset($input['delivery_location']) ? trim($input['delivery_location']) : null;
-$recipient_name = isset($input['recipient_name']) ? trim($input['recipient_name']) : null;
-$recipient_number = isset($input['recipient_number']) ? trim($input['recipient_number']) : null;
-$delivery_notes = isset($input['delivery_notes']) ? trim($input['delivery_notes']) : null;
+
+// Get delivery information from session (stored before redirect) or from POST (fallback)
+$delivery_info = isset($_SESSION['delivery_info']) ? $_SESSION['delivery_info'] : [];
+$delivery_location = isset($input['delivery_location']) ? trim($input['delivery_location']) : (isset($delivery_info['delivery_location']) ? $delivery_info['delivery_location'] : null);
+$recipient_name = isset($input['recipient_name']) ? trim($input['recipient_name']) : (isset($delivery_info['recipient_name']) ? $delivery_info['recipient_name'] : null);
+$recipient_number = isset($input['recipient_number']) ? trim($input['recipient_number']) : (isset($delivery_info['recipient_number']) ? $delivery_info['recipient_number'] : null);
+$delivery_notes = isset($input['delivery_notes']) ? trim($input['delivery_notes']) : (isset($delivery_info['delivery_notes']) ? $delivery_info['delivery_notes'] : null);
+
+error_log("Delivery info from session: " . print_r($delivery_info, true));
+error_log("Final delivery values - Location: " . ($delivery_location ?: 'NULL') . ", Recipient: " . ($recipient_name ?: 'NULL') . ", Phone: " . ($recipient_number ?: 'NULL'));
 
 if (!$reference) {
     echo json_encode([
@@ -213,10 +219,11 @@ try {
         mysqli_commit($conn);
         error_log("Database transaction committed successfully");
         
-        // Clear session payment data
+        // Clear session payment data and delivery info
         unset($_SESSION['paystack_ref']);
         unset($_SESSION['paystack_amount']);
         unset($_SESSION['paystack_timestamp']);
+        unset($_SESSION['delivery_info']);
         
         // Log user activity
         log_user_activity("Completed payment via Paystack - Invoice: $invoice_no, Amount: GHS $total_amount, Reference: $reference");

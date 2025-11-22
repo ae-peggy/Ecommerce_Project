@@ -44,11 +44,6 @@ if (!$order_info) {
 
 // Get order products
 $order_products = get_order_products_ctr($order_id);
-
-// Get customer info
-require_once '../classes/customer_class.php';
-$customer_obj = new customer_class();
-$customer_info = $customer_obj->get_customer_by_id($order_info['customer_id'] ?? $customer_id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -414,13 +409,27 @@ $customer_info = $customer_obj->get_customer_by_id($order_info['customer_id'] ??
                 </div>
 
                 <div class="info-section">
-                    <h3>Customer Information</h3>
-                    <?php if ($customer_info): ?>
-                        <p><strong>Name:</strong> <?php echo htmlspecialchars($customer_info['customer_name']); ?></p>
-                        <p><strong>Email:</strong> <?php echo htmlspecialchars($customer_info['customer_email']); ?></p>
-                        <?php if (!empty($customer_info['customer_contact'])): ?>
-                            <p><strong>Phone:</strong> <?php echo htmlspecialchars($customer_info['customer_contact']); ?></p>
-                        <?php endif; ?>
+                    <h3>Recipient Information</h3>
+                    <?php if (!empty($order_info['recipient_name'])): ?>
+                        <p><strong>Recipient Name:</strong> <?php echo htmlspecialchars($order_info['recipient_name']); ?></p>
+                    <?php else: ?>
+                        <p><strong>Recipient Name:</strong> <span style="color: #9ca3af; font-style: italic;">Not provided</span></p>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($order_info['recipient_number'])): ?>
+                        <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($order_info['recipient_number']); ?></p>
+                    <?php else: ?>
+                        <p><strong>Phone Number:</strong> <span style="color: #9ca3af; font-style: italic;">Not provided</span></p>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($order_info['delivery_location'])): ?>
+                        <p><strong>Delivery Location:</strong> <?php echo htmlspecialchars($order_info['delivery_location']); ?></p>
+                    <?php else: ?>
+                        <p><strong>Delivery Location:</strong> <span style="color: #9ca3af; font-style: italic;">Not provided</span></p>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($order_info['delivery_notes'])): ?>
+                        <p><strong>Delivery Notes:</strong> <?php echo htmlspecialchars($order_info['delivery_notes']); ?></p>
                     <?php endif; ?>
                 </div>
             </div>

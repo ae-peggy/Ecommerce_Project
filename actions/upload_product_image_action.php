@@ -93,10 +93,10 @@ if (!in_array($file_extension, $allowed_extensions)) {
     exit();
 }
 
-// Base upload folder (use absolute path for multitenant server)
-$base_upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
+// Base upload folder - use relative path (like old working code)
+$base_upload_dir = '../uploads/';
 
-// Create upload directory if it doesn't exist
+// Create base directories if they don't exist
 if (!is_dir($base_upload_dir)) {
     if (!@mkdir($base_upload_dir, 0755, true)) {
         echo json_encode([
@@ -170,29 +170,13 @@ if ($real_target === false || strpos($real_target, $real_base) !== 0) {
 
 // Move uploaded file
 if (move_uploaded_file($file['tmp_name'], $target_file)) {
+    // Set proper file permissions
     chmod($target_file, 0644);
     
-    // Convert absolute path to relative path for database storage
-    // Normalize DOCUMENT_ROOT (remove trailing slash if present)
-    $doc_root = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
-    $normalized_target = $target_file;
+    // Return relative path for database storage (like old code)
+    $db_path = str_replace('../', '', $target_file);
     
-    // Remove DOCUMENT_ROOT to get relative path
-    if (strpos($normalized_target, $doc_root) === 0) {
-        $db_path = substr($normalized_target, strlen($doc_root) + 1); // +1 to remove leading slash
-    } else {
-        // Fallback: try to extract relative path
-        $db_path = str_replace($doc_root . '/', '', $normalized_target);
-    }
-    
-    // Ensure path starts with 'uploads/' and doesn't have leading slash
-    $db_path = ltrim($db_path, '/');
-    if (strpos($db_path, 'uploads/') !== 0) {
-        // If path doesn't start with uploads/, prepend it
-        $db_path = 'uploads/' . ltrim(str_replace('uploads/', '', $db_path), '/');
-    }
-    
-    // Verify the file actually exists at the absolute path
+    // Verify the file actually exists
     if (!file_exists($target_file)) {
         echo json_encode([
             'status' => 'error',
@@ -200,6 +184,8 @@ if (move_uploaded_file($file['tmp_name'], $target_file)) {
         ]);
         exit();
     }
+    
+    error_log("Image uploaded successfully: $db_path");
 
     echo json_encode([
         'status' => 'success',

@@ -16,7 +16,7 @@ define('PAYSTACK_VERIFY_ENDPOINT', PAYSTACK_API_URL . '/transaction/verify/');
 
 // Environment
 define('APP_ENVIRONMENT', 'test'); // 'test' or 'live'
-define('APP_BASE_URL', 'http://localhost/ecommerce_project_'); // Update for production
+define('APP_BASE_URL', 'http://169.239.251.102:442/~elorm.ameyibor/'); // Update for production
 define('PAYSTACK_CALLBACK_URL', APP_BASE_URL . '/actions/paystack_callback.php'); // Callback after payment
 
 /**

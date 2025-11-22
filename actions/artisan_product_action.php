@@ -85,8 +85,8 @@ switch ($action) {
                 exit();
             }
 
-            // Use absolute path for multitenant server
-            $absoluteImagePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $product_image_path;
+            // Use relative path (like old working code)
+            $absoluteImagePath = '../' . $product_image_path;
             if (!file_exists($absoluteImagePath)) {
                 if (ob_get_level() > 0) {
                     ob_clean();
@@ -119,15 +119,14 @@ switch ($action) {
                 if ($product_id && $product_id > 0) {
                     // Product created successfully, now move/rename the image to use product ID
                     $user_id = $_SESSION['user_id'];
-                    // Use absolute path for multitenant server
-                    $base_upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
-                    $old_path = $base_upload_dir . str_replace('uploads/', '', $product_image_path);
+                    // Use relative paths (like old working code)
+                    $old_path = '../' . $product_image_path;
                     
                     // Extract file extension from old path
                     $file_extension = pathinfo($product_image_path, PATHINFO_EXTENSION);
                     
                     // Create new path: uploads/u{user_id}/p{product_id}.{ext}
-                    $new_dir = $base_upload_dir . 'u' . $user_id . '/';
+                    $new_dir = '../uploads/u' . $user_id . '/';
                     $new_filename = 'p' . $product_id . '.' . $file_extension;
                     $new_path = $new_dir . $new_filename;
                     $new_db_path = 'uploads/u' . $user_id . '/' . $new_filename;
@@ -211,11 +210,10 @@ switch ($action) {
                         // Continue with success path
                         // Move/rename image if needed (same logic as success case)
                         $user_id = $_SESSION['user_id'];
-                        // Use absolute path for multitenant server
-                        $base_upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
-                        $old_path = $base_upload_dir . str_replace('uploads/', '', $product_image_path);
+                        // Use relative paths (like old working code)
+                        $old_path = '../' . $product_image_path;
                         $file_extension = pathinfo($product_image_path, PATHINFO_EXTENSION);
-                        $new_dir = $base_upload_dir . 'u' . $user_id . '/';
+                        $new_dir = '../uploads/u' . $user_id . '/';
                         $new_filename = 'p' . $product_id . '.' . $file_extension;
                         $new_path = $new_dir . $new_filename;
                         $new_db_path = 'uploads/u' . $user_id . '/' . $new_filename;
@@ -336,8 +334,8 @@ switch ($action) {
             );
 
             if ($result && !empty($product_image_path)) {
-                // Use absolute path for multitenant server
-                $absoluteImagePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $product_image_path;
+                // Use relative path (like old working code)
+                $absoluteImagePath = '../' . $product_image_path;
                 if (file_exists($absoluteImagePath)) {
                     $safe_path = mysqli_real_escape_string($artisan->db_conn(), $product_image_path);
                     $update_sql = "UPDATE products SET product_image = '$safe_path' WHERE product_id = '$product_id' AND artisan_id = '$artisan_id'";

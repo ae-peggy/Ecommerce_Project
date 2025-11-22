@@ -74,7 +74,7 @@ function displayProducts(products) {
         card.className = 'product-card';
         
         // Construct image URL safely
-        let imageSrc = 'https://via.placeholder.com/280x200?text=No+Image';
+        let imageSrc = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="280" height="200"%3E%3Crect width="280" height="200" fill="%23fef2f2"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="%23dc2626"%3ENo Image%3C/text%3E%3C/svg%3E';
         if (product.product_image && product.product_image.trim() !== '') {
             let imgPath = product.product_image;
             // Remove leading ../ if present
@@ -307,7 +307,7 @@ function displayProductModal(product) {
             <div>
                 <img src="${imageSrc}" alt="${escapeHtml(product.product_title)}" 
                      style="width: 100%; height: 400px; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);"
-                     onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect width=%22400%22 height=%22300%22 fill=%22%23fef2f2%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial, sans-serif%22 font-size=%2218%22 fill=%22%23dc2626%22%3ENo Image%3C/text%3E%3C/svg%3E';">
             </div>
             <div>
                 <div style="font-size: 12px; color: #dc2626; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px;">

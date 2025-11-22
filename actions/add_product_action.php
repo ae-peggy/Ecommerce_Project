@@ -115,10 +115,9 @@ try {
         // Session is already started by core.php
         if (isset($_SESSION['temp_upload_id']) && !empty($image)) {
             $user_id = $created_by;
-            // Use absolute paths for multitenant server
-            $base_upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
-            $temp_folder = $base_upload_dir . 'u' . $user_id . '/' . $_SESSION['temp_upload_id'] . '/';
-            $new_folder = $base_upload_dir . 'u' . $user_id . '/p' . $product_id . '/';
+            // Use relative paths (like old working code)
+            $temp_folder = '../uploads/u' . $user_id . '/' . $_SESSION['temp_upload_id'] . '/';
+            $new_folder = '../uploads/u' . $user_id . '/p' . $product_id . '/';
             
             if (is_dir($temp_folder)) {
                 // Rename the folder

@@ -595,6 +595,18 @@ function saveProduct(context = 'admin') {
     
     const formData = new FormData(form);
     
+    // IMPORTANT: Remove the file input from form data - we only want the path, not the file
+    // The file input has name="product_image" which conflicts with our hidden field
+    formData.delete('product_image');
+    
+    // Now add the image path from the hidden field (reuse the variable from above)
+    if (imagePathInput && imagePathInput.value) {
+        formData.append('product_image', imagePathInput.value);
+        console.log('Added image path to form data:', imagePathInput.value);
+    } else {
+        console.warn('No image path found in hidden field');
+    }
+    
     // Debug: Log all form data
     console.log('Form data being sent:');
     for (let [key, value] of formData.entries()) {

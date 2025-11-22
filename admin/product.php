@@ -148,9 +148,11 @@ $brands = get_brands_by_user_ctr($user_id);
                         <div class="file-upload-wrapper">
                             <input type="file" id="productImage" name="product_image" accept="image/*" onchange="previewImageFile(this)">
                             <button type="button" onclick="document.getElementById('productImage').click()" class="btn btn-secondary">Choose File</button>
+                            <button type="button" id="uploadBtn" onclick="uploadImage()" class="btn btn-primary" style="margin-left: 10px;">Upload Image</button>
                         </div>
                         <img id="imagePreview" class="image-preview" alt="Preview" style="display: none; max-width: 300px; margin-top: 12px; border-radius: 8px;">
                         <div class="error-message" id="productImage-error"></div>
+                        <small style="color: #6b7280; display: block; margin-top: 8px;">Please select a file and click "Upload Image" before saving the product.</small>
                     </div>
                 </div>
                 

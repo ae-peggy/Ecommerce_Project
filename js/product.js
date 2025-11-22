@@ -486,6 +486,10 @@ function uploadImage() {
                 const imagePathInput = document.getElementById('productImagePath');
                 if (imagePathInput) {
                     imagePathInput.value = data.file_path;
+                    console.log('Image path set in hidden field:', data.file_path);
+                    console.log('Hidden field value after setting:', imagePathInput.value);
+                } else {
+                    console.error('ERROR: productImagePath element not found!');
                 }
                 
                 // Show preview - construct URL safely
@@ -578,7 +582,26 @@ function saveProduct(context = 'admin') {
     submitBtn.disabled = true;
     submitBtn.textContent = productId ? 'Updating...' : 'Saving...';
     
+    // Debug: Check image path before submitting
+    const imagePathInput = document.getElementById('productImagePath');
+    if (imagePathInput) {
+        console.log('Image path in form before submit:', imagePathInput.value);
+        if (!imagePathInput.value || imagePathInput.value.trim() === '') {
+            console.warn('WARNING: Image path is empty in form!');
+        }
+    } else {
+        console.error('ERROR: productImagePath element not found in form!');
+    }
+    
     const formData = new FormData(form);
+    
+    // Debug: Log all form data
+    console.log('Form data being sent:');
+    for (let [key, value] of formData.entries()) {
+        if (key === 'product_image') {
+            console.log(`  ${key}:`, value || '(empty)');
+        }
+    }
     
     // Determine action URL
     let actionUrl;

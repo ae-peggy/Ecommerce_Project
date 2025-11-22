@@ -10,6 +10,8 @@ ini_set('display_errors', 1);
 
 // Log all POST data for debugging
 error_log("Add product POST data received: " . print_r($_POST, true));
+error_log("POST product_image value: " . (isset($_POST['product_image']) ? $_POST['product_image'] : 'NOT SET'));
+error_log("POST product_image_path value: " . (isset($_POST['product_image_path']) ? $_POST['product_image_path'] : 'NOT SET'));
 
 // Check if user is logged in
 if (!is_logged_in()) {

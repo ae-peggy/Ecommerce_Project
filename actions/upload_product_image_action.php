@@ -93,12 +93,25 @@ if (!in_array($file_extension, $allowed_extensions)) {
     exit();
 }
 
-// Base upload folder (already exists on server)
-$base_upload_dir = '../uploads/';
+// Base upload folder (use absolute path for multitenant server)
+$base_upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
+
+// Create upload directory if it doesn't exist
 if (!is_dir($base_upload_dir)) {
+    if (!@mkdir($base_upload_dir, 0755, true)) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Upload directory does not exist and could not be created. Please contact administrator.'
+        ]);
+        exit();
+    }
+}
+
+// Check if directory is writable
+if (!is_writable($base_upload_dir)) {
     echo json_encode([
         'status' => 'error',
-        'message' => 'Upload directory does not exist. Please contact administrator.'
+        'message' => 'Upload directory is not writable. Please contact administrator to fix permissions.'
     ]);
     exit();
 }
@@ -144,7 +157,7 @@ $image_number = count($existing_images) + 1;
 $filename = $image_number . '.' . $file_extension;
 $target_file = $product_dir . $filename;
 
-// Security check
+// Security check - verify the target path is within uploads directory
 $real_base = realpath($base_upload_dir);
 $real_target = realpath(dirname($target_file));
 if ($real_target === false || strpos($real_target, $real_base) !== 0) {
@@ -158,7 +171,10 @@ if ($real_target === false || strpos($real_target, $real_base) !== 0) {
 // Move uploaded file
 if (move_uploaded_file($file['tmp_name'], $target_file)) {
     chmod($target_file, 0644);
-    $db_path = str_replace('../', '', $target_file);
+    
+    // Convert absolute path to relative path for database storage
+    // Remove DOCUMENT_ROOT and leading slash to get: uploads/u1/p3/1.jpg
+    $db_path = str_replace($_SERVER['DOCUMENT_ROOT'] . '/', '', $target_file);
 
     echo json_encode([
         'status' => 'success',

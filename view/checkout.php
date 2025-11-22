@@ -76,73 +76,79 @@ if (!$cart_items || count($cart_items) == 0) {
                 Total: <span id="checkoutTotal">GHS 0.00</span>
             </div>
             
-            <button onclick="showPaymentModal()" class="btn btn-primary">💳 Proceed to Payment</button>
+            <!-- Delivery Information Section -->
+            <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #f3f4f6;">
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 20px; color: #dc2626;">Delivery Information</h3>
+                
+                <form id="deliveryForm" onsubmit="return false;">
+                    <!-- Delivery Location -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
+                            Delivery Location *
+                        </label>
+                        <input type="text" id="deliveryLocation" name="delivery_location" 
+                               placeholder="Enter delivery address" 
+                               required
+                               style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
+                               onfocus="this.style.borderColor='#dc2626';"
+                               onblur="this.style.borderColor='#e5e7eb';">
+                    </div>
+                    
+                    <!-- Recipient Name -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
+                            Recipient Name *
+                        </label>
+                        <input type="text" id="recipientName" name="recipient_name" 
+                               placeholder="Full name of recipient" 
+                               required
+                               style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
+                               onfocus="this.style.borderColor='#dc2626';"
+                               onblur="this.style.borderColor='#e5e7eb';">
+                    </div>
+                    
+                    <!-- Recipient Number -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
+                            Recipient Phone Number *
+                        </label>
+                        <input type="tel" id="recipientNumber" name="recipient_number" 
+                               placeholder="e.g., 0244123456" 
+                               required
+                               pattern="[0-9]{10,15}"
+                               style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
+                               onfocus="this.style.borderColor='#dc2626';"
+                               onblur="this.style.borderColor='#e5e7eb';">
+                        <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">10-15 digits</small>
+                    </div>
+                    
+                    <!-- Additional Notes -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
+                            Additional Notes (Optional)
+                        </label>
+                        <textarea id="deliveryNotes" name="delivery_notes" 
+                                  placeholder="Any special delivery instructions or notes..."
+                                  rows="3"
+                                  style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; resize: vertical; transition: border-color 0.3s; font-family: inherit;"
+                                  onfocus="this.style.borderColor='#dc2626';"
+                                  onblur="this.style.borderColor='#e5e7eb';"></textarea>
+                    </div>
+                </form>
+            </div>
+            
+            <button onclick="showPaymentModal()" class="btn btn-primary" style="margin-top: 20px;">💳 Proceed to Payment</button>
         </div>
     </div>
 
     <!-- Payment Modal -->
     <div id="paymentModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 500px;">
             <span class="modal-close" onclick="closePaymentModal()">&times;</span>
-            <h2 class="modal-title">Delivery Information & Payment</h2>
+            <h2 class="modal-title">Complete Payment</h2>
             
-            <form id="deliveryForm" onsubmit="return false;">
-                <!-- Delivery Location -->
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
-                        Delivery Location *
-                    </label>
-                    <input type="text" id="deliveryLocation" name="delivery_location" 
-                           placeholder="Enter delivery address" 
-                           required
-                           style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
-                           onfocus="this.style.borderColor='#dc2626';"
-                           onblur="this.style.borderColor='#e5e7eb';">
-                </div>
-                
-                <!-- Recipient Name -->
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
-                        Recipient Name *
-                    </label>
-                    <input type="text" id="recipientName" name="recipient_name" 
-                           placeholder="Full name of recipient" 
-                           required
-                           style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
-                           onfocus="this.style.borderColor='#dc2626';"
-                           onblur="this.style.borderColor='#e5e7eb';">
-                </div>
-                
-                <!-- Recipient Number -->
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
-                        Recipient Phone Number *
-                    </label>
-                    <input type="tel" id="recipientNumber" name="recipient_number" 
-                           placeholder="e.g., 0244123456" 
-                           required
-                           pattern="[0-9]{10,15}"
-                           style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
-                           onfocus="this.style.borderColor='#dc2626';"
-                           onblur="this.style.borderColor='#e5e7eb';">
-                    <small style="color: #6b7280; font-size: 12px; margin-top: 4px; display: block;">10-15 digits</small>
-                </div>
-                
-                <!-- Additional Notes -->
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px;">
-                        Additional Notes (Optional)
-                    </label>
-                    <textarea id="deliveryNotes" name="delivery_notes" 
-                              placeholder="Any special delivery instructions or notes..."
-                              rows="3"
-                              style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; resize: vertical; transition: border-color 0.3s; font-family: inherit;"
-                              onfocus="this.style.borderColor='#dc2626';"
-                              onblur="this.style.borderColor='#e5e7eb';"></textarea>
-                </div>
-                
-                <!-- Payment Amount Display -->
-                <div style="text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 12px;">
+            <!-- Payment Amount Display -->
+            <div style="text-align: center; margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 12px;">
                 <div style="font-size: 14px; color: #6b7280; margin-bottom: 10px;">Amount to Pay</div>
                 <div id="paymentAmount" style="font-size: 36px; font-weight: 700; color: #dc2626;"></div>
             </div>
@@ -158,10 +164,9 @@ if (!$cart_items || count($cart_items) == 0) {
             </p>
             
             <div class="modal-buttons">
-                    <button type="button" onclick="closePaymentModal()" class="btn btn-secondary">Cancel</button>
-                    <button type="submit" onclick="processCheckout()" id="confirmPaymentBtn" class="btn btn-primary">💳 Pay Now</button>
+                <button type="button" onclick="closePaymentModal()" class="btn btn-secondary">Cancel</button>
+                <button type="button" onclick="processCheckout()" id="confirmPaymentBtn" class="btn btn-primary">💳 Pay Now</button>
             </div>
-            </form>
         </div>
     </div>
 

@@ -104,6 +104,31 @@ function displayCheckoutItems(items, total) {
  * Show payment modal
  */
 function showPaymentModal() {
+    // First validate delivery form
+    const form = document.getElementById('deliveryForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Get delivery information and validate
+    const deliveryLocation = document.getElementById('deliveryLocation').value.trim();
+    const recipientName = document.getElementById('recipientName').value.trim();
+    const recipientNumber = document.getElementById('recipientNumber').value.trim();
+    
+    if (!deliveryLocation || !recipientName || !recipientNumber) {
+        showToast('Please fill in all required delivery fields', 'error');
+        return;
+    }
+    
+    // Store delivery info for later use
+    window.deliveryInfo = {
+        location: deliveryLocation,
+        recipient_name: recipientName,
+        recipient_number: recipientNumber,
+        notes: document.getElementById('deliveryNotes').value.trim()
+    };
+    
     const modal = document.getElementById('paymentModal');
     const amountDisplay = document.getElementById('paymentAmount');
     
@@ -145,31 +170,12 @@ function processCheckout() {
     const confirmBtn = document.getElementById('confirmPaymentBtn');
     const originalText = confirmBtn.textContent;
     
-    // Validate delivery form
-    const form = document.getElementById('deliveryForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    // Delivery info should already be validated and stored in showPaymentModal()
+    if (!window.deliveryInfo) {
+        showToast('Please fill in delivery information first', 'error');
+        closePaymentModal();
         return;
     }
-    
-    // Get delivery information
-    const deliveryLocation = document.getElementById('deliveryLocation').value.trim();
-    const recipientName = document.getElementById('recipientName').value.trim();
-    const recipientNumber = document.getElementById('recipientNumber').value.trim();
-    const deliveryNotes = document.getElementById('deliveryNotes').value.trim();
-    
-    if (!deliveryLocation || !recipientName || !recipientNumber) {
-        showToast('Please fill in all required delivery fields', 'error');
-        return;
-    }
-    
-    // Store delivery info for later use
-    window.deliveryInfo = {
-        location: deliveryLocation,
-        recipient_name: recipientName,
-        recipient_number: recipientNumber,
-        notes: deliveryNotes
-    };
     
     // Disable button and show loading
     confirmBtn.disabled = true;

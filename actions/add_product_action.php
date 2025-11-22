@@ -38,9 +38,7 @@ $brand_id = (int)($_POST['product_brand'] ?? 0);
 $title = trim($_POST['product_title'] ?? '');
 $price = floatval($_POST['product_price'] ?? 0);
 $desc = trim($_POST['product_desc'] ?? '');
-$image = trim($_POST['product_image_path'] ?? '');
-// Ensure empty string instead of whitespace
-$image = empty($image) ? '' : $image;
+$image = trim($_POST['product_image'] ?? '');
 $keywords = trim($_POST['product_keywords'] ?? '');
 $created_by = get_user_id();
 
@@ -114,24 +112,20 @@ try {
     if ($product_id) {
         error_log("Product added successfully with ID: $product_id");
 
-        // Handle temp folder rename if image was uploaded
-        if (!empty($image) && isset($_SESSION['temp_upload_id'])) {
+        // Session is already started by core.php
+        if (isset($_SESSION['temp_upload_id']) && !empty($image)) {
             $user_id = $created_by;
-            // Match the folder structure from upload_product_image_action.php
-            $temp_folder_name = 'temp_' . $user_id . '_' . $_SESSION['temp_upload_id'];
-            $temp_folder = '../uploads/u' . $user_id . '/' . $temp_folder_name . '/';
+            $temp_folder = '../uploads/u' . $user_id . '/' . $_SESSION['temp_upload_id'] . '/';
             $new_folder = '../uploads/u' . $user_id . '/p' . $product_id . '/';
-            
-            error_log("Checking temp folder: $temp_folder");
             
             if (is_dir($temp_folder)) {
                 // Rename the folder
                 if (rename($temp_folder, $new_folder)) {
                     error_log("Renamed temp folder to product folder: $temp_folder -> $new_folder");
                     
-                    // Update image path in database - replace temp folder name with product folder
+                    // Update image path in database
                     $old_image_path = $image;
-                    $new_image_path = str_replace($temp_folder_name, 'p' . $product_id, $image);
+                    $new_image_path = str_replace($_SESSION['temp_upload_id'], 'p' . $product_id, $image);
                     
                     // Update the product with new image path
                     require_once '../classes/product_class.php';
@@ -148,28 +142,7 @@ try {
                 
                 // Clear temp upload session
                 unset($_SESSION['temp_upload_id']);
-            } else {
-                error_log("Temp folder does not exist: $temp_folder");
-                // If temp folder doesn't exist but we have an image path, try to update directly
-                if (!empty($image)) {
-                    require_once '../classes/product_class.php';
-                    $product_obj = new product_class();
-                    $update_sql = "UPDATE products SET product_image = '" . 
-                                  mysqli_real_escape_string($product_obj->db_conn(), $image) . 
-                                  "' WHERE product_id = $product_id";
-                    $product_obj->db_write_query($update_sql);
-                    error_log("Updated image path directly: $image");
-                }
             }
-        } else if (!empty($image)) {
-            // Image path provided but no temp folder - update directly
-            require_once '../classes/product_class.php';
-            $product_obj = new product_class();
-            $update_sql = "UPDATE products SET product_image = '" . 
-                          mysqli_real_escape_string($product_obj->db_conn(), $image) . 
-                          "' WHERE product_id = $product_id";
-            $product_obj->db_write_query($update_sql);
-            error_log("Updated image path directly (no temp folder): $image");
         }
         
         log_user_activity("Added product: $title (ID: $product_id)");

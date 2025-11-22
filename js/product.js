@@ -641,12 +641,12 @@ function validateProductForm(context = 'admin') {
         }
     }
     
-    // Ensure image uploaded for new entries (both admin and artisan)
-    if (!productId) {
+    // Ensure image uploaded for new artisan entries
+    if (context === 'artisan' && !productId) {
         if (!imagePathInput || imagePathInput.value.trim() === '') {
             showMessage('Please upload a product image before saving', 'error');
             // Scroll to image upload area
-            const imageSection = document.getElementById('productImage')?.closest('.form-group');
+            const imageSection = document.getElementById('productImage')?.closest('.artisan-form-group');
             if (imageSection) {
                 imageSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 imageSection.style.border = '2px solid #dc2626';
@@ -660,7 +660,7 @@ function validateProductForm(context = 'admin') {
             isValid = false;
         } else {
             // Clear any previous error styling
-            const imageSection = document.getElementById('productImage')?.closest('.form-group');
+            const imageSection = document.getElementById('productImage')?.closest('.artisan-form-group');
             if (imageSection) {
                 imageSection.style.border = '';
                 imageSection.style.padding = '';

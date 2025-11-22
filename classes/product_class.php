@@ -19,9 +19,7 @@ class product_class extends db_connection {
             $title = mysqli_real_escape_string($this->db_conn(), $title);
             $price = (float)$price;
             $desc = mysqli_real_escape_string($this->db_conn(), $desc);
-            // Ensure image is empty string if it's just whitespace
-            $image = trim($image);
-            $image = empty($image) ? '' : mysqli_real_escape_string($this->db_conn(), $image);
+            $image = mysqli_real_escape_string($this->db_conn(), $image);
             $keywords = mysqli_real_escape_string($this->db_conn(), $keywords);
             $created_by = (int)$created_by;
             

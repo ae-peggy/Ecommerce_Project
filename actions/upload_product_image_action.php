@@ -115,17 +115,15 @@ if (!is_dir($user_dir)) {
     }
 }
 
-// Determine folder strategy
+// Product folder
 if ($product_id > 0) {
-    // Product exists - use product ID folder
     $product_dir = $user_dir . 'p' . $product_id . '/';
     $is_temp = false;
 } else {
-    // New product - use temp folder with unique user + session hash
     if (!isset($_SESSION['temp_upload_id'])) {
-        $_SESSION['temp_upload_id'] = uniqid();
+        $_SESSION['temp_upload_id'] = uniqid('temp_', true);
     }
-    $product_dir = $user_dir . 'temp_' . $user_id . '_' . $_SESSION['temp_upload_id'] . '/';
+    $product_dir = $user_dir . $_SESSION['temp_upload_id'] . '/';
     $is_temp = true;
 }
 

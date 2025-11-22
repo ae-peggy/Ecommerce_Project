@@ -32,7 +32,7 @@ if ($file['size'] > $max_size) {
 }
 
 // Use base uploads directory (shared with admin)
-$upload_dir = '../uploads/';
+$upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
 
 // Create upload directory only if it doesn't exist
 if (!is_dir($upload_dir)) {

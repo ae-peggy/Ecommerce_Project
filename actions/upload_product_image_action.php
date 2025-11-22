@@ -94,7 +94,7 @@ if (!in_array($file_extension, $allowed_extensions)) {
 }
 
 // Base upload folder (already exists on server)
-$base_upload_dir = '../uploads/';
+$base_upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
 if (!is_dir($base_upload_dir)) {
     echo json_encode([
         'status' => 'error',

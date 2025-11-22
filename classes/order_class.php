@@ -190,24 +190,36 @@ class order_class extends db_connection {
             
             error_log("get_user_orders called with customer_id: $customer_id");
             
+            // First, let's try a simpler query to check if orders exist
+            $test_sql = "SELECT COUNT(*) as order_count FROM orders WHERE customer_id = $customer_id";
+            error_log("Testing orders existence with: $test_sql");
+            $test_result = $this->db_fetch_one($test_sql);
+            error_log("Test result: " . print_r($test_result, true));
+            
+            // Use a subquery approach to avoid GROUP BY issues
             $sql = "SELECT 
                         o.order_id,
                         o.invoice_no,
                         o.order_date,
                         o.order_status,
-                        p.amt as total_amount,
-                        p.currency,
-                        COUNT(od.product_id) as item_count
+                        COALESCE(p.amt, 0) as total_amount,
+                        COALESCE(p.currency, 'GHS') as currency,
+                        (SELECT COUNT(*) FROM orderdetails od WHERE od.order_id = o.order_id) as item_count
                     FROM orders o
                     LEFT JOIN payment p ON o.order_id = p.order_id
-                    LEFT JOIN orderdetails od ON o.order_id = od.order_id
                     WHERE o.customer_id = $customer_id
-                    GROUP BY o.order_id
                     ORDER BY o.order_date DESC, o.order_id DESC";
             
             error_log("Executing SQL: $sql");
             
             $result = $this->db_fetch_all($sql);
+            
+            // If query fails, log the actual MySQL error
+            if ($result === false) {
+                $conn = $this->db_conn();
+                $error = mysqli_error($conn);
+                error_log("MySQL Error: " . $error);
+            }
             
             error_log("Query result: " . ($result ? count($result) . " orders found" : "FALSE or empty"));
             if ($result) {
@@ -231,6 +243,13 @@ class order_class extends db_connection {
         try {
             error_log("get_all_orders called");
             
+            // First, test if orders exist
+            $test_sql = "SELECT COUNT(*) as order_count FROM orders";
+            error_log("Testing orders existence with: $test_sql");
+            $test_result = $this->db_fetch_one($test_sql);
+            error_log("Test result: " . print_r($test_result, true));
+            
+            // Use a subquery approach to avoid GROUP BY issues
             $sql = "SELECT 
                         o.order_id,
                         o.invoice_no,
@@ -239,19 +258,24 @@ class order_class extends db_connection {
                         o.customer_id,
                         c.customer_name,
                         c.customer_email,
-                        p.amt as total_amount,
-                        p.currency,
-                        COUNT(od.product_id) as item_count
+                        COALESCE(p.amt, 0) as total_amount,
+                        COALESCE(p.currency, 'GHS') as currency,
+                        (SELECT COUNT(*) FROM orderdetails od WHERE od.order_id = o.order_id) as item_count
                     FROM orders o
                     LEFT JOIN payment p ON o.order_id = p.order_id
-                    LEFT JOIN orderdetails od ON o.order_id = od.order_id
                     LEFT JOIN customer c ON o.customer_id = c.customer_id
-                    GROUP BY o.order_id
                     ORDER BY o.order_date DESC, o.order_id DESC";
             
             error_log("Executing SQL: $sql");
             
             $result = $this->db_fetch_all($sql);
+            
+            // If query fails, log the actual MySQL error
+            if ($result === false) {
+                $conn = $this->db_conn();
+                $error = mysqli_error($conn);
+                error_log("MySQL Error: " . $error);
+            }
             
             error_log("Query result: " . ($result ? count($result) . " orders found" : "FALSE or empty"));
             if ($result) {

@@ -73,10 +73,23 @@ function displayProducts(products) {
         const card = document.createElement('div');
         card.className = 'product-card';
         
-        const imageSrc = product.product_image ? `../${product.product_image}` : 'https://via.placeholder.com/280x200?text=No+Image';
+        // Construct image URL safely
+        let imageSrc = 'https://via.placeholder.com/280x200?text=No+Image';
+        if (product.product_image && product.product_image.trim() !== '') {
+            let imgPath = product.product_image;
+            // Remove leading ../ if present
+            if (imgPath.startsWith('../')) {
+                imgPath = imgPath.substring(3);
+            }
+            // Ensure it starts with uploads/
+            if (!imgPath.startsWith('uploads/')) {
+                imgPath = 'uploads/' + imgPath.replace(/^\/+/, '');
+            }
+            imageSrc = '../' + imgPath;
+        }
         
         card.innerHTML = `
-            <img src="${imageSrc}" alt="${escapeHtml(product.product_title)}" class="product-image" onerror="this.src='https://via.placeholder.com/280x200?text=No+Image'">
+            <img src="${imageSrc}" alt="${escapeHtml(product.product_title)}" class="product-image" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22280%22 height=%22200%22%3E%3Crect width=%22280%22 height=%22200%22 fill=%22%23fef2f2%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial, sans-serif%22 font-size=%2218%22 fill=%22%23dc2626%22%3ENo Image%3C/text%3E%3C/svg%3E';">
             <div class="product-info">
                 <div class="product-title">${escapeHtml(product.product_title)}</div>
                 <div class="product-price">GHS${parseFloat(product.product_price).toFixed(2)}</div>
@@ -205,9 +218,22 @@ function editProduct(product) {
     // Show image preview if exists
     const preview = document.getElementById('imagePreview');
     if (preview) {
-        if (product.product_image) {
-            preview.src = `../${product.product_image}`;
+        if (product.product_image && product.product_image.trim() !== '') {
+            let imgPath = product.product_image;
+            // Remove leading ../ if present
+            if (imgPath.startsWith('../')) {
+                imgPath = imgPath.substring(3);
+            }
+            // Ensure it starts with uploads/
+            if (!imgPath.startsWith('uploads/')) {
+                imgPath = 'uploads/' + imgPath.replace(/^\/+/, '');
+            }
+            preview.src = '../' + imgPath;
             preview.style.display = 'block';
+            preview.onerror = function() {
+                this.onerror = null;
+                this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect width="300" height="300" fill="%23fef2f2"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="%23dc2626"%3EImage Not Found%3C/text%3E%3C/svg%3E';
+            };
         } else {
             preview.style.display = 'none';
         }
@@ -261,7 +287,20 @@ function displayProductModal(product) {
     }
     
     const content = document.getElementById('viewProductContent');
-    const imageSrc = product.product_image ? `../${product.product_image}` : 'https://via.placeholder.com/400x300?text=No+Image';
+    // Construct image URL safely
+    let imageSrc = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23fef2f2"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="%23dc2626"%3ENo Image%3C/text%3E%3C/svg%3E';
+    if (product.product_image && product.product_image.trim() !== '') {
+        let imgPath = product.product_image;
+        // Remove leading ../ if present
+        if (imgPath.startsWith('../')) {
+            imgPath = imgPath.substring(3);
+        }
+        // Ensure it starts with uploads/
+        if (!imgPath.startsWith('uploads/')) {
+            imgPath = 'uploads/' + imgPath.replace(/^\/+/, '');
+        }
+        imageSrc = '../' + imgPath;
+    }
     
     content.innerHTML = `
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
@@ -437,21 +476,41 @@ function uploadImage() {
         try {
             const data = JSON.parse(text);
             if (data.status === 'success') {
+                // Validate file_path
+                if (!data.file_path || data.file_path.trim() === '') {
+                    showMessage('Upload succeeded but no file path returned. Please try again.', 'error');
+                    return;
+                }
+                
                 // Store image path
                 const imagePathInput = document.getElementById('productImagePath');
                 if (imagePathInput) {
                     imagePathInput.value = data.file_path;
                 }
                 
-                // Show preview
+                // Show preview - construct URL safely
                 const preview = document.getElementById('imagePreview');
                 if (preview) {
-                preview.src = `../${data.file_path}`;
-                preview.style.display = 'block';
+                    // Ensure file_path doesn't already start with ../
+                    let imageUrl = data.file_path;
+                    if (imageUrl.startsWith('../')) {
+                        imageUrl = imageUrl.substring(3); // Remove ../
+                    }
+                    if (!imageUrl.startsWith('uploads/')) {
+                        imageUrl = 'uploads/' + imageUrl.replace(/^\/+/, ''); // Remove leading slashes
+                    }
+                    
+                    // Construct preview URL
+                    const previewUrl = '../' + imageUrl;
+                    console.log('Setting preview URL:', previewUrl);
+                    
+                    preview.src = previewUrl;
+                    preview.style.display = 'block';
                     preview.onerror = function() {
+                        console.error('Preview image failed to load:', previewUrl);
                         this.onerror = null;
-                        this.src = 'https://via.placeholder.com/300x300?text=Image+Not+Found';
-                        showMessage('Uploaded image could not be displayed. Please try uploading again.', 'error');
+                        this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect width="300" height="300" fill="%23fef2f2"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="%23dc2626"%3EImage Not Found%3C/text%3E%3C/svg%3E';
+                        showMessage('Uploaded image could not be displayed. The file may not be accessible.', 'error');
                     };
                 }
                 

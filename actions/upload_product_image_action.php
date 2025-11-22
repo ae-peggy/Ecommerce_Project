@@ -173,8 +173,33 @@ if (move_uploaded_file($file['tmp_name'], $target_file)) {
     chmod($target_file, 0644);
     
     // Convert absolute path to relative path for database storage
-    // Remove DOCUMENT_ROOT and leading slash to get: uploads/u1/p3/1.jpg
-    $db_path = str_replace($_SERVER['DOCUMENT_ROOT'] . '/', '', $target_file);
+    // Normalize DOCUMENT_ROOT (remove trailing slash if present)
+    $doc_root = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
+    $normalized_target = $target_file;
+    
+    // Remove DOCUMENT_ROOT to get relative path
+    if (strpos($normalized_target, $doc_root) === 0) {
+        $db_path = substr($normalized_target, strlen($doc_root) + 1); // +1 to remove leading slash
+    } else {
+        // Fallback: try to extract relative path
+        $db_path = str_replace($doc_root . '/', '', $normalized_target);
+    }
+    
+    // Ensure path starts with 'uploads/' and doesn't have leading slash
+    $db_path = ltrim($db_path, '/');
+    if (strpos($db_path, 'uploads/') !== 0) {
+        // If path doesn't start with uploads/, prepend it
+        $db_path = 'uploads/' . ltrim(str_replace('uploads/', '', $db_path), '/');
+    }
+    
+    // Verify the file actually exists at the absolute path
+    if (!file_exists($target_file)) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'File was moved but cannot be verified. Please try again.'
+        ]);
+        exit();
+    }
 
     echo json_encode([
         'status' => 'success',
@@ -186,9 +211,10 @@ if (move_uploaded_file($file['tmp_name'], $target_file)) {
         'temp_folder' => $is_temp ? basename($product_dir) : null
     ]);
 } else {
+    $error = error_get_last();
     echo json_encode([
         'status' => 'error',
-        'message' => 'Failed to move uploaded file'
+        'message' => 'Failed to move uploaded file. ' . ($error['message'] ?? 'Please check directory permissions.')
     ]);
 }
 ?>

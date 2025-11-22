@@ -43,7 +43,8 @@ switch ($action) {
             $product_desc = trim($_POST['product_desc'] ?? '');
             $product_keywords = trim($_POST['product_keywords'] ?? '');
             $product_qty = (int)($_POST['product_qty'] ?? 0);
-            $product_image_path = sanitize_upload_path($_POST['product_image_path'] ?? '');
+            // Accept both product_image_path (from form) and product_image (from JS)
+            $product_image_path = sanitize_upload_path($_POST['product_image_path'] ?? $_POST['product_image'] ?? '');
 
             // For Tier 1 artisans: Get or create brand from business_name if not provided
             $artisan_tier = $_SESSION['artisan_tier'] ?? null;
@@ -117,31 +118,32 @@ switch ($action) {
                 // Note: mysqli_insert_id can return 0 if no auto-increment column exists
                 // But if the insert succeeded, we should have a product_id > 0
                 if ($product_id && $product_id > 0) {
-                    // Product created successfully, now move/rename the image to use product ID
+                    // Product created successfully, now rename temp folder to use product ID
+                    // This matches the structure used by upload_product_image_action.php
                     $user_id = $_SESSION['user_id'];
-                    // Use relative paths (like old working code)
                     $old_path = '../' . $product_image_path;
                     
-                    // Extract file extension from old path
-                    $file_extension = pathinfo($product_image_path, PATHINFO_EXTENSION);
-                    
-                    // Create new path: uploads/u{user_id}/p{product_id}.{ext}
-                    $new_dir = '../uploads/u' . $user_id . '/';
-                    $new_filename = 'p' . $product_id . '.' . $file_extension;
-                    $new_path = $new_dir . $new_filename;
-                    $new_db_path = 'uploads/u' . $user_id . '/' . $new_filename;
-                    
-                    // Create user directory if it doesn't exist
-                    if (!is_dir($new_dir)) {
-                        if (!@mkdir($new_dir, 0755, true)) {
-                            error_log("Failed to create user directory: $new_dir");
+                    // Check if this is a temp folder upload
+                    if (strpos($product_image_path, 'temp_') !== false) {
+                        // Extract temp folder name and filename
+                        // Path format: uploads/u{user_id}/temp_{id}/{filename}
+                        $path_parts = explode('/', $product_image_path);
+                        $filename = end($path_parts); // Get the filename (e.g., "1.jpg")
+                        
+                        // Create new directory structure: uploads/u{user_id}/p{product_id}/
+                        $new_dir = '../uploads/u' . $user_id . '/p' . $product_id . '/';
+                        $new_path = $new_dir . $filename;
+                        $new_db_path = 'uploads/u' . $user_id . '/p' . $product_id . '/' . $filename;
+                        
+                        // Create product directory if it doesn't exist
+                        if (!is_dir($new_dir)) {
+                            if (!@mkdir($new_dir, 0755, true)) {
+                                error_log("Failed to create product directory: $new_dir");
+                            }
                         }
-                    }
-                    
-                    // Move/rename the file if it exists
-                    if (file_exists($old_path)) {
-                        // If old path is in a temp folder, move it
-                        if (strpos($product_image_path, 'temp_') !== false) {
+                        
+                        // Move the file from temp folder to product folder
+                        if (file_exists($old_path)) {
                             if (rename($old_path, $new_path)) {
                                 // Update product with new image path
                                 $db_conn = $artisan->db_conn();
@@ -157,13 +159,14 @@ switch ($action) {
                             } else {
                                 error_log("Failed to move image from $old_path to $new_path");
                             }
-                        } else {
-                            // If it's already in the right location, just update the path in DB
-                            $db_conn = $artisan->db_conn();
-                            $safe_path = mysqli_real_escape_string($db_conn, $new_db_path);
-                            $update_sql = "UPDATE products SET product_image = '$safe_path' WHERE product_id = $product_id";
-                            $artisan->db_query($update_sql);
                         }
+                    } else {
+                        // Image is already in the correct location (not a temp upload)
+                        // Just ensure the path is correct in the database
+                        $db_conn = $artisan->db_conn();
+                        $safe_path = mysqli_real_escape_string($db_conn, $product_image_path);
+                        $update_sql = "UPDATE products SET product_image = '$safe_path' WHERE product_id = $product_id";
+                        $artisan->db_query($update_sql);
                     }
                     
                     // Clear output buffer before sending JSON response
@@ -210,29 +213,40 @@ switch ($action) {
                         // Continue with success path
                         // Move/rename image if needed (same logic as success case)
                         $user_id = $_SESSION['user_id'];
-                        // Use relative paths (like old working code)
                         $old_path = '../' . $product_image_path;
-                        $file_extension = pathinfo($product_image_path, PATHINFO_EXTENSION);
-                        $new_dir = '../uploads/u' . $user_id . '/';
-                        $new_filename = 'p' . $product_id . '.' . $file_extension;
-                        $new_path = $new_dir . $new_filename;
-                        $new_db_path = 'uploads/u' . $user_id . '/' . $new_filename;
                         
-                        if (!is_dir($new_dir)) {
-                            @mkdir($new_dir, 0755, true);
-                        }
-                        
-                        if (file_exists($old_path) && strpos($product_image_path, 'temp_') !== false) {
-                            if (rename($old_path, $new_path)) {
-                                $safe_path = mysqli_real_escape_string($db_conn, $new_db_path);
-                                $update_sql = "UPDATE products SET product_image = '$safe_path' WHERE product_id = $product_id";
-                                $artisan->db_query($update_sql);
-                                
-                                $old_dir = dirname($old_path);
-                                if (is_dir($old_dir) && count(glob($old_dir . '/*')) === 0) {
-                                    @rmdir($old_dir);
+                        // Check if this is a temp folder upload
+                        if (strpos($product_image_path, 'temp_') !== false) {
+                            // Extract filename from path
+                            $path_parts = explode('/', $product_image_path);
+                            $filename = end($path_parts);
+                            
+                            // Create new directory structure: uploads/u{user_id}/p{product_id}/
+                            $new_dir = '../uploads/u' . $user_id . '/p' . $product_id . '/';
+                            $new_path = $new_dir . $filename;
+                            $new_db_path = 'uploads/u' . $user_id . '/p' . $product_id . '/' . $filename;
+                            
+                            if (!is_dir($new_dir)) {
+                                @mkdir($new_dir, 0755, true);
+                            }
+                            
+                            if (file_exists($old_path)) {
+                                if (rename($old_path, $new_path)) {
+                                    $safe_path = mysqli_real_escape_string($db_conn, $new_db_path);
+                                    $update_sql = "UPDATE products SET product_image = '$safe_path' WHERE product_id = $product_id";
+                                    $artisan->db_query($update_sql);
+                                    
+                                    $old_dir = dirname($old_path);
+                                    if (is_dir($old_dir) && count(glob($old_dir . '/*')) === 0) {
+                                        @rmdir($old_dir);
+                                    }
                                 }
                             }
+                        } else {
+                            // Image is already in the correct location
+                            $safe_path = mysqli_real_escape_string($db_conn, $product_image_path);
+                            $update_sql = "UPDATE products SET product_image = '$safe_path' WHERE product_id = $product_id";
+                            $artisan->db_query($update_sql);
                         }
                         
                         // Clear output buffer before sending JSON response
@@ -319,7 +333,8 @@ switch ($action) {
             $product_desc = trim($_POST['product_desc'] ?? '');
             $product_keywords = trim($_POST['product_keywords'] ?? '');
             $product_qty = (int)($_POST['product_qty'] ?? 0);
-            $product_image_path = sanitize_upload_path($_POST['product_image_path'] ?? '');
+            // Accept both product_image_path (from form) and product_image (from JS)
+            $product_image_path = sanitize_upload_path($_POST['product_image_path'] ?? $_POST['product_image'] ?? '');
 
             $result = $artisan->update_product(
                 $product_id,

@@ -599,10 +599,12 @@ function saveProduct(context = 'admin') {
     // The file input has name="product_image" which conflicts with our hidden field
     formData.delete('product_image');
     
-    // Now add the image path from the hidden field (reuse the variable from above)
+    // Now add the image path from the hidden field
+    // Use product_image_path for artisan context, product_image for admin context
+    const fieldName = context === 'artisan' ? 'product_image_path' : 'product_image';
     if (imagePathInput && imagePathInput.value) {
-        formData.append('product_image', imagePathInput.value);
-        console.log('Added image path to form data:', imagePathInput.value);
+        formData.append(fieldName, imagePathInput.value);
+        console.log('Added image path to form data as', fieldName + ':', imagePathInput.value);
     } else {
         console.warn('No image path found in hidden field');
     }

@@ -139,7 +139,7 @@ try {
             $commission_rate = ($artisan_tier == 1) ? 20.0 : 30.0;
             
             // Get business name (use customer name as default)
-            $business_name = $name . "'s Crafts";
+            $business_name = $name;
             
             // Create artisan record (always creates as 'approved', we'll update if needed)
             $artisan_result = $artisan->create_artisan($user_id, $business_name, $artisan_tier, $commission_rate);

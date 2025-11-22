@@ -164,19 +164,114 @@ $brands = get_brands_by_user_ctr($user_id);
 
     <script src="../js/product.js"></script>
     <script>
-        // Preview image function for admin product form
+        // Preview and upload image function for admin product form
         function previewImageFile(input) {
             const preview = document.getElementById('imagePreview');
             if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Show preview immediately
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.style.display = 'block';
                 };
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
+                
+                // Automatically upload the image
+                uploadProductImage(file);
             } else {
                 preview.style.display = 'none';
             }
+        }
+        
+        // Upload product image automatically
+        function uploadProductImage(file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Invalid file type. Only JPG, PNG, GIF, and WebP images are allowed');
+                return;
+            }
+            
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image is too large. Maximum size is 5MB');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('product_image', file);
+            
+            // Add product_id if editing
+            const productId = document.getElementById('productId');
+            if (productId && productId.value) {
+                formData.append('product_id', productId.value);
+            }
+            
+            // Show uploading state
+            const preview = document.getElementById('imagePreview');
+            if (preview) {
+                preview.style.opacity = '0.5';
+            }
+            
+            fetch('../actions/upload_product_image_action.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    const data = JSON.parse(text);
+                    if (data.status === 'success') {
+                        // Store image path in hidden field
+                        const imagePathInput = document.getElementById('productImagePath');
+                        if (imagePathInput) {
+                            imagePathInput.value = data.file_path;
+                        }
+                        
+                        // Update preview with actual uploaded image
+                        if (preview) {
+                            preview.src = `../${data.file_path}`;
+                            preview.style.opacity = '1';
+                        }
+                    } else {
+                        alert('Image upload failed: ' + (data.message || 'Unknown error'));
+                        // Clear file input on error
+                        const fileInput = document.getElementById('productImage');
+                        if (fileInput) {
+                            fileInput.value = '';
+                        }
+                        if (preview) {
+                            preview.style.display = 'none';
+                            preview.style.opacity = '1';
+                        }
+                    }
+                } catch (e) {
+                    console.error('JSON Parse error:', e);
+                    alert('Server response error. Please try again.');
+                    const fileInput = document.getElementById('productImage');
+                    if (fileInput) {
+                        fileInput.value = '';
+                    }
+                    if (preview) {
+                        preview.style.display = 'none';
+                        preview.style.opacity = '1';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to upload image. Please check your connection and try again.');
+                const fileInput = document.getElementById('productImage');
+                if (fileInput) {
+                    fileInput.value = '';
+                }
+                if (preview) {
+                    preview.style.display = 'none';
+                    preview.style.opacity = '1';
+                }
+            });
         }
         
         // Ensure editProduct works correctly

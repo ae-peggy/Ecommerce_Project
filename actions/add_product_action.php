@@ -45,6 +45,12 @@ $created_by = get_user_id();
 // Log collected data
 error_log("Adding product - Title: $title, Price: $price, Cat: $cat_id, Brand: $brand_id, User: $created_by");
 
+// Log image path for debugging
+error_log("Image path received: " . ($image ?: 'EMPTY - Image path not provided'));
+if (empty($image)) {
+    error_log("WARNING: Product being added without image path!");
+}
+
 // Step 1: Validate required fields
 if (empty($title)) {
     echo json_encode([
@@ -106,6 +112,7 @@ if ($price > 1000000) {
 
 // Step 4: Add product
 error_log("Attempting to add product: $title");
+error_log("Image path being saved: " . ($image ?: 'EMPTY - No image path'));
 try {
     $product_id = add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by);
     
@@ -148,11 +155,23 @@ try {
         
         log_user_activity("Added product: $title (ID: $product_id)");
         
+        // Get the final image path after folder rename
+        $final_image_path = $image;
+        if (isset($_SESSION['temp_upload_id']) && !empty($image)) {
+            $final_image_path = str_replace($_SESSION['temp_upload_id'], 'p' . $product_id, $image);
+        }
+        
         echo json_encode([
             'status' => 'success',
             'message' => 'Product added successfully!',
             'product_id' => $product_id,
-            'product_title' => $title
+            'product_title' => $title,
+            'image_path' => $final_image_path ?: 'NO IMAGE PATH PROVIDED', // Debug info
+            'debug' => [
+                'image_received' => !empty($image),
+                'image_path_original' => $image,
+                'image_path_final' => $final_image_path
+            ]
         ]);
     } else {
         echo json_encode([

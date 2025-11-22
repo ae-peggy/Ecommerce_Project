@@ -73,7 +73,7 @@ $brands = get_brands_by_user_ctr($user_id);
             
             <form id="productForm">
                 <input type="hidden" id="productId" name="product_id" value="">
-                <input type="hidden" id="productImagePath" name="product_image_path" value="">
+                <input type="hidden" id="productImagePath" name="product_image" value="">
                 <div class="form-grid">
                     <!-- Product Title -->
                     <div class="form-group full-width">

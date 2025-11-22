@@ -599,6 +599,19 @@ function saveProduct(context = 'admin') {
         try {
             const data = JSON.parse(text);
             if (data.status === 'success' || data.success === true) {
+                // Log debug info if available
+                if (data.debug) {
+                    console.log('Product saved with image path:', data.debug.image_path_final || data.debug.image_path_original);
+                    if (!data.debug.image_received) {
+                        console.warn('WARNING: Product saved without image path!');
+                        showMessage('Product saved but image path was not provided. Check console for details.', 'error');
+                    } else {
+                        console.log('Image path details:', data.debug);
+                    }
+                }
+                if (data.image_path) {
+                    console.log('Final image path:', data.image_path);
+                }
                 showMessage(data.message || 'Product saved successfully', 'success');
                 
                 if (context === 'admin') {

@@ -87,6 +87,7 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
                 <table class="table" id="artisansTable">
                     <thead>
                         <tr>
+                            <th style="width: 40px;"></th>
                             <th>ID</th>
                             <th>Name</th>
                             <th>Business Name</th>
@@ -102,7 +103,7 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
                     <tbody>
                         <?php foreach ($artisans as $artisan): ?>
                         <tr>
-                            <td>
+                            <td style="text-align: center;">
                                 <?php if ($artisan['approval_status'] == 'pending'): ?>
                                 <input type="checkbox" class="artisan-checkbox" value="<?php echo $artisan['artisan_id']; ?>" onchange="updateBulkActions()" style="cursor: pointer;">
                                 <?php endif; ?>

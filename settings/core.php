@@ -131,9 +131,9 @@ function is_admin($allowed_roles = [1]) {
 // Check if user is artisan
 function is_artisan() {
     if (!is_logged_in()) return false;
-    // Check user_role is 2 (Artisan) and artisan_tier is set
+    // Check user_role is 2 (Artisan) and artisan_tier is set (tier 1 or tier 2)
     return isset($_SESSION['user_role']) && $_SESSION['user_role'] == 2 
-        && isset($_SESSION['artisan_tier']) && $_SESSION['artisan_tier'] == 1;
+        && isset($_SESSION['artisan_tier']) && ($_SESSION['artisan_tier'] == 1 || $_SESSION['artisan_tier'] == 2);
 }
 
 // Require artisan access

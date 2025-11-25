@@ -263,6 +263,7 @@ class order_class extends db_connection {
             error_log("Test result: " . print_r($test_result, true));
             
             // Use a subquery approach to avoid GROUP BY issues
+            // Include artisan tier information for orders that contain artisan products
             $sql = "SELECT 
                         o.order_id,
                         o.invoice_no,
@@ -277,7 +278,17 @@ class order_class extends db_connection {
                         c.customer_email,
                         COALESCE(p.amt, 0) as total_amount,
                         COALESCE(p.currency, 'GHS') as currency,
-                        (SELECT COUNT(*) FROM orderdetails od WHERE od.order_id = o.order_id) as item_count
+                        (SELECT COUNT(*) FROM orderdetails od WHERE od.order_id = o.order_id) as item_count,
+                        CASE 
+                            WHEN EXISTS (
+                                SELECT 1 
+                                FROM orderdetails od2 
+                                JOIN products pr ON od2.product_id = pr.product_id 
+                                JOIN artisans a ON pr.artisan_id = a.artisan_id 
+                                WHERE od2.order_id = o.order_id AND a.tier = 2
+                            ) THEN 2 
+                            ELSE NULL 
+                        END as has_tier2_artisan
                     FROM orders o
                     LEFT JOIN payment p ON o.order_id = p.order_id
                     LEFT JOIN customer c ON o.customer_id = c.customer_id

@@ -675,6 +675,11 @@ if ($orders) {
                     <?php if (!empty($order['customer_email'])): ?>
                       <span style="margin-left: 12px;"><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($order['customer_email']); ?></span>
                     <?php endif; ?>
+                    <?php if (!empty($order['has_tier2_artisan']) && $order['has_tier2_artisan'] == 2): ?>
+                      <span style="margin-left: 12px; padding: 4px 12px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border-radius: 12px; font-weight: 600; font-size: 12px;">
+                        <i class="fas fa-star"></i> Tier 2
+                      </span>
+                    <?php endif; ?>
                   </div>
                 <?php endif; ?>
               </div>

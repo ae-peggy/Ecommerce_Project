@@ -35,8 +35,26 @@ switch ($action) {
                 break;
             }
             
-            // Generate temporary password
-            $temp_password = bin2hex(random_bytes(4));
+            // Generate secure temporary password (12 characters: uppercase, lowercase, numbers, special chars)
+            $uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // Exclude I, O for clarity
+            $lowercase = 'abcdefghijkmnpqrstuvwxyz'; // Exclude l, o for clarity
+            $numbers = '23456789'; // Exclude 0, 1 for clarity
+            $special = '!@#$%&*';
+            
+            $temp_password = '';
+            $temp_password .= $uppercase[random_int(0, strlen($uppercase) - 1)];
+            $temp_password .= $lowercase[random_int(0, strlen($lowercase) - 1)];
+            $temp_password .= $numbers[random_int(0, strlen($numbers) - 1)];
+            $temp_password .= $special[random_int(0, strlen($special) - 1)];
+            
+            // Fill remaining 8 characters with random from all character sets
+            $all_chars = $uppercase . $lowercase . $numbers . $special;
+            for ($i = 0; $i < 8; $i++) {
+                $temp_password .= $all_chars[random_int(0, strlen($all_chars) - 1)];
+            }
+            
+            // Shuffle the password to randomize character positions
+            $temp_password = str_shuffle($temp_password);
             $hashed_password = password_hash($temp_password, PASSWORD_DEFAULT);
             
             // Create customer account first
@@ -56,11 +74,15 @@ switch ($action) {
                 $result = $artisan->create_artisan($customer_id, $business_name, $tier, $commission_rate);
                 
                 if ($result) {
-                    // TODO: Send email with login credentials
+                    // Return credentials for display to admin
                     echo json_encode([
                         'success' => true, 
                         'message' => 'Artisan added successfully',
-                        'temp_password' => $temp_password
+                        'credentials' => [
+                            'email' => $customer_email,
+                            'password' => $temp_password,
+                            'name' => $customer_name
+                        ]
                     ]);
                 } else {
                     echo json_encode(['success' => false, 'message' => 'Failed to create artisan record']);

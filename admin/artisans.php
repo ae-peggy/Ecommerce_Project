@@ -300,6 +300,70 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
         </div>
     </div>
 
+    <!-- Credentials Modal -->
+    <div id="credentialsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="modal-close" onclick="closeCredentialsModal()">&times;</span>
+            <h2 class="section-title" style="color: #dc2626; margin-bottom: 10px;">
+                <i class="fas fa-key" style="margin-right: 10px;"></i>Login Credentials
+            </h2>
+            <p style="color: #6b7280; margin-bottom: 25px; font-size: 14px;">
+                Artisan account created successfully! Please share these credentials with the artisan.
+            </p>
+            
+            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 0; color: #92400e; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>Important
+                </p>
+                <p style="margin: 8px 0 0 0; color: #78350f; font-size: 14px;">
+                    Save these credentials now. They will not be shown again. The artisan should change their password after first login.
+                </p>
+            </div>
+            
+            <div style="display: grid; gap: 20px;">
+                <div>
+                    <label style="display: block; font-weight: 600; color: #6b7280; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                        <i class="fas fa-user" style="margin-right: 8px;"></i>Artisan Name
+                    </label>
+                    <div id="credName" style="padding: 12px 16px; background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; color: #1a1a1a; font-weight: 500;"></div>
+                </div>
+                
+                <div>
+                    <label style="display: block; font-weight: 600; color: #6b7280; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                        <i class="fas fa-envelope" style="margin-right: 8px;"></i>Email Address
+                    </label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="credEmail" readonly style="flex: 1; padding: 12px 16px; background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; color: #1a1a1a; font-weight: 500; font-family: monospace;">
+                        <button onclick="copyToClipboard('credEmail')" class="btn btn-sm" style="padding: 12px 16px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e40af; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label style="display: block; font-weight: 600; color: #6b7280; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                        <i class="fas fa-lock" style="margin-right: 8px;"></i>Temporary Password
+                    </label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="credPassword" readonly style="flex: 1; padding: 12px 16px; background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; color: #1a1a1a; font-weight: 600; font-family: monospace; letter-spacing: 2px;">
+                        <button onclick="copyToClipboard('credPassword')" class="btn btn-sm" style="padding: 12px 16px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e40af; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+                <button onclick="copyAllCredentials()" class="btn btn-primary" style="flex: 1;">
+                    <i class="fas fa-copy"></i> Copy All
+                </button>
+                <button onclick="closeCredentialsModal()" class="btn btn-secondary">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/admin.js"></script>
     <script>
         function showAddArtisanModal() {
@@ -309,6 +373,87 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
         function closeModal() {
             document.getElementById('addArtisanModal').style.display = 'none';
             document.getElementById('addArtisanForm').reset();
+        }
+
+        function showCredentialsModal(credentials) {
+            document.getElementById('credName').textContent = credentials.name || 'N/A';
+            document.getElementById('credEmail').value = credentials.email || '';
+            document.getElementById('credPassword').value = credentials.password || '';
+            document.getElementById('credentialsModal').style.display = 'block';
+        }
+
+        function closeCredentialsModal() {
+            document.getElementById('credentialsModal').style.display = 'none';
+            // Reload page to show new artisan in list
+            setTimeout(() => location.reload(), 300);
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            element.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                document.execCommand('copy');
+                
+                // Show feedback - find the button that called this function
+                const buttons = document.querySelectorAll('button[onclick*="copyToClipboard"]');
+                buttons.forEach(btn => {
+                    if (btn.getAttribute('onclick').includes(elementId)) {
+                        const originalHtml = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        btn.style.background = 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+                        btn.style.color = '#065f46';
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalHtml;
+                            btn.style.background = 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
+                            btn.style.color = '#1e40af';
+                        }, 2000);
+                    }
+                });
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+            }
+        }
+
+        function copyAllCredentials() {
+            const email = document.getElementById('credEmail').value;
+            const password = document.getElementById('credPassword').value;
+            const name = document.getElementById('credName').textContent;
+            
+            const text = `Artisan Login Credentials\n\nName: ${name}\nEmail: ${email}\nPassword: ${password}\n\nPlease change your password after first login.`;
+            
+            // Create temporary textarea to copy
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                // Show feedback - find the "Copy All" button
+                const btn = document.querySelector('button[onclick="copyAllCredentials()"]');
+                if (btn) {
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> All Copied!';
+                    btn.style.background = 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                        btn.style.background = '';
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard');
+                document.body.removeChild(textarea);
+            }
         }
 
         function searchTable() {
@@ -519,6 +664,12 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
             const formData = new FormData(this);
             formData.append('action', 'add');
             
+            // Disable submit button during submission
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            
             fetch('../actions/admin_artisan_actions.php', {
                 method: 'POST',
                 body: formData
@@ -526,18 +677,29 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    if (typeof AdminUI !== 'undefined' && AdminUI.toast) {
-                        AdminUI.toast('Artisan added successfully!', 'success');
+                    // Close the add modal
+                    closeModal();
+                    
+                    // Show credentials modal if credentials are provided
+                    if (data.credentials) {
+                        showCredentialsModal(data.credentials);
                     } else {
-                        alert('Artisan added successfully!');
+                        // Fallback if no credentials (shouldn't happen)
+                        if (typeof AdminUI !== 'undefined' && AdminUI.toast) {
+                            AdminUI.toast('Artisan added successfully!', 'success');
+                        } else {
+                            alert('Artisan added successfully!');
+                        }
+                        setTimeout(() => location.reload(), 1000);
                     }
-                    setTimeout(() => location.reload(), 1000);
                 } else {
                     if (typeof AdminUI !== 'undefined' && AdminUI.toast) {
                         AdminUI.toast('Error: ' + data.message, 'error');
                     } else {
                         alert('Error: ' + data.message);
                     }
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 }
             })
             .catch(error => {
@@ -547,6 +709,8 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
                 } else {
                     alert('An error occurred. Please try again.');
                 }
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             });
         });
 
@@ -714,6 +878,7 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
             const addModal = document.getElementById('addArtisanModal');
             const viewModal = document.getElementById('viewArtisanModal');
             const editModal = document.getElementById('editArtisanModal');
+            const credentialsModal = document.getElementById('credentialsModal');
             
             if (event.target == addModal) {
                 closeModal();
@@ -723,6 +888,9 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
             }
             if (event.target == editModal) {
                 closeEditModal();
+            }
+            if (event.target == credentialsModal) {
+                closeCredentialsModal();
             }
         }
     </script>

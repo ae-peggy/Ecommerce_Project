@@ -3,6 +3,8 @@ require_once '../settings/core.php';
 require_artisan('../login/login.php');
 
 $artisan_id = get_artisan_id();
+$artisan_tier = $_SESSION['artisan_tier'] ?? 1;
+$is_tier2 = ($artisan_tier == 2);
 
 // Fetch artisan stats
 $product_count = get_artisan_product_count($artisan_id);
@@ -88,18 +90,26 @@ if (!function_exists('artisan_image_src')) {
         <div class="artisan-section-card">
             <h2>Quick Actions</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px;">
+                <?php if (!$is_tier2): ?>
                 <a href="add_product.php" class="artisan-btn artisan-btn-primary">
                     <i class="fas fa-plus"></i> Add New Product
                 </a>
                 <a href="my_products.php" class="artisan-btn artisan-btn-secondary">
                     <i class="fas fa-edit"></i> Manage Products
                 </a>
+                <?php else: ?>
+                <a href="my_products.php" class="artisan-btn artisan-btn-secondary">
+                    <i class="fas fa-box"></i> My Products
+                </a>
+                <?php endif; ?>
                 <a href="orders.php" class="artisan-btn artisan-btn-secondary">
                     <i class="fas fa-shipping-fast"></i> View Orders
                 </a>
+                <?php if (!$is_tier2): ?>
                 <a href="profile.php" class="artisan-btn artisan-btn-secondary">
                     <i class="fas fa-user-edit"></i> Update Profile
                 </a>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -123,7 +133,11 @@ if (!function_exists('artisan_image_src')) {
                         <?php if (empty($recent_products)): ?>
                             <tr>
                                 <td colspan="7" style="text-align: center; padding: 40px;">
-                                    No products yet. <a href="add_product.php" style="color: var(--primary);">Add your first product</a>
+                                    <?php if ($is_tier2): ?>
+                                        No products yet. Products added by admin will appear here.
+                                    <?php else: ?>
+                                        No products yet. <a href="add_product.php" style="color: var(--primary);">Add your first product</a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php else: ?>
@@ -147,6 +161,7 @@ if (!function_exists('artisan_image_src')) {
                                     <span class="artisan-badge artisan-badge-success">Active</span>
                                 </td>
                                 <td>
+                                    <?php if (!$is_tier2): ?>
                                     <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" 
                                        style="color: var(--primary); margin-right: 12px;" 
                                        title="Edit">
@@ -158,6 +173,9 @@ if (!function_exists('artisan_image_src')) {
                                        title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </a>
+                                    <?php else: ?>
+                                    <span style="color: #9ca3af;">View Only</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

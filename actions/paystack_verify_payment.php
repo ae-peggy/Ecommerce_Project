@@ -140,6 +140,7 @@ try {
     // Payment is verified! Now create the order in our system
     require_once '../controllers/cart_controller.php';
     require_once '../controllers/order_controller.php';
+    require_once '../controllers/product_controller.php';
     require_once '../settings/db_class.php';
     
     $customer_id = get_user_id();
@@ -152,6 +153,30 @@ try {
     
     if (!$cart_items || count($cart_items) == 0) {
         throw new Exception("Cart is empty");
+    }
+    
+    // Check stock availability for all items before creating order
+    require_once '../classes/product_class.php';
+    $product_obj = new product_class();
+    
+    foreach ($cart_items as $item) {
+        $product_id = (int)$item['p_id'];
+        $qty = (int)$item['qty'];
+        
+        // Check if product exists and has stock
+        $product = get_product_by_id_ctr($product_id);
+        if (!$product) {
+            throw new Exception("Product ID {$product_id} not found");
+        }
+        
+        $available_stock = (int)($product['product_qty'] ?? 0);
+        if ($available_stock < $qty) {
+            throw new Exception("Insufficient stock for {$product['product_title']}. Available: {$available_stock}, Requested: {$qty}");
+        }
+        
+        if ($available_stock == 0) {
+            throw new Exception("{$product['product_title']} is sold out");
+        }
     }
     
     // Create database connection for transaction
@@ -176,15 +201,24 @@ try {
         
         error_log("Order created - ID: $order_id, Invoice: $invoice_no");
         
-        // Add order details for each cart item
+        // Add order details and reduce stock for each cart item
         foreach ($cart_items as $item) {
-            $detail_result = add_order_details_ctr($order_id, $item['p_id'], $item['qty']);
+            $product_id = (int)$item['p_id'];
+            $qty = (int)$item['qty'];
+            
+            $detail_result = add_order_details_ctr($order_id, $product_id, $qty);
             
             if (!$detail_result) {
-                throw new Exception("Failed to add order details for product: {$item['p_id']}");
+                throw new Exception("Failed to add order details for product: {$product_id}");
             }
             
-            error_log("Order detail added - Product: {$item['p_id']}, Qty: {$item['qty']}");
+            // Reduce stock quantity
+            $stock_reduced = $product_obj->reduce_stock($product_id, $qty);
+            if (!$stock_reduced) {
+                throw new Exception("Failed to reduce stock for product: {$product_id}");
+            }
+            
+            error_log("Order detail added and stock reduced - Product: {$product_id}, Qty: {$qty}");
         }
         
         // Record payment in database

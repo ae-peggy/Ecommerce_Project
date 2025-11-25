@@ -69,6 +69,43 @@ if (!$product) {
     exit();
 }
 
+// Check stock availability
+require_once '../classes/product_class.php';
+$product_obj = new product_class();
+$available_stock = (int)($product['product_qty'] ?? 0);
+
+if ($available_stock == 0) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'This product is sold out'
+    ]);
+    exit();
+}
+
+if ($available_stock < $qty) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => "Only {$available_stock} unit(s) available in stock"
+    ]);
+    exit();
+}
+
+// Check if item already in cart and total would exceed stock
+require_once '../classes/cart_class.php';
+$cart_obj = new cart_class();
+$existing_cart_item = $cart_obj->check_product_in_cart($product_id, $customer_id);
+if ($existing_cart_item) {
+    $current_cart_qty = (int)$existing_cart_item['qty'];
+    $total_requested = $current_cart_qty + $qty;
+    if ($total_requested > $available_stock) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => "Cannot add more. You already have {$current_cart_qty} in cart. Only {$available_stock} total available."
+        ]);
+        exit();
+    }
+}
+
 // Add to cart
 try {
     $result = add_to_cart_ctr($product_id, $customer_id, $qty);

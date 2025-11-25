@@ -3,6 +3,8 @@ require_once '../settings/core.php';
 require_artisan('../login/login.php');
 
 $artisan_id = get_artisan_id();
+$artisan_tier = $_SESSION['artisan_tier'] ?? 1;
+$is_tier2 = ($artisan_tier == 2);
 $products = get_all_artisan_products($artisan_id);
 
 if (!function_exists('artisan_image_src')) {
@@ -45,9 +47,11 @@ if (!function_exists('artisan_image_src')) {
                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                         <i class="fas fa-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #6b7280;"></i>
                     </div>
+                    <?php if (!$is_tier2): ?>
                     <a href="add_product.php" class="artisan-btn artisan-btn-primary">
                         <i class="fas fa-plus"></i> Add New Product
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -59,22 +63,30 @@ if (!function_exists('artisan_image_src')) {
                                 <th>Image</th>
                                 <th>Product Name</th>
                                 <th>Category</th>
+                                <?php if (!$is_tier2): ?>
                                 <th>Brand</th>
+                                <?php endif; ?>
                                 <th>Price (GHS)</th>
                                 <th>Stock</th>
+                                <?php if (!$is_tier2): ?>
                                 <th>Status</th>
                                 <th>Actions</th>
+                                <?php endif; ?>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($products)): ?>
                                 <tr>
-                                    <td colspan="9" style="text-align: center; padding: 60px 20px;">
+                                    <td colspan="<?php echo $is_tier2 ? '6' : '9'; ?>" style="text-align: center; padding: 60px 20px;">
                                         <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
                                             <i class="fas fa-box-open" style="font-size: 64px; color: #9ca3af;"></i>
                                             <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--text-primary);">No Products Yet</h3>
+                                            <?php if ($is_tier2): ?>
+                                            <p style="color: var(--text-secondary);">Products added by admin will appear here</p>
+                                            <?php else: ?>
                                             <p style="color: var(--text-secondary);">Start adding products to your store</p>
                                             <a href="add_product.php" class="artisan-btn artisan-btn-primary">Add Your First Product</a>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
@@ -90,13 +102,16 @@ if (!function_exists('artisan_image_src')) {
                                     </td>
                                     <td><?php echo htmlspecialchars($product['product_title']); ?></td>
                                     <td><?php echo htmlspecialchars($product['cat_name'] ?? 'N/A'); ?></td>
+                                    <?php if (!$is_tier2): ?>
                                     <td><?php echo htmlspecialchars($product['brand_name'] ?? 'N/A'); ?></td>
+                                    <?php endif; ?>
                                     <td>GHS <?php echo number_format($product['product_price'], 2); ?></td>
                                     <td>
                                         <span class="artisan-badge <?php echo $product['product_qty'] > 10 ? 'artisan-badge-success' : ($product['product_qty'] > 0 ? 'artisan-badge-warning' : 'artisan-badge-danger'); ?>">
                                             <?php echo $product['product_qty']; ?>
                                         </span>
                                     </td>
+                                    <?php if (!$is_tier2): ?>
                                     <td>
                                         <span class="artisan-badge artisan-badge-success">Active</span>
                                     </td>
@@ -113,6 +128,7 @@ if (!function_exists('artisan_image_src')) {
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
+                                    <?php endif; ?>
                                 </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>

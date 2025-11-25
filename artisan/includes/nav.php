@@ -2,6 +2,10 @@
 // Get current page for active state
 $current_page = basename($_SERVER['PHP_SELF']);
 
+// Get artisan tier for conditional navigation
+$artisan_tier = $_SESSION['artisan_tier'] ?? 1;
+$is_tier2 = ($artisan_tier == 2);
+
 // Determine if we're in the artisan folder or being included from elsewhere
 // Check the directory of the currently executing script
 $script_path = $_SERVER['PHP_SELF'];
@@ -40,14 +44,17 @@ $index_base = $is_in_artisan_folder ? '../' : '../';
         <i class="fas fa-box"></i>
         <span class="nav-text-hide-md">Products</span>
       </a>
+      <?php if (!$is_tier2): ?>
       <a href="<?php echo $artisan_base; ?>add_product.php" class="artisan-nav-link <?php echo $current_page === 'add_product.php' ? 'active' : ''; ?>" title="Add Product">
         <i class="fas fa-plus-circle"></i>
         <span class="nav-text-hide-md">Add</span>
       </a>
+      <?php endif; ?>
       <a href="<?php echo $artisan_base; ?>orders.php" class="artisan-nav-link <?php echo $current_page === 'orders.php' ? 'active' : ''; ?>">
         <i class="fas fa-shopping-cart"></i>
         <span>Orders</span>
       </a>
+      <?php if (!$is_tier2): ?>
       <a href="<?php echo $artisan_base; ?>profile.php" class="artisan-nav-link <?php echo $current_page === 'profile.php' ? 'active' : ''; ?>">
         <i class="fas fa-user"></i>
         <span>Profile</span>
@@ -60,6 +67,7 @@ $index_base = $is_in_artisan_folder ? '../' : '../';
         <i class="fas fa-chart-line"></i>
         <span>Analytics</span>
       </a>
+      <?php endif; ?>
       <a href="<?php echo $view_base; ?>all_product.php" class="artisan-nav-link" title="View Store">
         <i class="fas fa-store"></i>
         <span class="nav-text-hide-md">Store</span>

@@ -3,6 +3,8 @@ require_once '../settings/core.php';
 require_artisan('../login/login.php');
 
 $artisan_id = get_artisan_id();
+$artisan_tier = $_SESSION['artisan_tier'] ?? 1;
+$is_tier2 = ($artisan_tier == 2);
 
 // Fetch orders containing artisan's products
 $orders = get_artisan_orders($artisan_id);
@@ -185,6 +187,17 @@ $orders = get_artisan_orders($artisan_id);
                                         <small style="color: #6b7280;"><?php echo date('h:i A', strtotime($order['order_date'])); ?></small>
                                     </td>
                                     <td>
+                                        <?php if ($is_tier2): ?>
+                                        <!-- Tier 2: View only, no editing -->
+                                        <span class="artisan-badge <?php 
+                                            echo ($normalizedStatus == 'completed') ? 'artisan-badge-success' : 
+                                                 (($normalizedStatus == 'processing') ? 'artisan-badge-info' : 
+                                                 (($normalizedStatus == 'cancelled') ? 'artisan-badge-danger' : 'artisan-badge-warning')); 
+                                        ?>">
+                                            <?php echo ucfirst($normalizedStatus); ?>
+                                        </span>
+                                        <?php else: ?>
+                                        <!-- Tier 1: Can update status -->
                                         <select class="artisan-form-control" 
                                                 style="min-width: 140px; padding: 6px 12px; font-size: 13px;"
                                                 onchange="updateOrderStatus(<?php echo $order['order_id']; ?>, this.value)"
@@ -194,6 +207,7 @@ $orders = get_artisan_orders($artisan_id);
                                             <option value="completed" <?php echo ($normalizedStatus == 'completed') ? 'selected' : ''; ?>>Completed</option>
                                             <option value="cancelled" <?php echo ($normalizedStatus == 'cancelled') ? 'selected' : ''; ?>>Cancelled</option>
                                         </select>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>

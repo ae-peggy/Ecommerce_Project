@@ -183,7 +183,16 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
                     }
                     ?>
 
-                    <div class="product-card" onclick="viewProduct(<?php echo $product['product_id']; ?>)">
+                    <?php 
+                    $product_stock = (int)($product['product_qty'] ?? 0);
+                    $is_sold_out = $product_stock == 0;
+                    ?>
+                    <div class="product-card <?php echo $is_sold_out ? 'sold-out' : ''; ?>" onclick="viewProduct(<?php echo $product['product_id']; ?>)">
+                        <?php if ($is_sold_out): ?>
+                        <div class="sold-out-badge">
+                            <span>SOLD OUT</span>
+                        </div>
+                        <?php endif; ?>
                         <img 
                             src="<?php echo htmlspecialchars($displayImage); ?>"
                             alt="<?php echo htmlspecialchars($product['product_title']); ?>"
@@ -205,9 +214,15 @@ $brands = $brand_obj->db_fetch_all("SELECT DISTINCT brand_id, brand_name FROM br
                             <div class="product-price">
                                 GHS <?php echo number_format($product['product_price'], 2); ?>
                             </div>
+                            <?php if ($is_sold_out): ?>
+                            <button class="btn-add-cart" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                Sold Out
+                            </button>
+                            <?php else: ?>
                             <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(<?php echo $product['product_id']; ?>, 1)">
                                 🛒 Add to Cart
                             </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>

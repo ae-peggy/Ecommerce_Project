@@ -1349,15 +1349,37 @@ if (!empty($product['artisan_id'])) {
                 </div>
                 <?php endif; ?>
 
+               <?php 
+               $product_stock = (int)($product['product_qty'] ?? 0);
+               $is_sold_out = $product_stock == 0;
+               ?>
                <div class="product-actions">
+                    <?php if ($is_sold_out): ?>
+                    <div style="padding: 16px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #dc2626; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                        <strong style="color: #991b1b; font-size: 18px; display: block; margin-bottom: 8px;">
+                            <i class="fas fa-times-circle"></i> SOLD OUT
+                        </strong>
+                        <p style="color: #78350f; font-size: 14px; margin: 0;">This product is currently out of stock.</p>
+                    </div>
+                    <?php else: ?>
                     <div style="margin-bottom: 20px;">
                         <label style="font-weight: 600; color: #374151; margin-bottom: 8px; display: block;">Quantity:</label>
-                        <input type="number" id="productQuantity" value="1" min="1" max="99" 
+                        <input type="number" id="productQuantity" value="1" min="1" max="<?php echo min(99, $product_stock); ?>" 
                             style="width: 80px; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; text-align: center;">
+                        <small style="display: block; color: #6b7280; margin-top: 8px;">
+                            <?php echo $product_stock; ?> available in stock
+                        </small>
                     </div>
+                    <?php endif; ?>
+                    <?php if ($is_sold_out): ?>
+                    <button class="btn btn-primary" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        Sold Out
+                    </button>
+                    <?php else: ?>
                     <button class="btn btn-primary" onclick="addProductToCart()">
                         🛒 Add to Cart
                     </button>
+                    <?php endif; ?>
                     <a href="all_product.php" class="btn btn-secondary">
                         ← Back to Shop
                     </a>

@@ -302,6 +302,78 @@ class product_class extends db_connection {
             return false;
         }
     }
+    
+    /**
+     * Reduce product stock quantity
+     * @param int $product_id - Product ID
+     * @param int $quantity - Quantity to reduce
+     * @return bool - Returns true if successful, false if failed
+     */
+    public function reduce_stock($product_id, $quantity) {
+        try {
+            $product_id = (int)$product_id;
+            $quantity = (int)$quantity;
+            
+            if ($quantity <= 0) {
+                return false;
+            }
+            
+            $sql = "UPDATE products SET product_qty = product_qty - $quantity 
+                    WHERE product_id = $product_id AND product_qty >= $quantity";
+            
+            error_log("Reducing stock - Product: $product_id, Qty: $quantity");
+            
+            return $this->db_write_query($sql);
+            
+        } catch (Exception $e) {
+            error_log("Error reducing stock: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Check if product has sufficient stock
+     * @param int $product_id - Product ID
+     * @param int $quantity - Required quantity
+     * @return bool - Returns true if stock is available, false otherwise
+     */
+    public function check_stock_availability($product_id, $quantity) {
+        try {
+            $product_id = (int)$product_id;
+            $quantity = (int)$quantity;
+            
+            $sql = "SELECT product_qty FROM products WHERE product_id = $product_id";
+            $result = $this->db_fetch_one($sql);
+            
+            if (!$result) {
+                return false;
+            }
+            
+            $available_stock = (int)$result['product_qty'];
+            return $available_stock >= $quantity;
+            
+        } catch (Exception $e) {
+            error_log("Error checking stock: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get product stock quantity
+     * @param int $product_id - Product ID
+     * @return int - Returns stock quantity or 0 if not found
+     */
+    public function get_product_stock($product_id) {
+        try {
+            $product_id = (int)$product_id;
+            $sql = "SELECT product_qty FROM products WHERE product_id = $product_id";
+            $result = $this->db_fetch_one($sql);
+            return $result ? (int)$result['product_qty'] : 0;
+        } catch (Exception $e) {
+            error_log("Error getting product stock: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
 
 ?>

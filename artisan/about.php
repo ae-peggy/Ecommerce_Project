@@ -3,6 +3,14 @@ require_once '../settings/core.php';
 require_artisan('../login/login.php');
 
 $artisan_id = get_artisan_id();
+$artisan_tier = $_SESSION['artisan_tier'] ?? 1;
+
+// Block tier 2 artisans from accessing this page
+if ($artisan_tier == 2) {
+    header('Location: dashboard.php?error=access_denied');
+    exit();
+}
+
 require_once '../classes/artisan_class.php';
 $artisan = new artisan_class();
 $about_data = $artisan->get_artisan_about($artisan_id);

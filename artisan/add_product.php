@@ -4,6 +4,13 @@ require_artisan('../login/login.php');
 
 $artisan_id = get_artisan_id();
 $artisan_tier = $_SESSION['artisan_tier'] ?? null;
+
+// Block tier 2 artisans from accessing this page
+if ($artisan_tier == 2) {
+    header('Location: dashboard.php?error=access_denied');
+    exit();
+}
+
 $business_name = $_SESSION['business_name'] ?? '';
 
 // Get artisan details to ensure we have current business_name

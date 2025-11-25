@@ -5,6 +5,13 @@ require_once '../settings/core.php';
 require_artisan('../login/login.php');
 
 $artisan_id = get_artisan_id();
+$artisan_tier = $_SESSION['artisan_tier'] ?? 1;
+
+// Block tier 2 artisans from accessing this page (they'll use admin-side analytics)
+if ($artisan_tier == 2) {
+    header('Location: dashboard.php?error=access_denied');
+    exit();
+}
 
 // Fetch analytics data
 $monthly_sales = get_artisan_monthly_sales($artisan_id);

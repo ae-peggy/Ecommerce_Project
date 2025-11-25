@@ -151,6 +151,9 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
                                     <a href="#" class="btn btn-sm" onclick="editArtisan(<?php echo $artisan['artisan_id']; ?>); return false;" title="Edit" style="padding: 8px 12px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border: none;">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <a href="#" class="btn btn-sm" onclick="manageAbout(<?php echo $artisan['artisan_id']; ?>); return false;" title="Manage About Page" style="padding: 8px 12px; background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%); color: #6b21a8; border: none;">
+                                        <i class="fas fa-book-open"></i>
+                                    </a>
                                     <?php if ($artisan['approval_status'] == 'pending'): ?>
                                     <a href="#" class="btn btn-sm" onclick="approveArtisan(<?php echo $artisan['artisan_id']; ?>); return false;" title="Approve" style="padding: 8px 12px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; border: none;">
                                         <i class="fas fa-check"></i>
@@ -241,6 +244,43 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
                 <div style="display: flex; gap: 12px; margin-top: 25px;">
                     <button type="submit" class="btn btn-primary">Update Artisan</button>
                     <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage About Modal -->
+    <div id="manageAboutModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="modal-close" onclick="closeManageAboutModal()">&times;</span>
+            <h2 class="section-title">Manage Artisan About Page</h2>
+            
+            <form id="manageAboutForm">
+                <input type="hidden" id="about_artisan_id" name="artisan_id">
+                
+                <div class="form-group">
+                    <label for="artisan_bio">Artisan Bio *</label>
+                    <textarea id="artisan_bio" name="artisan_bio" rows="4" class="form-control" placeholder="Tell the story of this artisan..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cultural_meaning">Cultural Meaning</label>
+                    <textarea id="cultural_meaning" name="cultural_meaning" rows="4" class="form-control" placeholder="Describe the cultural significance of their work..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="crafting_method">Crafting Method</label>
+                    <textarea id="crafting_method" name="crafting_method" rows="4" class="form-control" placeholder="Describe how they create their products..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="artisan_location">Location</label>
+                    <input type="text" id="artisan_location" name="artisan_location" class="form-control" placeholder="e.g., Accra, Ghana">
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-primary">Save About Page</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeManageAboutModal()">Cancel</button>
                 </div>
             </form>
         </div>
@@ -616,6 +656,75 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
             document.getElementById('editArtisanForm').reset();
         }
 
+        function manageAbout(artisanId) {
+            // Load existing about data
+            fetch('../actions/artisan_about_action.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'action=get&artisan_id=' + artisanId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.about) {
+                    document.getElementById('about_artisan_id').value = artisanId;
+                    document.getElementById('artisan_bio').value = data.about.artisan_bio || '';
+                    document.getElementById('cultural_meaning').value = data.about.cultural_meaning || '';
+                    document.getElementById('crafting_method').value = data.about.crafting_method || '';
+                    document.getElementById('artisan_location').value = data.about.artisan_location || '';
+                } else {
+                    document.getElementById('about_artisan_id').value = artisanId;
+                    document.getElementById('artisan_bio').value = '';
+                    document.getElementById('cultural_meaning').value = '';
+                    document.getElementById('crafting_method').value = '';
+                    document.getElementById('artisan_location').value = '';
+                }
+                document.getElementById('manageAboutModal').style.display = 'flex';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('about_artisan_id').value = artisanId;
+                document.getElementById('manageAboutModal').style.display = 'flex';
+            });
+        }
+
+        function closeManageAboutModal() {
+            document.getElementById('manageAboutModal').style.display = 'none';
+            document.getElementById('manageAboutForm').reset();
+        }
+
+        // Manage About form submission
+        document.getElementById('manageAboutForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            formData.append('action', 'update');
+            
+            fetch('../actions/artisan_about_action.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (typeof AdminUI !== 'undefined' && AdminUI.toast) {
+                        AdminUI.toast('About page updated successfully!', 'success');
+                    } else {
+                        alert('About page updated successfully!');
+                    }
+                    closeManageAboutModal();
+                } else {
+                    if (typeof AdminUI !== 'undefined' && AdminUI.toast) {
+                        AdminUI.toast('Error: ' + data.message, 'error');
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -879,6 +988,7 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
             const viewModal = document.getElementById('viewArtisanModal');
             const editModal = document.getElementById('editArtisanModal');
             const credentialsModal = document.getElementById('credentialsModal');
+            const manageAboutModal = document.getElementById('manageAboutModal');
             
             if (event.target == addModal) {
                 closeModal();
@@ -891,6 +1001,9 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
             }
             if (event.target == credentialsModal) {
                 closeCredentialsModal();
+            }
+            if (event.target == manageAboutModal) {
+                closeManageAboutModal();
             }
         }
     </script>

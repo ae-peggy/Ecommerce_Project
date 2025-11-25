@@ -30,6 +30,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="../admin/product.php" class="nav-link <?php echo $current_page === 'product.php' ? 'active' : ''; ?>"><span>Products</span></a>
                 <a href="../admin/artisans.php" class="nav-link <?php echo $current_page === 'artisans.php' ? 'active' : ''; ?>"><span>Artisans</span></a>
                 <a href="../view/orders.php" class="nav-link <?php echo $current_page === 'orders.php' ? 'active' : ''; ?>"><span>Orders</span></a>
+                <a href="../admin/profile.php" class="nav-link <?php echo $current_page === 'profile.php' ? 'active' : ''; ?>"><span>My Profile</span></a>
                 <a href="../login/logout.php" class="nav-link logout"><span>Logout</span></a>
             </div>
         </div>

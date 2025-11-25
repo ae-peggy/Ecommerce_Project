@@ -100,6 +100,13 @@ if (!class_exists('customer_class')) {
     // Update customer information
     public function edit_customer($customer_id, $name, $email, $country, $city, $contact) {
         try {
+            $customer_id = (int)$customer_id;
+            $name = mysqli_real_escape_string($this->db_conn(), $name);
+            $email = mysqli_real_escape_string($this->db_conn(), $email);
+            $country = mysqli_real_escape_string($this->db_conn(), $country);
+            $city = mysqli_real_escape_string($this->db_conn(), $city);
+            $contact = mysqli_real_escape_string($this->db_conn(), $contact);
+            
             $sql = "UPDATE customer SET 
                     customer_name = '$name',
                     customer_email = '$email',
@@ -112,6 +119,22 @@ if (!class_exists('customer_class')) {
             
         } catch (Exception $e) {
             error_log("Error updating customer: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    // Update customer password
+    public function update_password($customer_id, $new_password_hash) {
+        try {
+            $customer_id = (int)$customer_id;
+            $password = mysqli_real_escape_string($this->db_conn(), $new_password_hash);
+            
+            $sql = "UPDATE customer SET customer_pass = '$password' WHERE customer_id = $customer_id";
+            
+            return $this->db_write_query($sql);
+            
+        } catch (Exception $e) {
+            error_log("Error updating password: " . $e->getMessage());
             return false;
         }
     }

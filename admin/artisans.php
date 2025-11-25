@@ -151,9 +151,11 @@ $pending_count = count(array_filter($artisans, fn($a) => $a['approval_status'] =
                                     <a href="#" class="btn btn-sm" onclick="editArtisan(<?php echo $artisan['artisan_id']; ?>); return false;" title="Edit" style="padding: 8px 12px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border: none;">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <?php if ($artisan['tier'] == 2): ?>
                                     <a href="#" class="btn btn-sm" onclick="manageAbout(<?php echo $artisan['artisan_id']; ?>); return false;" title="Manage About Page" style="padding: 8px 12px; background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%); color: #6b21a8; border: none;">
                                         <i class="fas fa-book-open"></i>
                                     </a>
+                                    <?php endif; ?>
                                     <?php if ($artisan['approval_status'] == 'pending'): ?>
                                     <a href="#" class="btn btn-sm" onclick="approveArtisan(<?php echo $artisan['artisan_id']; ?>); return false;" title="Approve" style="padding: 8px 12px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; border: none;">
                                         <i class="fas fa-check"></i>

@@ -13,91 +13,92 @@ $admin_info = get_customer_details($admin_id);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Admin Portal</title>
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/admin_pages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <?php include 'includes/nav.php'; ?>
 
     <!-- Main Content -->
-    <div class="admin-main-content">
-        <div class="admin-section-card">
-            <h1><i class="fas fa-user-circle"></i> My Profile</h1>
-            <p style="color: #6b7280; margin-top: 8px;">Manage your account credentials and personal information</p>
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-user-circle"></i> My Profile</h1>
+            <p class="page-subtitle">Manage your account credentials and personal information</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-top: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px;">
             <!-- Personal Information -->
-            <div class="admin-section-card">
-                <h2><i class="fas fa-user"></i> Personal Information</h2>
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-user"></i> Personal Information</h2>
                 <form id="personalInfoForm">
-                    <div class="admin-form-group">
+                    <div class="form-group">
                         <label for="customer_name">Full Name *</label>
                         <input type="text" id="customer_name" name="customer_name" 
-                               class="admin-form-control" 
+                               class="form-control" 
                                value="<?php echo htmlspecialchars($admin_info['customer_name'] ?? ''); ?>" required>
                     </div>
 
-                    <div class="admin-form-group">
+                    <div class="form-group">
                         <label for="customer_email">Email *</label>
                         <input type="email" id="customer_email" name="customer_email" 
-                               class="admin-form-control" 
+                               class="form-control" 
                                value="<?php echo htmlspecialchars($admin_info['customer_email'] ?? ''); ?>" required>
                     </div>
 
-                    <div class="admin-form-group">
+                    <div class="form-group">
                         <label for="customer_contact">Contact *</label>
                         <input type="tel" id="customer_contact" name="customer_contact" 
-                               class="admin-form-control" 
+                               class="form-control" 
                                value="<?php echo htmlspecialchars($admin_info['customer_contact'] ?? ''); ?>" required>
                     </div>
 
-                    <div class="admin-form-group">
+                    <div class="form-group">
                         <label for="customer_country">Country</label>
                         <input type="text" id="customer_country" name="customer_country" 
-                               class="admin-form-control" 
+                               class="form-control" 
                                value="<?php echo htmlspecialchars($admin_info['customer_country'] ?? ''); ?>">
                     </div>
 
-                    <div class="admin-form-group">
+                    <div class="form-group">
                         <label for="customer_city">City</label>
                         <input type="text" id="customer_city" name="customer_city" 
-                               class="admin-form-control" 
+                               class="form-control" 
                                value="<?php echo htmlspecialchars($admin_info['customer_city'] ?? ''); ?>">
                     </div>
 
-                    <button type="submit" class="admin-btn admin-btn-primary">
+                    <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Update Personal Info
                     </button>
                 </form>
             </div>
 
             <!-- Change Password -->
-            <div class="admin-section-card">
-                <h2><i class="fas fa-lock"></i> Change Password</h2>
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-lock"></i> Change Password</h2>
                 <form id="changePasswordForm">
-                    <div class="admin-form-group">
+                    <div class="form-group">
                         <label for="current_password">Current Password *</label>
                         <input type="password" id="current_password" name="current_password" 
-                               class="admin-form-control" required>
+                               class="form-control" required>
                     </div>
 
-                    <div class="admin-form-group">
+                    <div class="form-group">
                         <label for="new_password">New Password *</label>
                         <input type="password" id="new_password" name="new_password" 
-                               class="admin-form-control" 
+                               class="form-control" 
                                minlength="6" required>
                         <small style="color: #6b7280; display: block; margin-top: 4px;">Minimum 6 characters</small>
                     </div>
 
-                    <div class="admin-form-group">
+                    <div class="form-group">
                         <label for="confirm_password">Confirm New Password *</label>
                         <input type="password" id="confirm_password" name="confirm_password" 
-                               class="admin-form-control" 
+                               class="form-control" 
                                minlength="6" required>
                     </div>
 
-                    <button type="submit" class="admin-btn admin-btn-primary">
+                    <button type="submit" class="btn btn-primary">
                         <i class="fas fa-key"></i> Change Password
                     </button>
                 </form>

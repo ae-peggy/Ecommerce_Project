@@ -1355,11 +1355,10 @@ if (!empty($product['artisan_id'])) {
                ?>
                <div class="product-actions">
                     <?php if ($is_sold_out): ?>
-                    <div style="padding: 16px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #dc2626; border-radius: 12px; margin-bottom: 20px; text-align: center;">
-                        <strong style="color: #991b1b; font-size: 18px; display: block; margin-bottom: 8px;">
+                    <div style="padding: 8px 12px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #dc2626; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+                        <strong style="color: #991b1b; font-size: 14px; display: block;">
                             <i class="fas fa-times-circle"></i> SOLD OUT
                         </strong>
-                        <p style="color: #78350f; font-size: 14px; margin: 0;">This product is currently out of stock.</p>
                     </div>
                     <?php else: ?>
                     <div style="margin-bottom: 20px;">

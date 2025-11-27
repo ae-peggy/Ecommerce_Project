@@ -98,7 +98,7 @@ function displayProducts(products) {
                     <strong>Brand:</strong> ${escapeHtml(product.brand_name || 'N/A')}
                 </div>
                 <div class="product-actions">
-                    <button class="btn btn-sm btn-primary" onclick='editProduct(${JSON.stringify(product)})'>
+                    <button class="btn btn-sm btn-primary" onclick='editProduct(${JSON.stringify(product).replace(/'/g, "\\u0027")})'>
                         Edit
                     </button>
                     <button class="btn btn-sm btn-secondary" onclick="viewProduct(${product.product_id})">

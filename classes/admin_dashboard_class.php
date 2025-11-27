@@ -4,16 +4,35 @@ require_once __DIR__ . '/../settings/db_class.php';
 class admin_dashboard_class extends db_connection {
 
     public function get_tier2_summary($low_stock_threshold = 10) {
+        // Use subqueries to avoid row multiplication from multiple JOINs
         $summarySql = "SELECT 
-                            COUNT(DISTINCT a.artisan_id) AS total_artisans,
-                            COALESCE(SUM(p.product_qty), 0) AS total_stock_units,
-                            COALESCE(SUM(p.product_qty * p.product_price), 0) AS stock_value,
-                            COALESCE(SUM(od.qty), 0) AS units_sold,
-                            COALESCE(SUM(od.qty * p.product_price), 0) AS gross_sales
-                        FROM artisans a
-                        LEFT JOIN products p ON p.artisan_id = a.artisan_id
-                        LEFT JOIN orderdetails od ON od.product_id = p.product_id
-                        WHERE a.tier = 2";
+                            (SELECT COUNT(*) FROM artisans WHERE tier = 2) AS total_artisans,
+                            COALESCE((
+                                SELECT SUM(p.product_qty) 
+                                FROM products p 
+                                JOIN artisans a ON p.artisan_id = a.artisan_id 
+                                WHERE a.tier = 2
+                            ), 0) AS total_stock_units,
+                            COALESCE((
+                                SELECT SUM(p.product_qty * p.product_price) 
+                                FROM products p 
+                                JOIN artisans a ON p.artisan_id = a.artisan_id 
+                                WHERE a.tier = 2
+                            ), 0) AS stock_value,
+                            COALESCE((
+                                SELECT SUM(od.qty) 
+                                FROM orderdetails od 
+                                JOIN products p ON od.product_id = p.product_id 
+                                JOIN artisans a ON p.artisan_id = a.artisan_id 
+                                WHERE a.tier = 2
+                            ), 0) AS units_sold,
+                            COALESCE((
+                                SELECT SUM(od.qty * p.product_price) 
+                                FROM orderdetails od 
+                                JOIN products p ON od.product_id = p.product_id 
+                                JOIN artisans a ON p.artisan_id = a.artisan_id 
+                                WHERE a.tier = 2
+                            ), 0) AS gross_sales";
 
         $summary = $this->db_fetch_one($summarySql) ?? [
             'total_artisans' => 0,
@@ -42,17 +61,33 @@ class admin_dashboard_class extends db_connection {
 
     public function get_top_tier2_artisans($limit = 5) {
         $limit = max(1, min((int)$limit, 20));
+        // Use subqueries to avoid row multiplication from multiple JOINs
         $sql = "SELECT 
                     a.artisan_id,
                     a.business_name,
-                    COALESCE(SUM(od.qty * p.product_price), 0) AS total_sales,
-                    COALESCE(SUM(od.qty), 0) AS units_sold,
-                    COALESCE(SUM(p.product_qty), 0) AS stock_on_hand
+                    COALESCE(os.total_sales, 0) AS total_sales,
+                    COALESCE(os.units_sold, 0) AS units_sold,
+                    COALESCE(ps.stock_on_hand, 0) AS stock_on_hand
                 FROM artisans a
-                LEFT JOIN products p ON p.artisan_id = a.artisan_id
-                LEFT JOIN orderdetails od ON od.product_id = p.product_id
+                LEFT JOIN (
+                    SELECT 
+                        artisan_id,
+                        SUM(product_qty) AS stock_on_hand
+                    FROM products
+                    WHERE artisan_id IS NOT NULL
+                    GROUP BY artisan_id
+                ) ps ON ps.artisan_id = a.artisan_id
+                LEFT JOIN (
+                    SELECT 
+                        p.artisan_id,
+                        SUM(od.qty * p.product_price) AS total_sales,
+                        SUM(od.qty) AS units_sold
+                    FROM orderdetails od
+                    JOIN products p ON od.product_id = p.product_id
+                    WHERE p.artisan_id IS NOT NULL
+                    GROUP BY p.artisan_id
+                ) os ON os.artisan_id = a.artisan_id
                 WHERE a.tier = 2
-                GROUP BY a.artisan_id, a.business_name
                 ORDER BY total_sales DESC, a.business_name ASC
                 LIMIT $limit";
 
@@ -124,6 +159,7 @@ class admin_dashboard_class extends db_connection {
     }
 
     public function get_tier2_artisan_overview() {
+        // Use subqueries to avoid row multiplication from multiple JOINs
         $sql = "SELECT 
                     a.artisan_id,
                     a.business_name,
@@ -131,23 +167,34 @@ class admin_dashboard_class extends db_connection {
                     c.customer_name,
                     c.customer_email,
                     c.customer_contact,
-                    COUNT(DISTINCT p.product_id) AS product_count,
-                    COALESCE(SUM(p.product_qty), 0) AS stock_units,
-                    COALESCE(SUM(p.product_qty * p.product_price), 0) AS stock_value,
-                    COALESCE(SUM(od.qty), 0) AS units_sold,
-                    COALESCE(SUM(od.qty * p.product_price), 0) AS revenue
+                    COALESCE(ps.product_count, 0) AS product_count,
+                    COALESCE(ps.stock_units, 0) AS stock_units,
+                    COALESCE(ps.stock_value, 0) AS stock_value,
+                    COALESCE(os.units_sold, 0) AS units_sold,
+                    COALESCE(os.revenue, 0) AS revenue
                 FROM artisans a
                 JOIN customer c ON a.customer_id = c.customer_id
-                LEFT JOIN products p ON p.artisan_id = a.artisan_id
-                LEFT JOIN orderdetails od ON od.product_id = p.product_id
+                LEFT JOIN (
+                    SELECT 
+                        artisan_id,
+                        COUNT(product_id) AS product_count,
+                        SUM(product_qty) AS stock_units,
+                        SUM(product_qty * product_price) AS stock_value
+                    FROM products
+                    WHERE artisan_id IS NOT NULL
+                    GROUP BY artisan_id
+                ) ps ON ps.artisan_id = a.artisan_id
+                LEFT JOIN (
+                    SELECT 
+                        p.artisan_id,
+                        SUM(od.qty) AS units_sold,
+                        SUM(od.qty * p.product_price) AS revenue
+                    FROM orderdetails od
+                    JOIN products p ON od.product_id = p.product_id
+                    WHERE p.artisan_id IS NOT NULL
+                    GROUP BY p.artisan_id
+                ) os ON os.artisan_id = a.artisan_id
                 WHERE a.tier = 2
-                GROUP BY 
-                    a.artisan_id,
-                    a.business_name,
-                    a.commission_rate,
-                    c.customer_name,
-                    c.customer_email,
-                    c.customer_contact
                 ORDER BY revenue DESC, a.business_name ASC";
 
         return $this->db_fetch_all($sql) ?? [];

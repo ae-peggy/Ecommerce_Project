@@ -1,7 +1,7 @@
 <?php
 /**
- * PDF Export Action
- * Exports order invoice as PDF
+ * Invoice Export Action
+ * Exports order invoice as printable HTML (user can Print to PDF)
  */
 
 require_once '../settings/core.php';
@@ -55,32 +55,6 @@ $customer_info = $customer_obj->get_customer_by_id($order_info['customer_id'] ??
 // Normalize products array
 $order_products = $order_products ?: [];
 
-// Load TCPDF
-$autoloadPath = __DIR__ . '/../vendor/autoload.php';
-$fallbackTcpdf = __DIR__ . '/../vendor/tecnickcom/tcpdf/tcpdf.php';
-
-if (file_exists($autoloadPath)) {
-    require_once $autoloadPath;
-} elseif (file_exists($fallbackTcpdf)) {
-    require_once $fallbackTcpdf;
-} else {
-    die('TCPDF library not found. Run "composer require tecnickcom/tcpdf" and try again.');
-}
-
-if (!class_exists('TCPDF')) {
-    die('TCPDF is not available even after including the library. Verify your installation.');
-}
-
-$pdf = new TCPDF();
-$pdf->SetCreator('Aya Crafts');
-$pdf->SetAuthor('Aya Crafts');
-$pdf->SetTitle('Invoice ' . $order_info['invoice_no']);
-$pdf->SetSubject('Order Invoice');
-$pdf->SetMargins(15, 20, 15);
-$pdf->SetAutoPageBreak(true, 20);
-$pdf->AddPage();
-$pdf->SetFont('helvetica', '', 10);
-
 $orderId = str_pad($order_info['order_id'], 6, '0', STR_PAD_LEFT);
 $orderDate = date('F j, Y, g:i A', strtotime($order_info['order_date']));
 $orderStatus = ucfirst($order_info['order_status'] ?? 'Pending');
@@ -117,153 +91,257 @@ $grandTotal = number_format($order_info['total_amount'] ?? $subtotal, 2);
 $subtotalFormatted = number_format($subtotal, 2);
 $generatedOn = date('F j, Y, g:i A');
 
-$html = '
+// Output printable HTML invoice
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice <?php echo $invoiceNo; ?></title>
     <style>
-    * { box-sizing: border-box; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            background: #f5f5f5;
+        }
+        .print-controls {
+            background: #dc2626;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .print-controls p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .print-btn {
+            background: white;
+            color: #dc2626;
+            border: none;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .print-btn:hover {
+            background: #fee2e2;
+            transform: translateY(-1px);
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            padding: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
         .invoice-header {
             text-align: center;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
             border-bottom: 3px solid #dc2626;
         }
         .invoice-title {
-        font-size: 26px;
+            font-size: 36px;
             font-weight: bold;
             color: #dc2626;
+            margin-bottom: 5px;
+        }
+        .invoice-subtitle {
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
         .invoice-number {
-        font-size: 12px;
-        color: #555;
-        margin-top: 5px;
+            font-size: 16px;
+            color: #555;
+            margin-top: 15px;
         }
-        .invoice-info {
-            width: 100%;
-        margin-bottom: 20px;
-        }
-        .info-section {
-        width: 48%;
-        display: inline-block;
-            vertical-align: top;
-        padding: 10px;
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
         }
         .info-section h3 {
-        font-size: 14px;
+            font-size: 14px;
             color: #dc2626;
-        margin-bottom: 8px;
-            border-bottom: 1px solid #eee;
-        padding-bottom: 4px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #fee2e2;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .info-section p {
-        margin: 4px 0;
-        font-size: 11px;
-        color: #333;
+            margin: 8px 0;
+            font-size: 14px;
+            color: #333;
         }
-        table {
+        .info-section strong {
+            color: #111;
+        }
+        .products-table {
             width: 100%;
             border-collapse: collapse;
-        margin-bottom: 15px;
+            margin-bottom: 30px;
         }
-        th {
+        .products-table th {
             background: #dc2626;
-        color: #fff;
-        padding: 10px;
+            color: #fff;
+            padding: 14px 12px;
             text-align: left;
-        font-size: 11px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        td {
-        padding: 9px 10px;
-        border-bottom: 1px solid #f2f2f2;
-        font-size: 11px;
+        .products-table th.text-right {
+            text-align: right;
         }
-        tr:nth-child(even) {
-        background: #fdf5f5;
+        .products-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .products-table tr:nth-child(even) {
+            background: #fef7f7;
         }
         .text-right {
             text-align: right;
         }
         .invoice-total {
             text-align: right;
-            border-top: 2px solid #dc2626;
-        padding-top: 12px;
-        margin-top: 5px;
-    }
-    .invoice-total p {
-        margin: 2px 0;
-        font-size: 12px;
+            border-top: 3px solid #dc2626;
+            padding-top: 20px;
+            margin-top: 10px;
+        }
+        .invoice-total p {
+            margin: 6px 0;
+            font-size: 14px;
         }
         .total-amount {
-        font-size: 18px;
+            font-size: 24px;
             font-weight: bold;
             color: #dc2626;
+            margin-top: 10px;
+        }
+        .tax-note {
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
         }
         .invoice-footer {
             text-align: center;
-        font-size: 10px;
+            font-size: 12px;
             color: #666;
-        margin-top: 25px;
-        border-top: 1px solid #eee;
-        padding-top: 10px;
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+        .invoice-footer p {
+            margin: 5px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        
+        /* Print styles */
+        @media print {
+            body { background: white; }
+            .print-controls { display: none !important; }
+            .invoice-container { 
+                box-shadow: none; 
+                margin: 0; 
+                padding: 20px;
+                max-width: 100%;
+            }
         }
     </style>
-
-    <div class="invoice-header">
-        <div class="invoice-title">Aya Crafts</div>
-    <div class="invoice-number">Invoice: ' . $invoiceNo . '</div>
+</head>
+<body>
+    <div class="print-controls">
+        <p>💡 To save as PDF: Click "Print" then select "Save as PDF" as your printer</p>
+        <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
     </div>
 
-    <div class="invoice-info">
-        <div class="info-section">
-            <h3>Order Information</h3>
-        <p><strong>Order ID:</strong> #' . $orderId . '</p>
-        <p><strong>Order Date:</strong> ' . $orderDate . '</p>
-        <p><strong>Status:</strong> ' . $orderStatus . '</p>
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <div class="invoice-title">Aya Crafts</div>
+            <div class="invoice-subtitle">Authentic African Artistry</div>
+            <div class="invoice-number">Invoice: <?php echo $invoiceNo; ?></div>
         </div>
-        <div class="info-section">
-            <h3>Customer Information</h3>
-        <p><strong>Name:</strong> ' . $customerName . '</p>
-        <p><strong>Email:</strong> ' . $customerEmail . '</p>';
 
-if ($customerPhone !== '') {
-    $html .= '<p><strong>Phone:</strong> ' . $customerPhone . '</p>';
-}
-if ($deliveryLocation !== '') {
-    $html .= '<p><strong>Delivery Location:</strong> ' . $deliveryLocation . '</p>';
-}
-if ($recipientName !== '') {
-    $html .= '<p><strong>Recipient:</strong> ' . $recipientName . '</p>';
-}
-
-$html .= '
+        <div class="info-grid">
+            <div class="info-section">
+                <h3>Order Information</h3>
+                <p><strong>Order ID:</strong> #<?php echo $orderId; ?></p>
+                <p><strong>Order Date:</strong> <?php echo $orderDate; ?></p>
+                <p><strong>Status:</strong> <span class="status-badge status-<?php echo strtolower($orderStatus); ?>"><?php echo $orderStatus; ?></span></p>
+            </div>
+            <div class="info-section">
+                <h3>Customer Information</h3>
+                <p><strong>Name:</strong> <?php echo $customerName; ?></p>
+                <p><strong>Email:</strong> <?php echo $customerEmail; ?></p>
+                <?php if ($customerPhone !== ''): ?>
+                    <p><strong>Phone:</strong> <?php echo $customerPhone; ?></p>
+                <?php endif; ?>
+                <?php if ($deliveryLocation !== ''): ?>
+                    <p><strong>Delivery Location:</strong> <?php echo $deliveryLocation; ?></p>
+                <?php endif; ?>
+                <?php if ($recipientName !== ''): ?>
+                    <p><strong>Recipient:</strong> <?php echo $recipientName; ?></p>
+                <?php endif; ?>
+            </div>
         </div>
-    </div>
 
-        <table>
+        <table class="products-table">
             <thead>
                 <tr>
-                    <th>Product</th>
-                    <th class="text-right">Quantity</th>
-                    <th class="text-right">Unit Price</th>
-                    <th class="text-right">Total</th>
+                    <th style="width: 50%;">Product</th>
+                    <th class="text-right" style="width: 15%;">Quantity</th>
+                    <th class="text-right" style="width: 17%;">Unit Price</th>
+                    <th class="text-right" style="width: 18%;">Total</th>
                 </tr>
             </thead>
-    <tbody>' . $rowsHtml . '</tbody>
+            <tbody><?php echo $rowsHtml; ?></tbody>
         </table>
 
-    <div class="invoice-total">
-    <p>Subtotal: GHS ' . $subtotalFormatted . '</p>
-    <p class="total-amount">Total Due: GHS ' . $grandTotal . '</p>
-    <p style="font-size:10px;color:#777;">All prices include applicable taxes.</p>
-    </div>
+        <div class="invoice-total">
+            <p>Subtotal: <strong>GHS <?php echo $subtotalFormatted; ?></strong></p>
+            <p class="total-amount">Total Due: GHS <?php echo $grandTotal; ?></p>
+            <p class="tax-note">All prices include applicable taxes.</p>
+        </div>
 
-    <div class="invoice-footer">
-    <p>Thank you for supporting authentic African artisans at Aya Crafts.</p>
-    <p>Generated on ' . $generatedOn . '</p>
+        <div class="invoice-footer">
+            <p><strong>Thank you for supporting authentic African artisans!</strong></p>
+            <p>Aya Crafts - Preserving Heritage, Empowering Communities</p>
+            <p style="margin-top: 15px; color: #999;">Generated on <?php echo $generatedOn; ?></p>
+        </div>
     </div>
-';
-
-$pdf->writeHTML($html, true, false, true, false, '');
-$pdf->lastPage();
-$filename = 'invoice_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $invoiceNo) . '.pdf';
-$pdf->Output($filename, 'D');
-exit;
+</body>
+</html>
 

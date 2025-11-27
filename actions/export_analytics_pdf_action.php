@@ -1,7 +1,7 @@
 <?php
 /**
- * Analytics PDF Export Action
- * Exports artisan analytics report as PDF
+ * Analytics Export Action
+ * Exports artisan analytics report as printable HTML
  */
 
 require_once '../settings/core.php';
@@ -25,107 +25,207 @@ foreach ($orders as $order) {
     $total_sales += (float)($order['total_amount'] ?? 0);
 }
 
-// Generate HTML for PDF
-ob_start();
+// Calculate commission (20% platform, 80% artisan)
+$platform_fee = $total_sales * 0.20;
+$artisan_earnings = $total_sales * 0.80;
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Analytics Report - <?php echo htmlspecialchars($artisan_info['business_name'] ?? 'Artisan'); ?></title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
-            font-size: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
             color: #333;
-            padding: 40px;
-            background: #fff;
+            background: #f5f5f5;
+            line-height: 1.5;
+        }
+        .print-controls {
+            background: #dc2626;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .print-controls p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .print-btn {
+            background: white;
+            color: #dc2626;
+            border: none;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .print-btn:hover {
+            background: #fee2e2;
+        }
+        .report-container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            padding: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
         }
         .report-header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
             border-bottom: 3px solid #dc2626;
         }
         .report-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             color: #dc2626;
             margin-bottom: 10px;
         }
         .report-subtitle {
-            font-size: 14px;
+            font-size: 16px;
             color: #666;
         }
-        .stats-section {
-            margin-bottom: 30px;
-        }
         .stats-grid {
-            display: table;
-            width: 100%;
-            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
         }
         .stat-box {
-            display: table-cell;
-            width: 25%;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             border: 1px solid #eee;
             background: #f9fafb;
+            border-radius: 8px;
+        }
+        .stat-box.highlight {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: #059669;
         }
         .stat-value {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             color: #dc2626;
             margin-bottom: 5px;
         }
+        .stat-box.highlight .stat-value {
+            color: #059669;
+        }
         .stat-label {
-            font-size: 11px;
+            font-size: 12px;
             color: #666;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .section-title {
-            font-size: 18px;
+            font-size: 20px;
             color: #dc2626;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 2px solid #dc2626;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #fee2e2;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         th {
             background: #dc2626;
             color: white;
-            padding: 10px;
+            padding: 12px;
             text-align: left;
-            font-weight: bold;
-            font-size: 11px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
         }
         td {
-            padding: 8px 10px;
+            padding: 12px;
             border-bottom: 1px solid #eee;
-            font-size: 11px;
+            font-size: 14px;
         }
         tr:nth-child(even) {
-            background: #f9fafb;
+            background: #fef7f7;
         }
         .text-right {
             text-align: right;
         }
         .report-footer {
-            margin-top: 40px;
-            padding-top: 20px;
+            margin-top: 50px;
+            padding-top: 25px;
             border-top: 1px solid #eee;
             text-align: center;
-            font-size: 11px;
+            font-size: 12px;
             color: #666;
+        }
+        .commission-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .commission-box {
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .commission-box.earnings {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #059669;
+        }
+        .commission-box.fees {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #dc2626;
+        }
+        .commission-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .commission-box.earnings .commission-value { color: #059669; }
+        .commission-box.fees .commission-value { color: #dc2626; }
+        .commission-label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .commission-box.earnings .commission-label { color: #065f46; }
+        .commission-box.fees .commission-label { color: #991b1b; }
+        
+        @media print {
+            body { background: white; }
+            .print-controls { display: none !important; }
+            .report-container { 
+                box-shadow: none; 
+                margin: 0; 
+                padding: 20px;
+                max-width: 100%;
+            }
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .commission-section { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <div class="print-controls">
+        <p>💡 To save as PDF: Click "Print" then select "Save as PDF" as your printer</p>
+        <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    </div>
+
+    <div class="report-container">
     <div class="report-header">
         <div class="report-title">Sales Analytics Report</div>
         <div class="report-subtitle"><?php echo htmlspecialchars($artisan_info['business_name'] ?? 'Artisan'); ?> - <?php echo date('F Y'); ?></div>
@@ -179,18 +279,25 @@ ob_start();
         </tbody>
     </table>
 
-    <div class="report-footer">
-        <p>Generated on <?php echo date('F j, Y, g:i A'); ?></p>
-        <p>Aya Crafts - Artisan Portal</p>
+        <!-- Commission Breakdown -->
+        <h3 class="section-title">Earnings Breakdown</h3>
+        <div class="commission-section">
+            <div class="commission-box earnings">
+                <div class="commission-value">GHS <?php echo number_format($artisan_earnings, 2); ?></div>
+                <div class="commission-label">Your Earnings (80%)</div>
+            </div>
+            <div class="commission-box fees">
+                <div class="commission-value">GHS <?php echo number_format($platform_fee, 2); ?></div>
+                <div class="commission-label">Platform Fee (20%)</div>
+            </div>
+        </div>
+
+        <div class="report-footer">
+            <p><strong>Thank you for being part of Aya Crafts!</strong></p>
+            <p>Generated on <?php echo date('F j, Y, g:i A'); ?></p>
+            <p style="margin-top: 10px; color: #999;">Aya Crafts - Artisan Portal</p>
+        </div>
     </div>
 </body>
 </html>
-<?php
-$html = ob_get_clean();
-
-header('Content-Type: text/html; charset=UTF-8');
-header('Content-Disposition: attachment; filename="analytics_report_' . date('Y-m-d') . '.html"');
-echo $html;
-exit();
-?>
 

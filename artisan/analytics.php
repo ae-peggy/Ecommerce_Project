@@ -18,6 +18,12 @@ $monthly_sales = get_artisan_monthly_sales($artisan_id);
 $top_products = get_artisan_top_products($artisan_id, 5);
 $sales_by_category = get_artisan_sales_by_category($artisan_id);
 $revenue_stats = get_artisan_revenue_stats($artisan_id);
+
+// Calculate commission splits (20% platform fee for Tier 1, 80% to artisan)
+$total_revenue = (float)($revenue_stats['total_revenue'] ?? 0);
+$platform_commission_rate = 0.20; // 20% platform fee
+$platform_commission = $total_revenue * $platform_commission_rate;
+$artisan_earnings = $total_revenue * (1 - $platform_commission_rate);
 ?>
 
 <!DOCTYPE html>
@@ -92,6 +98,42 @@ $revenue_stats = get_artisan_revenue_stats($artisan_id);
                     <h3><?php echo $revenue_stats['products_sold'] ?? 0; ?></h3>
                     <p>Products Sold</p>
                     <small style="color: #6b7280; display: block; margin-top: 8px;">Total units</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commission Breakdown -->
+        <div class="artisan-stats-grid" style="margin-top: 24px;">
+            <div class="artisan-stat-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 2px solid #059669;">
+                <div class="artisan-stat-icon" style="background: #059669;">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="artisan-stat-details">
+                    <h3 style="color: #059669;">GHS <?php echo number_format($artisan_earnings, 2); ?></h3>
+                    <p style="color: #065f46; font-weight: 600;">Your Earnings (80%)</p>
+                    <small style="color: #047857; display: block; margin-top: 8px;">After platform fee</small>
+                </div>
+            </div>
+
+            <div class="artisan-stat-card" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #dc2626;">
+                <div class="artisan-stat-icon" style="background: #dc2626;">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="artisan-stat-details">
+                    <h3 style="color: #dc2626;">GHS <?php echo number_format($platform_commission, 2); ?></h3>
+                    <p style="color: #991b1b; font-weight: 600;">Platform Fee (20%)</p>
+                    <small style="color: #b91c1c; display: block; margin-top: 8px;">Service & hosting costs</small>
+                </div>
+            </div>
+
+            <div class="artisan-stat-card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #3b82f6;">
+                <div class="artisan-stat-icon" style="background: #3b82f6;">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="artisan-stat-details">
+                    <h3 style="color: #3b82f6;">80/20</h3>
+                    <p style="color: #1e40af; font-weight: 600;">Revenue Split</p>
+                    <small style="color: #1d4ed8; display: block; margin-top: 8px;">You keep 80% of all sales</small>
                 </div>
             </div>
         </div>

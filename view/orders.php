@@ -530,6 +530,25 @@ if ($orders) {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(220, 38, 38, 0.35);
     }
+
+    .status-select {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1.5px solid #e5e7eb;
+      font-size: 13px;
+      font-weight: 500;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-left: 12px;
+    }
+    .status-select:hover {
+      border-color: #dc2626;
+    }
+    .status-select:focus {
+      outline: none;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
     }
 
     .empty-state {
@@ -697,6 +716,14 @@ if ($orders) {
                 <span class="status-badge <?php echo $status_class; ?>">
                   <?php echo ucfirst($status); ?>
                 </span>
+                <?php if ($is_admin_view && !empty($order['has_tier2_artisan']) && $order['has_tier2_artisan'] == 2): ?>
+                  <select class="status-select" onchange="updateOrderStatus(<?php echo $order['order_id']; ?>, this.value)" onclick="event.stopPropagation();">
+                    <option value="pending" <?php echo $status === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                    <option value="processing" <?php echo $status === 'processing' ? 'selected' : ''; ?>>Processing</option>
+                    <option value="completed" <?php echo $status === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                    <option value="cancelled" <?php echo $status === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                  </select>
+                <?php endif; ?>
 
                 <div class="order-total">
                   <div class="total-label">Total</div>
@@ -797,6 +824,30 @@ if ($orders) {
       .catch(error => {
         console.error('Error:', error);
         alert('An error occurred while deleting the order. Please try again.');
+      });
+    }
+
+    function updateOrderStatus(orderId, newStatus) {
+      const formData = new FormData();
+      formData.append('order_id', orderId);
+      formData.append('order_status', newStatus);
+
+      fetch('../actions/update_order_status_action.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          alert('Order status updated to ' + newStatus.charAt(0).toUpperCase() + newStatus.slice(1));
+          window.location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'Failed to update status'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the order status.');
       });
     }
   </script>

@@ -105,16 +105,136 @@ class product_class extends db_connection {
     /**
      * Get all products (for customer view)
      */
-    public function get_all_products() {
+    public function get_all_products(array $filters = []) {
+        return $this->get_products_with_filters($filters);
+    }
+    
+    /**
+     * Advanced product filtering with optional search, price range, sorting, and best-seller support
+     */
+    public function get_products_with_filters(array $filters = []) {
         try {
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
+            $conn = $this->db_conn();
+            
+            if (!$conn) {
+                return false;
+            }
+            
+            $sql = "SELECT 
+                        p.*,
+                        c.cat_name,
+                        b.brand_name,
+                        a.artisan_id,
+                        a.business_name AS artisan_name,
+                        COALESCE(od.total_qty, 0) AS sold_qty
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
                     LEFT JOIN brands b ON p.product_brand = b.brand_id
-                    ORDER BY p.created_date DESC";
-            return $this->db_fetch_all($sql);
+                    LEFT JOIN artisans a ON p.artisan_id = a.artisan_id
+                    LEFT JOIN (
+                        SELECT product_id, SUM(qty) AS total_qty
+                        FROM orderdetails
+                        GROUP BY product_id
+                    ) od ON od.product_id = p.product_id";
+            
+            $conditions = [];
+            $types = '';
+            $params = [];
+            
+            if (!empty($filters['search'])) {
+                $searchTerm = '%' . trim($filters['search']) . '%';
+                $conditions[] = "(p.product_title LIKE ? OR p.product_keywords LIKE ? OR p.product_desc LIKE ?)";
+                $types .= 'sss';
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+                $params[] = $searchTerm;
+            }
+            
+            if (!empty($filters['category'])) {
+                $conditions[] = "p.product_cat = ?";
+                $types .= 'i';
+                $category = (int)$filters['category'];
+                $params[] = $category;
+            }
+            
+            if (!empty($filters['brand'])) {
+                $conditions[] = "p.product_brand = ?";
+                $types .= 'i';
+                $brand = (int)$filters['brand'];
+                $params[] = $brand;
+            }
+            
+            if (!empty($filters['artisan'])) {
+                $conditions[] = "p.artisan_id = ?";
+                $types .= 'i';
+                $artisan = (int)$filters['artisan'];
+                $params[] = $artisan;
+            }
+            
+            if (isset($filters['min_price']) && $filters['min_price'] !== '' && $filters['min_price'] !== null) {
+                $conditions[] = "p.product_price >= ?";
+                $types .= 'd';
+                $params[] = (float)$filters['min_price'];
+            }
+            
+            if (isset($filters['max_price']) && $filters['max_price'] !== '' && $filters['max_price'] !== null) {
+                $conditions[] = "p.product_price <= ?";
+                $types .= 'd';
+                $params[] = (float)$filters['max_price'];
+            }
+            
+            if (!empty($conditions)) {
+                $sql .= ' WHERE ' . implode(' AND ', $conditions);
+            }
+            
+            $sort = $filters['sort'] ?? 'newest';
+            switch ($sort) {
+                case 'price_asc':
+                    $sql .= ' ORDER BY p.product_price ASC, p.product_title ASC';
+                    break;
+                case 'price_desc':
+                    $sql .= ' ORDER BY p.product_price DESC, p.product_title ASC';
+                    break;
+                case 'best_sellers':
+                    $sql .= ' ORDER BY sold_qty DESC, p.product_title ASC';
+                    break;
+                case 'newest':
+                default:
+                    $sql .= ' ORDER BY p.created_date DESC, p.product_title ASC';
+                    break;
+            }
+            
+            $stmt = mysqli_prepare($conn, $sql);
+            
+            if ($stmt === false) {
+                error_log("Failed to prepare product filter statement: " . mysqli_error($conn));
+                return false;
+            }
+            
+            if (!empty($params)) {
+                $bindParams = [];
+                $bindParams[] = &$stmt;
+                $bindParams[] = &$types;
+                foreach ($params as $key => $value) {
+                    $bindParams[] = &$params[$key];
+                }
+                call_user_func_array('mysqli_stmt_bind_param', $bindParams);
+            }
+            
+            if (!mysqli_stmt_execute($stmt)) {
+                error_log("Failed to execute product filter statement: " . mysqli_stmt_error($stmt));
+                mysqli_stmt_close($stmt);
+                return false;
+            }
+            
+            $result = mysqli_stmt_get_result($stmt);
+            $products = $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+            mysqli_stmt_close($stmt);
+            
+            return $products;
+            
         } catch (Exception $e) {
-            error_log("Error getting all products: " . $e->getMessage());
+            error_log("Error getting products with filters: " . $e->getMessage());
             return false;
         }
     }
@@ -229,80 +349,29 @@ class product_class extends db_connection {
      * Search products by title or keywords
      */
     public function search_products($query) {
-        try {
-            $query = mysqli_real_escape_string($this->db_conn(), $query);
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                    FROM products p
-                    LEFT JOIN categories c ON p.product_cat = c.cat_id
-                    LEFT JOIN brands b ON p.product_brand = b.brand_id
-                    WHERE p.product_title LIKE '%$query%' 
-                    OR p.product_keywords LIKE '%$query%'
-                    OR p.product_desc LIKE '%$query%'
-                    ORDER BY p.created_date DESC";
-            return $this->db_fetch_all($sql);
-        } catch (Exception $e) {
-            error_log("Error searching products: " . $e->getMessage());
-            return false;
-        }
+        return $this->get_products_with_filters(['search' => $query]);
     }
     
     /**
      * Filter products by category
      */
     public function filter_products_by_category($cat_id) {
-        try {
-            $cat_id = (int)$cat_id;
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                    FROM products p
-                    LEFT JOIN categories c ON p.product_cat = c.cat_id
-                    LEFT JOIN brands b ON p.product_brand = b.brand_id
-                    WHERE p.product_cat = $cat_id
-                    ORDER BY p.created_date DESC";
-            return $this->db_fetch_all($sql);
-        } catch (Exception $e) {
-            error_log("Error filtering products by category: " . $e->getMessage());
-            return false;
-        }
-    }
+        return $this->get_products_with_filters(['category' => (int)$cat_id]);
+     }
     
     /**
      * Filter products by brand
      */
     public function filter_products_by_brand($brand_id) {
-        try {
-            $brand_id = (int)$brand_id;
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                    FROM products p
-                    LEFT JOIN categories c ON p.product_cat = c.cat_id
-                    LEFT JOIN brands b ON p.product_brand = b.brand_id
-                    WHERE p.product_brand = $brand_id
-                    ORDER BY p.created_date DESC";
-            return $this->db_fetch_all($sql);
-        } catch (Exception $e) {
-            error_log("Error filtering products by brand: " . $e->getMessage());
-            return false;
-        }
-    }
+        return $this->get_products_with_filters(['brand' => (int)$brand_id]);
+     }
     
     /**
      * Filter products by artisan ID
      */
     public function filter_products_by_artisan($artisan_id) {
-        try {
-            $artisan_id = (int)$artisan_id;
-            $sql = "SELECT p.*, c.cat_name, b.brand_name, a.artisan_id, a.business_name as artisan_name
-                    FROM products p
-                    LEFT JOIN categories c ON p.product_cat = c.cat_id
-                    LEFT JOIN brands b ON p.product_brand = b.brand_id
-                    LEFT JOIN artisans a ON p.artisan_id = a.artisan_id
-                    WHERE p.artisan_id = $artisan_id
-                    ORDER BY p.created_date DESC";
-            return $this->db_fetch_all($sql);
-        } catch (Exception $e) {
-            error_log("Error filtering products by artisan: " . $e->getMessage());
-            return false;
-        }
-    }
+        return $this->get_products_with_filters(['artisan' => (int)$artisan_id]);
+     }
     
     /**
      * Get product count for a user

@@ -21,9 +21,9 @@ function get_products_by_user_ctr($created_by) {
 /**
  * Get all products (for customer view)
  */
-function get_all_products_ctr() {
+function get_all_products_ctr(array $filters = []) {
     $product = new product_class();
-    return $product->get_all_products();
+    return $product->get_all_products($filters);
 }
 
 /**

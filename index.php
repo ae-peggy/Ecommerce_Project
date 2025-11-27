@@ -661,7 +661,7 @@ body::before {
 
       <!-- Search Box -->
       <div class="search-box">
-        <form action="view/search.php" method="GET">
+        <form action="view/all_product.php" method="GET">
           <input type="text" name="search" placeholder="🔍 Search for products..." required>
           <button type="submit">Search</button>
         </form>

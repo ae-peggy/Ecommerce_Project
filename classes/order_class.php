@@ -82,16 +82,16 @@ class order_class extends db_connection {
                 return false;
             }
             
-            $order_id = mysqli_insert_id($conn);
+                $order_id = mysqli_insert_id($conn);
             mysqli_stmt_close($stmt);
             
             if ($order_id > 0) {
                 error_log("Order created successfully with ID: $order_id");
-                return $order_id;
+                    return $order_id;
             }
             
             error_log("Order creation succeeded but returned invalid insert ID");
-            return false;
+                return false;
             
         } catch (Exception $e) {
             error_log("Exception in create_order: " . $e->getMessage());

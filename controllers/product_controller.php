@@ -5,9 +5,9 @@ require_once(__DIR__ . '/../classes/product_class.php');
 /**
  * Add a new product
  */
-function add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by) {
+function add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by, $artisan_id = null) {
     $product = new product_class();
-    return $product->add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by);
+    return $product->add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by, $artisan_id);
 }
 
 /**
@@ -45,9 +45,17 @@ function get_product_by_id_and_user_ctr($product_id, $created_by) {
 /**
  * Update product information
  */
-function update_product_ctr($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by) {
+function update_product_ctr($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by, $artisan_id = null) {
     $product = new product_class();
-    return $product->update_product($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by);
+    return $product->update_product($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by, $artisan_id);
+}
+
+/**
+ * Get all approved Tier 2 artisans for product assignment
+ */
+function get_tier2_artisans_ctr() {
+    $product = new product_class();
+    return $product->get_tier2_artisans();
 }
 
 /**

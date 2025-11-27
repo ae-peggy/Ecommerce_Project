@@ -42,10 +42,11 @@ $desc = trim($_POST['product_desc'] ?? '');
 $image = trim($_POST['product_image'] ?? ''); // Optional on update
 $keywords = trim($_POST['product_keywords'] ?? '');
 $qty = isset($_POST['product_qty']) ? (int)$_POST['product_qty'] : 0;
+$artisan_id = !empty($_POST['artisan_id']) ? (int)$_POST['artisan_id'] : null;
 $created_by = get_user_id();
 
 // Log collected data
-error_log("Updating product - ID: $product_id, Title: $title, Qty: $qty, User: $created_by");
+error_log("Updating product - ID: $product_id, Title: $title, Qty: $qty, User: $created_by, Artisan: " . ($artisan_id ?? 'NULL'));
 
 // Step 1: Validate required fields
 if ($product_id <= 0) {
@@ -126,7 +127,7 @@ if (!$existing_product) {
 // Step 4: Update product
 error_log("Attempting to update product: $product_id - $title");
 try {
-    $result = update_product_ctr($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by);
+    $result = update_product_ctr($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by, $artisan_id);
     
     if ($result) {
         error_log("Product updated successfully: $product_id");

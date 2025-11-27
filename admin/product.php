@@ -11,10 +11,12 @@ require_admin('../index.php');
 // Get categories and brands for dropdowns
 require_once '../controllers/category_controller.php';
 require_once '../controllers/brand_controller.php';
+require_once '../controllers/product_controller.php';
 
 $user_id = get_user_id();
 $categories = get_categories_by_user_ctr($user_id);
 $brands = get_brands_by_user_ctr($user_id);
+$tier2_artisans = get_tier2_artisans_ctr();
 ?>
 
 <!DOCTYPE html>
@@ -135,6 +137,27 @@ $brands = get_brands_by_user_ctr($user_id);
                         <input type="number" id="productQty" name="product_qty" min="0" step="1" placeholder="e.g., 25" required>
                         <div class="error-message" id="productQty-error"></div>
                         <small style="color: #6b7280;">Tier 2 artisans rely on this value to manage inventory.</small>
+                    </div>
+                    
+                    <!-- Tier 2 Artisan Assignment -->
+                    <div class="form-group full-width">
+                        <label for="productArtisan">Assign to Tier 2 Artisan (Optional)</label>
+                        <select id="productArtisan" name="artisan_id">
+                            <option value="">-- No Artisan (Admin Product) --</option>
+                            <?php 
+                            if ($tier2_artisans && count($tier2_artisans) > 0):
+                                foreach($tier2_artisans as $artisan): 
+                            ?>
+                                <option value="<?php echo $artisan['artisan_id']; ?>">
+                                    <?php echo htmlspecialchars($artisan['business_name']); ?> (<?php echo htmlspecialchars($artisan['customer_name']); ?>)
+                                </option>
+                            <?php 
+                                endforeach;
+                            endif;
+                            ?>
+                        </select>
+                        <div class="error-message" id="productArtisan-error"></div>
+                        <small style="color: #6b7280;">Select a Tier 2 artisan to assign this product to their inventory. Leave empty for admin-owned products.</small>
                     </div>
                     
                     <!-- Description -->

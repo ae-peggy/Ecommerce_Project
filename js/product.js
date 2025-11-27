@@ -132,6 +132,9 @@ function openProductModal() {
         if (productId) productId.value = '';
         const productImagePath = document.getElementById('productImagePath');
         if (productImagePath) productImagePath.value = '';
+        // Reset artisan dropdown to default (no artisan)
+        const productArtisan = document.getElementById('productArtisan');
+        if (productArtisan) productArtisan.value = '';
     }
     
     // Hide image preview
@@ -218,6 +221,12 @@ function editProduct(product) {
     const imagePathField = document.getElementById('productImagePath');
     if (imagePathField) {
         imagePathField.value = product.product_image || '';
+    }
+    
+    // Set artisan field if exists (admin product form)
+    const artisanField = document.getElementById('productArtisan');
+    if (artisanField) {
+        artisanField.value = product.artisan_id || '';
     }
     
     // Show image preview if exists

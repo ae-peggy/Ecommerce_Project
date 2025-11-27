@@ -10,7 +10,7 @@ class product_class extends db_connection {
     /**
      * Add a new product to the database
      */
-    public function add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $product_qty, $created_by) {
+    public function add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $product_qty, $created_by, $artisan_id = null) {
         error_log("=== ADD_PRODUCT METHOD CALLED ===");
         try {
             $conn = $this->db_conn();
@@ -29,8 +29,10 @@ class product_class extends db_connection {
             $image = trim($image);
             $keywords = trim($keywords);
             $product_qty = (int)$product_qty;
+            $artisan_id = $artisan_id ? (int)$artisan_id : null;
             
             $sql = "INSERT INTO products (
+                        artisan_id,
                         product_cat,
                         product_brand,
                         product_title,
@@ -40,7 +42,7 @@ class product_class extends db_connection {
                         product_keywords,
                         product_qty,
                         created_by
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = mysqli_prepare($conn, $sql);
             
@@ -51,7 +53,8 @@ class product_class extends db_connection {
             
             mysqli_stmt_bind_param(
                 $stmt,
-                'iisdsssii',
+                'iiisdsssii',
+                $artisan_id,
                 $cat_id,
                 $brand_id,
                 $title,
@@ -283,7 +286,7 @@ class product_class extends db_connection {
     /**
      * Update product information
      */
-    public function update_product($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $product_qty, $created_by) {
+    public function update_product($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $product_qty, $created_by, $artisan_id = null) {
         try {
             $product_id = (int)$product_id;
             $cat_id = (int)$cat_id;
@@ -294,11 +297,13 @@ class product_class extends db_connection {
             $keywords = mysqli_real_escape_string($this->db_conn(), $keywords);
             $created_by = (int)$created_by;
             $product_qty = (int)$product_qty;
+            $artisan_id_sql = $artisan_id ? (int)$artisan_id : "NULL";
             
             // Handle image update - only update if new image provided
             if (!empty($image)) {
                 $image = mysqli_real_escape_string($this->db_conn(), $image);
                 $sql = "UPDATE products SET 
+                        artisan_id = $artisan_id_sql,
                         product_cat = $cat_id,
                         product_brand = $brand_id,
                         product_title = '$title',
@@ -311,6 +316,7 @@ class product_class extends db_connection {
             } else {
                 // Don't update image if not provided
                 $sql = "UPDATE products SET 
+                        artisan_id = $artisan_id_sql,
                         product_cat = $cat_id,
                         product_brand = $brand_id,
                         product_title = '$title',
@@ -483,6 +489,24 @@ class product_class extends db_connection {
         } catch (Exception $e) {
             error_log("Error getting product stock: " . $e->getMessage());
             return 0;
+        }
+    }
+    
+    /**
+     * Get all approved Tier 2 artisans for product assignment
+     * @return array - List of tier 2 artisans with their details
+     */
+    public function get_tier2_artisans() {
+        try {
+            $sql = "SELECT a.artisan_id, a.business_name, c.customer_name 
+                    FROM artisans a
+                    JOIN customer c ON a.customer_id = c.customer_id
+                    WHERE a.tier = 2 AND a.approval_status = 'approved'
+                    ORDER BY a.business_name ASC";
+            return $this->db_fetch_all($sql) ?? [];
+        } catch (Exception $e) {
+            error_log("Error getting tier 2 artisans: " . $e->getMessage());
+            return [];
         }
     }
 }

@@ -43,10 +43,11 @@ $desc = trim($_POST['product_desc'] ?? '');
 $image = trim($_POST['product_image'] ?? '');
 $keywords = trim($_POST['product_keywords'] ?? '');
 $qty = isset($_POST['product_qty']) ? (int)$_POST['product_qty'] : 0;
+$artisan_id = !empty($_POST['artisan_id']) ? (int)$_POST['artisan_id'] : null;
 $created_by = get_user_id();
 
 // Log collected data
-error_log("Adding product - Title: $title, Price: $price, Qty: $qty, Cat: $cat_id, Brand: $brand_id, User: $created_by");
+error_log("Adding product - Title: $title, Price: $price, Qty: $qty, Cat: $cat_id, Brand: $brand_id, User: $created_by, Artisan: " . ($artisan_id ?? 'NULL'));
 
 // Log image path for debugging
 error_log("Image path received: " . ($image ?: 'EMPTY - Image path not provided'));
@@ -125,7 +126,7 @@ if ($price > 1000000) {
 error_log("Attempting to add product: $title");
 error_log("Image path being saved: " . ($image ?: 'EMPTY - No image path'));
 try {
-    $product_id = add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by);
+    $product_id = add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by, $artisan_id);
     
     if ($product_id) {
         error_log("Product added successfully with ID: $product_id");

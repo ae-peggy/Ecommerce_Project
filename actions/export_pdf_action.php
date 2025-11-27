@@ -118,108 +118,108 @@ $subtotalFormatted = number_format($subtotal, 2);
 $generatedOn = date('F j, Y, g:i A');
 
 $html = '
-<style>
+    <style>
     * { box-sizing: border-box; }
-    .invoice-header {
-        text-align: center;
+        .invoice-header {
+            text-align: center;
         margin-bottom: 25px;
         padding-bottom: 15px;
-        border-bottom: 3px solid #dc2626;
-    }
-    .invoice-title {
+            border-bottom: 3px solid #dc2626;
+        }
+        .invoice-title {
         font-size: 26px;
-        font-weight: bold;
-        color: #dc2626;
-    }
-    .invoice-number {
+            font-weight: bold;
+            color: #dc2626;
+        }
+        .invoice-number {
         font-size: 12px;
         color: #555;
         margin-top: 5px;
-    }
-    .invoice-info {
-        width: 100%;
+        }
+        .invoice-info {
+            width: 100%;
         margin-bottom: 20px;
-    }
-    .info-section {
+        }
+        .info-section {
         width: 48%;
         display: inline-block;
-        vertical-align: top;
+            vertical-align: top;
         padding: 10px;
-    }
-    .info-section h3 {
+        }
+        .info-section h3 {
         font-size: 14px;
-        color: #dc2626;
+            color: #dc2626;
         margin-bottom: 8px;
-        border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #eee;
         padding-bottom: 4px;
-    }
-    .info-section p {
+        }
+        .info-section p {
         margin: 4px 0;
         font-size: 11px;
         color: #333;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
         margin-bottom: 15px;
-    }
-    th {
-        background: #dc2626;
+        }
+        th {
+            background: #dc2626;
         color: #fff;
         padding: 10px;
-        text-align: left;
+            text-align: left;
         font-size: 11px;
-    }
-    td {
+        }
+        td {
         padding: 9px 10px;
         border-bottom: 1px solid #f2f2f2;
         font-size: 11px;
-    }
-    tr:nth-child(even) {
+        }
+        tr:nth-child(even) {
         background: #fdf5f5;
-    }
-    .text-right {
-        text-align: right;
-    }
-    .invoice-total {
-        text-align: right;
-        border-top: 2px solid #dc2626;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .invoice-total {
+            text-align: right;
+            border-top: 2px solid #dc2626;
         padding-top: 12px;
         margin-top: 5px;
     }
     .invoice-total p {
         margin: 2px 0;
         font-size: 12px;
-    }
-    .total-amount {
+        }
+        .total-amount {
         font-size: 18px;
-        font-weight: bold;
-        color: #dc2626;
-    }
-    .invoice-footer {
-        text-align: center;
+            font-weight: bold;
+            color: #dc2626;
+        }
+        .invoice-footer {
+            text-align: center;
         font-size: 10px;
-        color: #666;
+            color: #666;
         margin-top: 25px;
         border-top: 1px solid #eee;
         padding-top: 10px;
-    }
-</style>
+        }
+    </style>
 
-<div class="invoice-header">
-    <div class="invoice-title">Aya Crafts</div>
+    <div class="invoice-header">
+        <div class="invoice-title">Aya Crafts</div>
     <div class="invoice-number">Invoice: ' . $invoiceNo . '</div>
-</div>
+    </div>
 
-<div class="invoice-info">
-    <div class="info-section">
-        <h3>Order Information</h3>
+    <div class="invoice-info">
+        <div class="info-section">
+            <h3>Order Information</h3>
         <p><strong>Order ID:</strong> #' . $orderId . '</p>
         <p><strong>Order Date:</strong> ' . $orderDate . '</p>
         <p><strong>Status:</strong> ' . $orderStatus . '</p>
-    </div>
-    <div class="info-section">
-        <h3>Customer Information</h3>
+        </div>
+        <div class="info-section">
+            <h3>Customer Information</h3>
         <p><strong>Name:</strong> ' . $customerName . '</p>
         <p><strong>Email:</strong> ' . $customerEmail . '</p>';
 
@@ -234,31 +234,31 @@ if ($recipientName !== '') {
 }
 
 $html .= '
+        </div>
     </div>
-</div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th class="text-right">Quantity</th>
-            <th class="text-right">Unit Price</th>
-            <th class="text-right">Total</th>
-        </tr>
-    </thead>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-right">Quantity</th>
+                    <th class="text-right">Unit Price</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
     <tbody>' . $rowsHtml . '</tbody>
-</table>
+        </table>
 
-<div class="invoice-total">
+    <div class="invoice-total">
     <p>Subtotal: GHS ' . $subtotalFormatted . '</p>
     <p class="total-amount">Total Due: GHS ' . $grandTotal . '</p>
     <p style="font-size:10px;color:#777;">All prices include applicable taxes.</p>
-</div>
+    </div>
 
-<div class="invoice-footer">
+    <div class="invoice-footer">
     <p>Thank you for supporting authentic African artisans at Aya Crafts.</p>
     <p>Generated on ' . $generatedOn . '</p>
-</div>
+    </div>
 ';
 
 $pdf->writeHTML($html, true, false, true, false, '');

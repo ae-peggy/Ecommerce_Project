@@ -5,9 +5,9 @@ require_once(__DIR__ . '/../classes/product_class.php');
 /**
  * Add a new product
  */
-function add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by) {
+function add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by) {
     $product = new product_class();
-    return $product->add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by);
+    return $product->add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by);
 }
 
 /**
@@ -45,9 +45,9 @@ function get_product_by_id_and_user_ctr($product_id, $created_by) {
 /**
  * Update product information
  */
-function update_product_ctr($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by) {
+function update_product_ctr($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by) {
     $product = new product_class();
-    return $product->update_product($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by);
+    return $product->update_product($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by);
 }
 
 /**

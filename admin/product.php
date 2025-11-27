@@ -129,6 +129,14 @@ $brands = get_brands_by_user_ctr($user_id);
                         <div class="error-message" id="productPrice-error"></div>
                     </div>
                     
+                    <!-- Stock Quantity -->
+                    <div class="form-group">
+                        <label for="productQty">Stock Quantity *</label>
+                        <input type="number" id="productQty" name="product_qty" min="0" step="1" placeholder="e.g., 25" required>
+                        <div class="error-message" id="productQty-error"></div>
+                        <small style="color: #6b7280;">Tier 2 artisans rely on this value to manage inventory.</small>
+                    </div>
+                    
                     <!-- Description -->
                     <div class="form-group full-width">
                         <label for="productDesc">Description *</label>

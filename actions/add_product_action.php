@@ -42,10 +42,11 @@ $price = floatval($_POST['product_price'] ?? 0);
 $desc = trim($_POST['product_desc'] ?? '');
 $image = trim($_POST['product_image'] ?? '');
 $keywords = trim($_POST['product_keywords'] ?? '');
+$qty = isset($_POST['product_qty']) ? (int)$_POST['product_qty'] : 0;
 $created_by = get_user_id();
 
 // Log collected data
-error_log("Adding product - Title: $title, Price: $price, Cat: $cat_id, Brand: $brand_id, User: $created_by");
+error_log("Adding product - Title: $title, Price: $price, Qty: $qty, Cat: $cat_id, Brand: $brand_id, User: $created_by");
 
 // Log image path for debugging
 error_log("Image path received: " . ($image ?: 'EMPTY - Image path not provided'));
@@ -86,6 +87,14 @@ if ($price <= 0) {
     exit();
 }
 
+if ($qty < 0) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Stock quantity cannot be negative'
+    ]);
+    exit();
+}
+
 // Step 2: Validate title length
 if (strlen($title) < 3) {
     echo json_encode([
@@ -116,7 +125,7 @@ if ($price > 1000000) {
 error_log("Attempting to add product: $title");
 error_log("Image path being saved: " . ($image ?: 'EMPTY - No image path'));
 try {
-    $product_id = add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by);
+    $product_id = add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by);
     
     if ($product_id) {
         error_log("Product added successfully with ID: $product_id");

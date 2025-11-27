@@ -291,7 +291,7 @@ if ($brand_filter > 0 && $brands) {
                     <option value="price_desc" <?php echo $sort_option === 'price_desc' ? 'selected' : ''; ?>>Price: High to Low</option>
                     <option value="best_sellers" <?php echo $sort_option === 'best_sellers' ? 'selected' : ''; ?>>Best sellers</option>
                 </select>
-            </div>
+        </div>
             
             <button 
                 type="submit" 
@@ -546,7 +546,7 @@ if ($brand_filter > 0 && $brands) {
                     const productId = card.getAttribute('data-product-id');
                     if (productId) {
                         viewProduct(productId);
-                    }
+            }
                 }
             });
         });

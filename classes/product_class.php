@@ -10,7 +10,7 @@ class product_class extends db_connection {
     /**
      * Add a new product to the database
      */
-    public function add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by) {
+    public function add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $product_qty, $created_by) {
         error_log("=== ADD_PRODUCT METHOD CALLED ===");
         try {
             $conn = $this->db_conn();
@@ -28,6 +28,7 @@ class product_class extends db_connection {
             $desc = trim($desc);
             $image = trim($image);
             $keywords = trim($keywords);
+            $product_qty = (int)$product_qty;
             
             $sql = "INSERT INTO products (
                         product_cat,
@@ -37,8 +38,9 @@ class product_class extends db_connection {
                         product_desc,
                         product_image,
                         product_keywords,
+                        product_qty,
                         created_by
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = mysqli_prepare($conn, $sql);
             
@@ -49,7 +51,7 @@ class product_class extends db_connection {
             
             mysqli_stmt_bind_param(
                 $stmt,
-                'iisdsssi',
+                'iisdsssii',
                 $cat_id,
                 $brand_id,
                 $title,
@@ -57,6 +59,7 @@ class product_class extends db_connection {
                 $desc,
                 $image,
                 $keywords,
+                $product_qty,
                 $created_by
             );
             
@@ -280,7 +283,7 @@ class product_class extends db_connection {
     /**
      * Update product information
      */
-    public function update_product($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by) {
+    public function update_product($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $product_qty, $created_by) {
         try {
             $product_id = (int)$product_id;
             $cat_id = (int)$cat_id;
@@ -290,6 +293,7 @@ class product_class extends db_connection {
             $desc = mysqli_real_escape_string($this->db_conn(), $desc);
             $keywords = mysqli_real_escape_string($this->db_conn(), $keywords);
             $created_by = (int)$created_by;
+            $product_qty = (int)$product_qty;
             
             // Handle image update - only update if new image provided
             if (!empty($image)) {
@@ -301,7 +305,8 @@ class product_class extends db_connection {
                         product_price = $price,
                         product_desc = '$desc',
                         product_image = '$image',
-                        product_keywords = '$keywords'
+                        product_keywords = '$keywords',
+                        product_qty = $product_qty
                         WHERE product_id = $product_id AND created_by = $created_by";
             } else {
                 // Don't update image if not provided
@@ -311,7 +316,8 @@ class product_class extends db_connection {
                         product_title = '$title',
                         product_price = $price,
                         product_desc = '$desc',
-                        product_keywords = '$keywords'
+                        product_keywords = '$keywords',
+                        product_qty = $product_qty
                         WHERE product_id = $product_id AND created_by = $created_by";
             }
             

@@ -200,6 +200,11 @@ function editProduct(product) {
         priceField.value = product.product_price || '';
     }
     
+    const qtyField = document.getElementById('productQty');
+    if (qtyField) {
+        qtyField.value = typeof product.product_qty !== 'undefined' ? product.product_qty : '';
+    }
+    
     const descField = document.getElementById('productDesc');
     if (descField) {
         descField.value = product.product_desc || '';

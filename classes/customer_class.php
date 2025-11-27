@@ -153,22 +153,45 @@ if (!class_exists('customer_class')) {
 
     public function login_customer($email, $password) {
         try {
-            // First, get customer by email
-            $customer = $this->get_customer_by_email($email);
+            $conn = $this->db_conn();
+            
+            if (!$conn) {
+                error_log("Login failed: Unable to obtain database connection");
+                return false;
+            }
+            
+            $sql = "SELECT * FROM customer WHERE customer_email = ? LIMIT 1";
+            $stmt = mysqli_prepare($conn, $sql);
+            
+            if ($stmt === false) {
+                error_log("Login failed: Unable to prepare statement - " . mysqli_error($conn));
+                return false;
+            }
+            
+            mysqli_stmt_bind_param($stmt, 's', $email);
+            
+            if (!mysqli_stmt_execute($stmt)) {
+                error_log("Login failed: Statement execution error - " . mysqli_stmt_error($stmt));
+                mysqli_stmt_close($stmt);
+                return false;
+            }
+            
+            $result = mysqli_stmt_get_result($stmt);
+            $customer = $result ? mysqli_fetch_assoc($result) : null;
+            mysqli_stmt_close($stmt);
             
             if (!$customer) {
                 error_log("Login failed: Email not found - $email");
-                return false; // Email doesn't exist
+                return false;
             }
             
-            // Verify password using password_verify (since we used password_hash during registration)
             if (password_verify($password, $customer['customer_pass'])) {
                 error_log("Login successful for: $email");
-                return $customer; // Login successful, return customer data
-            } else {
-                error_log("Login failed: Wrong password for - $email");
-                return false; // Wrong password
+                return $customer;
             }
+            
+            error_log("Login failed: Wrong password for - $email");
+            return false;
             
         } catch (Exception $e) {
             error_log("Error during login: " . $e->getMessage());

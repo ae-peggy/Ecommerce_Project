@@ -20,7 +20,6 @@ class order_class extends db_connection {
     error_log("=== CREATE_ORDER METHOD CALLED ===");
     error_log("Delivery info received - Location: " . ($delivery_location ?: 'NULL') . ", Recipient: " . ($recipient_name ?: 'NULL') . ", Phone: " . ($recipient_number ?: 'NULL') . ", Notes: " . ($delivery_notes ?: 'NULL'));
         try {
-            // Get connection first
             $conn = $this->db_conn();
             
             if (!$conn) {
@@ -29,70 +28,70 @@ class order_class extends db_connection {
             }
             
             $customer_id = (int)$customer_id;
-            $invoice_no = mysqli_real_escape_string($conn, $invoice_no);
-            $order_date = mysqli_real_escape_string($conn, $order_date);
-            $order_status = mysqli_real_escape_string($conn, $order_status);
+            $invoice_no = trim($invoice_no);
+            $order_date = trim($order_date);
+            $order_status = trim($order_status);
             
-            // Properly handle delivery fields - trim and escape, but keep as NULL if empty
-            $delivery_location = (!empty($delivery_location) && trim($delivery_location) !== '') ? mysqli_real_escape_string($conn, trim($delivery_location)) : null;
-            $recipient_name = (!empty($recipient_name) && trim($recipient_name) !== '') ? mysqli_real_escape_string($conn, trim($recipient_name)) : null;
-            $recipient_number = (!empty($recipient_number) && trim($recipient_number) !== '') ? mysqli_real_escape_string($conn, trim($recipient_number)) : null;
-            $delivery_notes = (!empty($delivery_notes) && trim($delivery_notes) !== '') ? mysqli_real_escape_string($conn, trim($delivery_notes)) : null;
-            
-            error_log("After processing - Location: " . ($delivery_location ?: 'NULL') . ", Recipient: " . ($recipient_name ?: 'NULL') . ", Phone: " . ($recipient_number ?: 'NULL'));
-            
-            // Build SQL with optional delivery fields
-            $sql = "INSERT INTO orders (customer_id, invoice_no, order_date, order_status";
-            $values = "VALUES ($customer_id, '$invoice_no', '$order_date', '$order_status'";
-            
-            if ($delivery_location !== null) {
-                $sql .= ", delivery_location";
-                $values .= ", '$delivery_location'";
-            }
-            if ($recipient_name !== null) {
-                $sql .= ", recipient_name";
-                $values .= ", '$recipient_name'";
-            }
-            if ($recipient_number !== null) {
-                $sql .= ", recipient_number";
-                $values .= ", '$recipient_number'";
-            }
-            if ($delivery_notes !== null) {
-                $sql .= ", delivery_notes";
-                $values .= ", '$delivery_notes'";
-            }
-            
-            $sql .= ") " . $values . ")";
-            
-            error_log("Executing SQL: $sql");
-            
-            // Execute directly on the connection
-            $result = mysqli_query($conn, $sql);
-            
-            if ($result) {
-                // Get insert ID immediately from the same connection
-                $order_id = mysqli_insert_id($conn);
-                error_log("Order created successfully with ID: $order_id");
-                
-                // Verify delivery details were saved by querying the order
-                $verify_sql = "SELECT delivery_location, recipient_name, recipient_number, delivery_notes FROM orders WHERE order_id = $order_id";
-                $verify_result = mysqli_query($conn, $verify_sql);
-                if ($verify_result) {
-                    $verify_data = mysqli_fetch_assoc($verify_result);
-                    error_log("Verified saved delivery details: " . print_r($verify_data, true));
+            $normalizeOptional = static function ($value) {
+                if ($value === null) {
+                    return null;
                 }
-                
-                if ($order_id > 0) {
-                    return $order_id;
-                } else {
-                    error_log("Insert succeeded but ID is 0");
-                    return false;
-                }
-            } else {
-                $error = mysqli_error($conn);
-                error_log("Order creation failed. MySQL error: " . $error);
+                $trimmed = trim($value);
+                return $trimmed === '' ? null : $trimmed;
+            };
+            
+            $delivery_location = $normalizeOptional($delivery_location);
+            $recipient_name = $normalizeOptional($recipient_name);
+            $recipient_number = $normalizeOptional($recipient_number);
+            $delivery_notes = $normalizeOptional($delivery_notes);
+            
+            $sql = "INSERT INTO orders (
+                        customer_id,
+                        invoice_no,
+                        order_date,
+                        order_status,
+                        delivery_location,
+                        recipient_name,
+                        recipient_number,
+                        delivery_notes
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $stmt = mysqli_prepare($conn, $sql);
+            
+            if ($stmt === false) {
+                error_log("Order creation failed: Unable to prepare statement - " . mysqli_error($conn));
                 return false;
             }
+            
+            mysqli_stmt_bind_param(
+                $stmt,
+                'isssssss',
+                $customer_id,
+                $invoice_no,
+                $order_date,
+                $order_status,
+                $delivery_location,
+                $recipient_name,
+                $recipient_number,
+                $delivery_notes
+            );
+            
+            if (!mysqli_stmt_execute($stmt)) {
+                error_log("Order creation failed: Statement execution error - " . mysqli_stmt_error($stmt));
+                mysqli_stmt_close($stmt);
+                return false;
+            }
+            
+            $order_id = mysqli_insert_id($conn);
+            mysqli_stmt_close($stmt);
+            
+            if ($order_id > 0) {
+                error_log("Order created successfully with ID: $order_id");
+                return $order_id;
+            }
+            
+            error_log("Order creation succeeded but returned invalid insert ID");
+            return false;
             
         } catch (Exception $e) {
             error_log("Exception in create_order: " . $e->getMessage());

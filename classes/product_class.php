@@ -13,33 +13,69 @@ class product_class extends db_connection {
     public function add_product($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $created_by) {
         error_log("=== ADD_PRODUCT METHOD CALLED ===");
         try {
-            // Escape data to prevent SQL injection
-            $cat_id = (int)$cat_id;
-            $brand_id = (int)$brand_id;
-            $title = mysqli_real_escape_string($this->db_conn(), $title);
-            $price = (float)$price;
-            $desc = mysqli_real_escape_string($this->db_conn(), $desc);
-            $image = mysqli_real_escape_string($this->db_conn(), $image);
-            $keywords = mysqli_real_escape_string($this->db_conn(), $keywords);
-            $created_by = (int)$created_by;
+            $conn = $this->db_conn();
             
-            // Prepare SQL query
-            $sql = "INSERT INTO products (product_cat, product_brand, product_title, product_price, 
-                    product_desc, product_image, product_keywords, created_by) 
-                    VALUES ($cat_id, $brand_id, '$title', $price, '$desc', '$image', '$keywords', $created_by)";
-            
-            error_log("Executing SQL: $sql");
-            
-            // Execute the query
-            if ($this->db_write_query($sql)) {
-                $product_id = $this->last_insert_id();
-                error_log("Product added successfully with ID: $product_id");
-                return $product_id;
-            } else {
-                $error = mysqli_error($this->db_conn());
-                error_log("Database insert failed. MySQL error: " . $error);
+            if (!$conn) {
+                error_log("Failed to obtain database connection when adding product");
                 return false;
             }
+            
+            $cat_id = (int)$cat_id;
+            $brand_id = (int)$brand_id;
+            $price = (float)$price;
+            $created_by = (int)$created_by;
+            $title = trim($title);
+            $desc = trim($desc);
+            $image = trim($image);
+            $keywords = trim($keywords);
+            
+            $sql = "INSERT INTO products (
+                        product_cat,
+                        product_brand,
+                        product_title,
+                        product_price,
+                        product_desc,
+                        product_image,
+                        product_keywords,
+                        created_by
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $stmt = mysqli_prepare($conn, $sql);
+            
+            if ($stmt === false) {
+                error_log("Failed to prepare add_product statement: " . mysqli_error($conn));
+                return false;
+            }
+            
+            mysqli_stmt_bind_param(
+                $stmt,
+                'iisdsssi',
+                $cat_id,
+                $brand_id,
+                $title,
+                $price,
+                $desc,
+                $image,
+                $keywords,
+                $created_by
+            );
+            
+            if (!mysqli_stmt_execute($stmt)) {
+                error_log("Failed to execute add_product statement: " . mysqli_stmt_error($stmt));
+                mysqli_stmt_close($stmt);
+                return false;
+            }
+            
+            $product_id = mysqli_insert_id($conn);
+            mysqli_stmt_close($stmt);
+            
+            if ($product_id > 0) {
+                error_log("Product added successfully with ID: $product_id");
+                return $product_id;
+            }
+            
+            error_log("Add product succeeded but returned invalid insert ID");
+            return false;
             
         } catch (Exception $e) {
             error_log("Error adding product: " . $e->getMessage());

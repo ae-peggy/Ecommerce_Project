@@ -1,6 +1,10 @@
 <?php
-header('Content-Type: application/json');
+/**
+ * Save Delivery Info Action
+ * Stores delivery information in session for checkout
+ */
 
+header('Content-Type: application/json');
 require_once '../settings/core.php';
 
 // Check if user is logged in
@@ -28,11 +32,8 @@ $_SESSION['delivery_info'] = [
     'delivery_notes' => $delivery_notes
 ];
 
-error_log("Delivery info saved to session: " . print_r($_SESSION['delivery_info'], true));
-
 echo json_encode([
     'status' => 'success',
     'message' => 'Delivery information saved'
 ]);
 ?>
-

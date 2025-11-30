@@ -1,12 +1,11 @@
 <?php
+/**
+ * Fetch Products Action
+ * Retrieves all products for the current admin or artisan user
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -26,12 +25,9 @@ if (!is_admin() && !is_artisan()) {
     exit();
 }
 
-// Include the product controller
 require_once '../controllers/product_controller.php';
 
-$created_by = get_user_id(); // Get current admin user ID
-
-error_log("Fetching products for user: $created_by");
+$created_by = get_user_id();
 
 try {
     // Get all products for this admin user
@@ -53,7 +49,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error fetching products: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while fetching products.'

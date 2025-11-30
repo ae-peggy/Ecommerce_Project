@@ -1,6 +1,10 @@
 <?php
-header('Content-Type: application/json');
+/**
+ * Update Order Status Action
+ * Handles order status updates by admin or artisan users
+ */
 
+header('Content-Type: application/json');
 require_once '../settings/core.php';
 
 // Check if user is logged in
@@ -89,4 +93,3 @@ if ($result) {
     ]);
 }
 ?>
-

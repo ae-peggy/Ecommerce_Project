@@ -1,12 +1,11 @@
 <?php
+/**
+ * Delete Product Action
+ * Handles the deletion of products by admin users
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -26,17 +25,13 @@ if (!is_admin()) {
     exit();
 }
 
-// Include the product controller
 require_once '../controllers/product_controller.php';
 
-// Collect form data safely
+// Collect and sanitize form data
 $product_id = (int)($_POST['product_id'] ?? $_GET['product_id'] ?? 0);
 $created_by = get_user_id();
 
-// Log collected data
-error_log("Deleting product - ID: $product_id, User: $created_by");
-
-// Step 1: Validate required fields
+// Validate required fields
 if ($product_id <= 0) {
     echo json_encode([
         'status' => 'error',
@@ -45,7 +40,7 @@ if ($product_id <= 0) {
     exit();
 }
 
-// Step 2: Verify product exists and belongs to current user (admin can delete their own products)
+// Verify product exists and user has permission
 $product = get_product_by_id_and_user_ctr($product_id, $created_by);
 if (!$product) {
     // For admin, allow deletion of any product if they own it or if it's a general product
@@ -61,7 +56,7 @@ if (!$product) {
     // Admin can delete any product - proceed
 }
 
-// Step 3: Delete product
+// Delete product from database
 try {
     $result = delete_product_ctr($product_id, $created_by);
     
@@ -80,7 +75,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error deleting product: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while deleting the product.'

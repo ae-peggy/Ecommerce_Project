@@ -1,15 +1,11 @@
 <?php
+/**
+ * Update Category Action
+ * Handles updating existing categories by admin users
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Log all POST data for debugging
-error_log("Update category POST data received: " . print_r($_POST, true));
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -29,18 +25,14 @@ if (!is_admin()) {
     exit();
 }
 
-// Include the category controller
 require_once '../controllers/category_controller.php';
 
-// Collect form data safely
+// Collect and sanitize form data
 $cat_id = (int)($_POST['cat_id'] ?? 0);
 $cat_name = trim($_POST['cat_name'] ?? '');
-$created_by = get_user_id(); // Get current admin user ID
+$created_by = get_user_id();
 
-// Log collected data
-error_log("Updating category - ID: $cat_id, Name: $cat_name, User: $created_by");
-
-// Step 1: Check required fields
+// Validate required fields
 if (empty($cat_id) || empty($cat_name)) {
     echo json_encode([
         'status' => 'error',
@@ -49,7 +41,7 @@ if (empty($cat_id) || empty($cat_name)) {
     exit();
 }
 
-// Step 2: Validate category name length
+// Validate category name length
 if (strlen($cat_name) < 2) {
     echo json_encode([
         'status' => 'error',
@@ -66,7 +58,7 @@ if (strlen($cat_name) > 100) {
     exit();
 }
 
-// Step 3: Validate category name format
+// Validate category name format
 if (!preg_match('/^[a-zA-Z0-9\s\-&]+$/', $cat_name)) {
     echo json_encode([
         'status' => 'error',
@@ -75,7 +67,7 @@ if (!preg_match('/^[a-zA-Z0-9\s\-&]+$/', $cat_name)) {
     exit();
 }
 
-// Step 4: Check if category exists and belongs to current user
+// Verify category exists and user has permission
 $existing_category = get_category_by_id_ctr($cat_id, $created_by);
 if (!$existing_category) {
     echo json_encode([
@@ -85,13 +77,11 @@ if (!$existing_category) {
     exit();
 }
 
-// Step 5: Update category
-error_log("Attempting to update category: $cat_id to $cat_name");
+// Update category in database
 try {
     $result = update_category_ctr($cat_id, $cat_name, $created_by);
     
     if ($result) {
-        error_log("Category updated successfully: $cat_id");
         log_user_activity("Updated category: {$existing_category['cat_name']} to $cat_name (ID: $cat_id)");
         
         echo json_encode([
@@ -109,7 +99,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error updating category: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while updating the category.'

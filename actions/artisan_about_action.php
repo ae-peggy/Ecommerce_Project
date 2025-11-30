@@ -1,4 +1,9 @@
 <?php
+/**
+ * Artisan About Action
+ * Handles artisan about page content management
+ */
+
 require_once '../settings/core.php';
 require_artisan('../login/login.php');
 

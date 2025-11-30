@@ -1,15 +1,11 @@
 <?php
+/**
+ * Add Brand Action
+ * Handles the creation of new brands by admin users
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Log all POST data for debugging
-error_log("Add brand POST data received: " . print_r($_POST, true));
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -29,17 +25,13 @@ if (!is_admin()) {
     exit();
 }
 
-// Include the brand controller
 require_once '../controllers/brand_controller.php';
 
-// Collect form data safely
+// Collect and sanitize form data
 $brand_name = trim($_POST['brand_name'] ?? '');
-$created_by = get_user_id(); // Get current admin user ID
+$created_by = get_user_id();
 
-// Log collected data
-error_log("Adding brand - Name: $brand_name, Created by: $created_by");
-
-// Step 1: Check required fields
+// Validate required fields
 if (empty($brand_name)) {
     echo json_encode([
         'status' => 'error',
@@ -48,7 +40,7 @@ if (empty($brand_name)) {
     exit();
 }
 
-// Step 2: Validate brand name length
+// Validate brand name length
 if (strlen($brand_name) < 2) {
     echo json_encode([
         'status' => 'error',
@@ -65,7 +57,7 @@ if (strlen($brand_name) > 100) {
     exit();
 }
 
-// Step 3: Validate brand name format (letters, numbers, spaces, hyphens, apostrophes, ampersands)
+// Validate brand name format
 if (!preg_match("/^[a-zA-Z0-9\s\-&']+$/", $brand_name)) {
     echo json_encode([
         'status' => 'error',
@@ -74,7 +66,7 @@ if (!preg_match("/^[a-zA-Z0-9\s\-&']+$/", $brand_name)) {
     exit();
 }
 
-// Step 4: Check if brand already exists
+// Check for duplicate brand name
 if (brand_exists_ctr($brand_name, $created_by)) {
     echo json_encode([
         'status' => 'error',
@@ -83,13 +75,11 @@ if (brand_exists_ctr($brand_name, $created_by)) {
     exit();
 }
 
-// Step 5: Add brand
-error_log("Attempting to add brand: $brand_name");
+// Add brand to database
 try {
     $brand_id = add_brand_ctr($brand_name, $created_by);
     
     if ($brand_id) {
-        error_log("Brand added successfully with ID: $brand_id");
         log_user_activity("Added brand: $brand_name (ID: $brand_id)");
         
         echo json_encode([
@@ -106,7 +96,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error adding brand: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while adding the brand.'

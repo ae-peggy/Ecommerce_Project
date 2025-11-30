@@ -9,8 +9,6 @@ header('Content-Type: application/json');
 require_once '../settings/core.php';
 require_once '../settings/paystack_config.php';
 
-error_log("=== PAYSTACK CALLBACK/VERIFICATION ===");
-
 // Check if user is logged in
 if (!is_logged_in()) {
     echo json_encode([
@@ -33,9 +31,6 @@ $recipient_name = isset($input['recipient_name']) ? trim($input['recipient_name'
 $recipient_number = isset($input['recipient_number']) ? trim($input['recipient_number']) : (isset($delivery_info['recipient_number']) ? $delivery_info['recipient_number'] : null);
 $delivery_notes = isset($input['delivery_notes']) ? trim($input['delivery_notes']) : (isset($delivery_info['delivery_notes']) ? $delivery_info['delivery_notes'] : null);
 
-error_log("Delivery info from session: " . print_r($delivery_info, true));
-error_log("Final delivery values - Location: " . ($delivery_location ?: 'NULL') . ", Recipient: " . ($recipient_name ?: 'NULL') . ", Phone: " . ($recipient_number ?: 'NULL'));
-
 if (!$reference) {
     echo json_encode([
         'status' => 'error',
@@ -44,15 +39,7 @@ if (!$reference) {
     exit();
 }
 
-// Optional: Verify reference matches session
-if (isset($_SESSION['paystack_ref']) && $_SESSION['paystack_ref'] !== $reference) {
-    error_log("Reference mismatch - Expected: {$_SESSION['paystack_ref']}, Got: $reference");
-    // Allow to proceed anyway, but log it
-}
-
 try {
-    error_log("Verifying Paystack transaction - Reference: $reference");
-    
     // Verify transaction with Paystack
     $verification_response = paystack_verify_transaction($reference);
     
@@ -60,13 +47,9 @@ try {
         throw new Exception("No response from Paystack verification API");
     }
     
-    error_log("Paystack verification response: " . json_encode($verification_response));
-    
     // Check if verification was successful
     if (!isset($verification_response['status']) || $verification_response['status'] !== true) {
         $error_msg = $verification_response['message'] ?? 'Payment verification failed';
-        error_log("Payment verification failed: $error_msg");
-        
         echo json_encode([
             'status' => 'error',
             'message' => $error_msg,
@@ -85,12 +68,8 @@ try {
     $payment_method = $authorization['channel'] ?? 'card';
     $auth_last_four = $authorization['last_four'] ?? 'XXXX';
     
-    error_log("Transaction status: $payment_status, Amount: $amount_paid GHS");
-    
     // Validate payment status
     if ($payment_status !== 'success') {
-        error_log("Payment status is not successful: $payment_status");
-        
         echo json_encode([
             'status' => 'error',
             'message' => 'Payment was not successful. Status: ' . ucfirst($payment_status),
@@ -121,12 +100,8 @@ try {
         $total_amount = round($calculated_total, 2);
     }
 
-    error_log("Expected order total (server): $total_amount GHS");
-
     // Verify amount matches (with 1 pesewa tolerance)
     if (abs($amount_paid - $total_amount) > 0.01) {
-        error_log("Amount mismatch - Expected: $total_amount GHS, Paid: $amount_paid GHS");
-
         echo json_encode([
             'status' => 'error',
             'message' => 'Payment amount does not match order total',
@@ -185,7 +160,6 @@ try {
     
     // Begin database transaction
     mysqli_begin_transaction($conn);
-    error_log("Database transaction started");
     
     try {
         // Generate invoice number
@@ -198,8 +172,6 @@ try {
         if (!$order_id) {
             throw new Exception("Failed to create order in database");
         }
-        
-        error_log("Order created - ID: $order_id, Invoice: $invoice_no");
         
         // Add order details and reduce stock for each cart item
         foreach ($cart_items as $item) {
@@ -217,8 +189,6 @@ try {
             if (!$stock_reduced) {
                 throw new Exception("Failed to reduce stock for product: {$product_id}");
             }
-            
-            error_log("Order detail added and stock reduced - Product: {$product_id}, Qty: {$qty}");
         }
         
         // Record payment in database
@@ -238,8 +208,6 @@ try {
             throw new Exception("Failed to record payment");
         }
         
-        error_log("Payment recorded - ID: $payment_id, Reference: $reference");
-        
         // Empty the customer's cart
         $empty_result = empty_cart_ctr($customer_id);
         
@@ -247,11 +215,8 @@ try {
             throw new Exception("Failed to empty cart");
         }
         
-        error_log("Cart emptied for customer: $customer_id");
-        
         // Commit database transaction
         mysqli_commit($conn);
-        error_log("Database transaction committed successfully");
         
         // Clear session payment data and delivery info
         unset($_SESSION['paystack_ref']);
@@ -282,14 +247,10 @@ try {
     } catch (Exception $e) {
         // Rollback database transaction on error
         mysqli_rollback($conn);
-        error_log("Database transaction rolled back: " . $e->getMessage());
-        
         throw $e;
     }
     
 } catch (Exception $e) {
-    error_log("Error in Paystack callback/verification: " . $e->getMessage());
-    
     echo json_encode([
         'status' => 'error',
         'verified' => false,

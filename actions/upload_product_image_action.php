@@ -1,12 +1,11 @@
 <?php
+/**
+ * Upload Product Image Action
+ * Handles product image uploads for admin and artisan users
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -185,8 +184,6 @@ if (move_uploaded_file($file['tmp_name'], $target_file)) {
         exit();
     }
     
-    error_log("Image uploaded successfully: $db_path");
-
     echo json_encode([
         'status' => 'success',
         'message' => 'Image uploaded successfully',

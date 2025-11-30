@@ -1,7 +1,11 @@
 <?php
+/**
+ * Review Action
+ * Handles product review operations (add, update, delete, get)
+ */
+
 header('Content-Type: application/json');
 ob_start();
-
 require_once '../settings/core.php';
 
 if (!is_logged_in()) {
@@ -138,4 +142,3 @@ switch ($action) {
         break;
 }
 ?>
-

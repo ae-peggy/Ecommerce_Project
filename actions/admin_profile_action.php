@@ -1,4 +1,9 @@
 <?php
+/**
+ * Admin Profile Action
+ * Handles admin profile updates and password changes
+ */
+
 header('Content-Type: application/json');
 
 require_once '../settings/core.php';

@@ -1,15 +1,11 @@
 <?php
+/**
+ * Update Quantity Action
+ * Handles updating product quantities in the shopping cart
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Log POST data for debugging
-error_log("Update quantity POST data: " . print_r($_POST, true));
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -20,15 +16,12 @@ if (!is_logged_in()) {
     exit();
 }
 
-// Include the cart controller
 require_once '../controllers/cart_controller.php';
 
-// Collect form data safely
+// Collect and sanitize form data
 $product_id = (int)($_POST['product_id'] ?? 0);
 $qty = (int)($_POST['qty'] ?? 1);
 $customer_id = get_user_id();
-
-error_log("Updating quantity - Product: $product_id, Qty: $qty, Customer: $customer_id");
 
 // Validate product_id
 if ($product_id <= 0) {
@@ -80,7 +73,6 @@ try {
         $cart_total = get_cart_total_ctr($customer_id);
         $cart_count = get_cart_count_ctr($customer_id);
         
-        error_log("Cart quantity updated successfully");
         log_user_activity("Updated cart quantity for product: {$product['product_title']} (Qty: $qty)");
         
         echo json_encode([
@@ -100,7 +92,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error updating quantity: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while updating quantity.'

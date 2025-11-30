@@ -1,11 +1,12 @@
 <?php
-header('Content-Type: application/json');
+/**
+ * Paystack Initialize Transaction
+ * Initializes a payment transaction with Paystack gateway
+ */
 
-// Include core and Paystack configuration
+header('Content-Type: application/json');
 require_once '../settings/core.php';
 require_once '../settings/paystack_config.php';
-
-error_log("=== PAYSTACK INITIALIZE TRANSACTION ===");
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -52,8 +53,6 @@ try {
     $customer_id = get_user_id();
     $reference = 'AYA-' . $customer_id . '-' . time();
     
-    error_log("Initializing transaction - Customer: $customer_id, Amount: $amount GHS, Email: $customer_email");
-    
     // Initialize Paystack transaction
     $paystack_response = paystack_initialize_transaction($amount, $customer_email, $reference);
     
@@ -67,8 +66,6 @@ try {
         $_SESSION['paystack_amount'] = $amount;
         $_SESSION['paystack_timestamp'] = time();
         
-        error_log("Paystack transaction initialized successfully - Reference: $reference");
-        
         echo json_encode([
             'status' => 'success',
             'authorization_url' => $paystack_response['data']['authorization_url'],
@@ -77,15 +74,11 @@ try {
             'message' => 'Redirecting to payment gateway...'
         ]);
     } else {
-        error_log("Paystack API error: " . json_encode($paystack_response));
-        
         $error_message = $paystack_response['message'] ?? 'Payment gateway error';
         throw new Exception($error_message);
     }
     
 } catch (Exception $e) {
-    error_log("Error initializing Paystack transaction: " . $e->getMessage());
-    
     echo json_encode([
         'status' => 'error',
         'message' => 'Failed to initialize payment: ' . $e->getMessage()

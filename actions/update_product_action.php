@@ -1,15 +1,11 @@
 <?php
+/**
+ * Update Product Action
+ * Handles updating existing products by admin users
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Log all POST data for debugging
-error_log("Update product POST data received: " . print_r($_POST, true));
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -29,26 +25,22 @@ if (!is_admin()) {
     exit();
 }
 
-// Include the product controller
 require_once '../controllers/product_controller.php';
 
-// Collect form data safely
+// Collect and sanitize form data
 $product_id = (int)($_POST['product_id'] ?? 0);
 $cat_id = (int)($_POST['product_cat'] ?? 0);
 $brand_id = (int)($_POST['product_brand'] ?? 0);
 $title = trim($_POST['product_title'] ?? '');
 $price = floatval($_POST['product_price'] ?? 0);
 $desc = trim($_POST['product_desc'] ?? '');
-$image = trim($_POST['product_image'] ?? ''); // Optional on update
+$image = trim($_POST['product_image'] ?? '');
 $keywords = trim($_POST['product_keywords'] ?? '');
 $qty = isset($_POST['product_qty']) ? (int)$_POST['product_qty'] : 0;
 $artisan_id = !empty($_POST['artisan_id']) ? (int)$_POST['artisan_id'] : null;
 $created_by = get_user_id();
 
-// Log collected data
-error_log("Updating product - ID: $product_id, Title: $title, Qty: $qty, User: $created_by, Artisan: " . ($artisan_id ?? 'NULL'));
-
-// Step 1: Validate required fields
+// Validate required fields
 if ($product_id <= 0) {
     echo json_encode([
         'status' => 'error',
@@ -97,7 +89,7 @@ if ($qty < 0) {
     exit();
 }
 
-// Step 2: Validate title length
+// Validate title length
 if (strlen($title) < 3) {
     echo json_encode([
         'status' => 'error',
@@ -114,7 +106,7 @@ if (strlen($title) > 200) {
     exit();
 }
 
-// Step 3: Check if product exists and belongs to current user
+// Verify product exists and user has permission
 $existing_product = get_product_by_id_and_user_ctr($product_id, $created_by);
 if (!$existing_product) {
     echo json_encode([
@@ -124,13 +116,11 @@ if (!$existing_product) {
     exit();
 }
 
-// Step 4: Update product
-error_log("Attempting to update product: $product_id - $title");
+// Update product in database
 try {
     $result = update_product_ctr($product_id, $cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by, $artisan_id);
     
     if ($result) {
-        error_log("Product updated successfully: $product_id");
         log_user_activity("Updated product: {$existing_product['product_title']} to $title (ID: $product_id)");
         
         echo json_encode([
@@ -147,7 +137,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error updating product: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while updating the product.'

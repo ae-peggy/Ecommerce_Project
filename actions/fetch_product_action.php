@@ -1,10 +1,14 @@
 <?php
-header('Content-Type: application/json');
+/**
+ * Fetch Product Action
+ * Retrieves details for a single product by ID
+ */
 
+header('Content-Type: application/json');
 require_once '../settings/core.php';
 require_once '../controllers/product_controller.php';
 
-// Get product ID from request
+// Get and validate product ID
 $product_id = isset($_GET['product_id']) ? (int)$_GET['product_id'] : 0;
 
 if ($product_id <= 0) {
@@ -15,7 +19,7 @@ if ($product_id <= 0) {
     exit();
 }
 
-// Fetch product details
+// Fetch product details from database
 $product = get_product_by_id_ctr($product_id);
 
 if ($product) {
@@ -30,4 +34,3 @@ if ($product) {
     ]);
 }
 ?>
-

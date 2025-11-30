@@ -1,17 +1,11 @@
 <?php
+/**
+ * Add Product Action
+ * Handles the creation of new products by admin or artisan users
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Log all POST data for debugging
-error_log("Add product POST data received: " . print_r($_POST, true));
-error_log("POST product_image value: " . (isset($_POST['product_image']) ? $_POST['product_image'] : 'NOT SET'));
-error_log("POST product_image_path value: " . (isset($_POST['product_image_path']) ? $_POST['product_image_path'] : 'NOT SET'));
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -31,10 +25,9 @@ if (!is_admin() && !is_artisan()) {
     exit();
 }
 
-// Include the product controller
 require_once '../controllers/product_controller.php';
 
-// Collect form data safely
+// Collect and sanitize form data
 $cat_id = (int)($_POST['product_cat'] ?? 0);
 $brand_id = (int)($_POST['product_brand'] ?? 0);
 $title = trim($_POST['product_title'] ?? '');
@@ -46,16 +39,7 @@ $qty = isset($_POST['product_qty']) ? (int)$_POST['product_qty'] : 0;
 $artisan_id = !empty($_POST['artisan_id']) ? (int)$_POST['artisan_id'] : null;
 $created_by = get_user_id();
 
-// Log collected data
-error_log("Adding product - Title: $title, Price: $price, Qty: $qty, Cat: $cat_id, Brand: $brand_id, User: $created_by, Artisan: " . ($artisan_id ?? 'NULL'));
-
-// Log image path for debugging
-error_log("Image path received: " . ($image ?: 'EMPTY - Image path not provided'));
-if (empty($image)) {
-    error_log("WARNING: Product being added without image path!");
-}
-
-// Step 1: Validate required fields
+// Validate required fields
 if (empty($title)) {
     echo json_encode([
         'status' => 'error',
@@ -96,7 +80,7 @@ if ($qty < 0) {
     exit();
 }
 
-// Step 2: Validate title length
+// Validate title length
 if (strlen($title) < 3) {
     echo json_encode([
         'status' => 'error',
@@ -113,7 +97,7 @@ if (strlen($title) > 200) {
     exit();
 }
 
-// Step 3: Validate price
+// Validate price range
 if ($price > 1000000) {
     echo json_encode([
         'status' => 'error',
@@ -122,16 +106,12 @@ if ($price > 1000000) {
     exit();
 }
 
-// Step 4: Add product
-error_log("Attempting to add product: $title");
-error_log("Image path being saved: " . ($image ?: 'EMPTY - No image path'));
+// Add product to database
 try {
     $product_id = add_product_ctr($cat_id, $brand_id, $title, $price, $desc, $image, $keywords, $qty, $created_by, $artisan_id);
     
     if ($product_id) {
-        error_log("Product added successfully with ID: $product_id");
-
-        // Session is already started by core.php
+        // Handle temporary upload folder renaming
         if (isset($_SESSION['temp_upload_id']) && !empty($image)) {
             $user_id = $created_by;
             // Use relative paths (like old working code)
@@ -141,8 +121,6 @@ try {
             if (is_dir($temp_folder)) {
                 // Rename the folder
                 if (rename($temp_folder, $new_folder)) {
-                    error_log("Renamed temp folder to product folder: $temp_folder -> $new_folder");
-                    
                     // Update image path in database
                     $old_image_path = $image;
                     $new_image_path = str_replace($_SESSION['temp_upload_id'], 'p' . $product_id, $image);
@@ -154,10 +132,6 @@ try {
                                   mysqli_real_escape_string($product_obj->db_conn(), $new_image_path) . 
                                   "' WHERE product_id = $product_id";
                     $product_obj->db_write_query($update_sql);
-                    
-                    error_log("Updated image path: $old_image_path -> $new_image_path");
-                } else {
-                    error_log("Failed to rename temp folder: $temp_folder");
                 }
                 
                 // Clear temp upload session
@@ -178,12 +152,7 @@ try {
             'message' => 'Product added successfully!',
             'product_id' => $product_id,
             'product_title' => $title,
-            'image_path' => $final_image_path ?: 'NO IMAGE PATH PROVIDED', // Debug info
-            'debug' => [
-                'image_received' => !empty($image),
-                'image_path_original' => $image,
-                'image_path_final' => $final_image_path
-            ]
+            'image_path' => $final_image_path
         ]);
     } else {
         echo json_encode([
@@ -193,7 +162,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error adding product: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while adding the product.'

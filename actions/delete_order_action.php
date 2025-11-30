@@ -1,4 +1,10 @@
 <?php
+/**
+ * Delete Order Action
+ * Handles the deletion of orders by admin users
+ */
+
+header('Content-Type: application/json');
 require_once '../settings/core.php';
 
 // Check if user is logged in and is admin
@@ -10,7 +16,7 @@ if (!is_logged_in() || !is_admin()) {
     exit();
 }
 
-// Check if order_id is provided
+// Validate order_id
 if (!isset($_POST['order_id']) || empty($_POST['order_id'])) {
     echo json_encode([
         'status' => 'error',
@@ -23,7 +29,7 @@ require_once '../controllers/order_controller.php';
 
 $order_id = (int)$_POST['order_id'];
 
-// Delete the order
+// Delete the order from database
 $result = delete_order_ctr($order_id);
 
 if ($result) {
@@ -38,4 +44,3 @@ if ($result) {
     ]);
 }
 ?>
-

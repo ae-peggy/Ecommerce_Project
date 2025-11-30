@@ -1,10 +1,11 @@
 <?php
+/**
+ * Get Cart Count Action
+ * Returns the number of items in the user's shopping cart
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Include the cart controller
 require_once '../controllers/cart_controller.php';
 
 // If user is not logged in, return 0
@@ -27,7 +28,6 @@ try {
     ]);
     
 } catch (Exception $e) {
-    error_log("Error getting cart count: " . $e->getMessage());
     echo json_encode([
         'status' => 'success',
         'count' => 0

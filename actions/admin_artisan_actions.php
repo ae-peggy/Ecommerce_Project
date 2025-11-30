@@ -1,7 +1,12 @@
 <?php
-header('Content-Type: application/json');
+/**
+ * Admin Artisan Actions
+ * Handles all admin operations related to artisan management
+ */
 
-// Include core session management (handles session_start)
+header('Content-Type: application/json');
+session_start();
+
 require_once '../settings/core.php';
 require_once '../classes/artisan_class.php';
 require_once '../classes/customer_class.php';

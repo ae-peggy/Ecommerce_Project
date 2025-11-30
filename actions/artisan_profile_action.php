@@ -1,7 +1,10 @@
 <?php
-header('Content-Type: application/json');
+/**
+ * Artisan Profile Action
+ * Handles artisan profile updates and password changes
+ */
 
-// Include core session management (handles session_start)
+header('Content-Type: application/json');
 require_once '../settings/core.php';
 require_once '../classes/artisan_class.php';
 require_once '../classes/customer_class.php';

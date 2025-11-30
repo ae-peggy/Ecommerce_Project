@@ -1,7 +1,10 @@
 <?php
-header('Content-Type: application/json');
+/**
+ * Get Cart Action
+ * Retrieves all items in the user's shopping cart
+ */
 
-// Include core session management functions
+header('Content-Type: application/json');
 require_once '../settings/core.php';
 
 // Check if user is logged in
@@ -13,7 +16,6 @@ if (!is_logged_in()) {
     exit();
 }
 
-// Include the cart controller
 require_once '../controllers/cart_controller.php';
 
 $customer_id = get_user_id();
@@ -35,8 +37,6 @@ try {
         $cart_total = 0;
     }
     
-    error_log("Cart items count: " . count($cart_items) . ", Total: " . $cart_total);
-    
     echo json_encode([
         'status' => 'success',
         'items' => $cart_items,
@@ -45,7 +45,6 @@ try {
     ]);
     
 } catch (Exception $e) {
-    error_log("Error getting cart: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while fetching cart.'

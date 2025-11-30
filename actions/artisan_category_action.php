@@ -1,4 +1,9 @@
 <?php
+/**
+ * Artisan Category Action
+ * Handles category management for Tier 1 artisans
+ */
+
 header('Content-Type: application/json');
 
 // Include core session management

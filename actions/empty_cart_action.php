@@ -1,15 +1,11 @@
 <?php
+/**
+ * Empty Cart Action
+ * Handles clearing all items from the shopping cart
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Log POST data for debugging
-error_log("Empty cart action called");
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -20,19 +16,15 @@ if (!is_logged_in()) {
     exit();
 }
 
-// Include the cart controller
 require_once '../controllers/cart_controller.php';
 
 $customer_id = get_user_id();
-
-error_log("Emptying cart for customer: $customer_id");
 
 // Empty cart
 try {
     $result = empty_cart_ctr($customer_id);
     
     if ($result) {
-        error_log("Cart emptied successfully");
         log_user_activity("Emptied shopping cart");
         
         echo json_encode([
@@ -49,7 +41,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error emptying cart: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while emptying cart.'

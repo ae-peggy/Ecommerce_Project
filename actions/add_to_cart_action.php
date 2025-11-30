@@ -1,15 +1,11 @@
 <?php
+/**
+ * Add to Cart Action
+ * Handles adding products to the shopping cart
+ */
+
 header('Content-Type: application/json');
-
-// Include core session management functions
 require_once '../settings/core.php';
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Log POST data for debugging
-error_log("Add to cart POST data: " . print_r($_POST, true));
 
 // Check if user is logged in
 if (!is_logged_in()) {
@@ -21,15 +17,12 @@ if (!is_logged_in()) {
     exit();
 }
 
-// Include the cart controller
 require_once '../controllers/cart_controller.php';
 
-// Collect form data safely
+// Collect and sanitize form data
 $product_id = (int)($_POST['product_id'] ?? 0);
 $qty = (int)($_POST['qty'] ?? 1);
 $customer_id = get_user_id();
-
-error_log("Adding to cart - Product: $product_id, Qty: $qty, Customer: $customer_id");
 
 // Validate product_id
 if ($product_id <= 0) {
@@ -113,8 +106,6 @@ try {
     if ($result) {
         // Get updated cart count
         $cart_count = get_cart_count_ctr($customer_id);
-        
-        error_log("Product added to cart successfully");
         log_user_activity("Added product to cart: {$product['product_title']} (Qty: $qty)");
         
         echo json_encode([
@@ -131,7 +122,6 @@ try {
     }
     
 } catch (Exception $e) {
-    error_log("Error adding to cart: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
         'message' => 'An error occurred while adding to cart.'

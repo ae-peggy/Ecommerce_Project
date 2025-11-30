@@ -1,15 +1,11 @@
 <?php
-// Start output buffering to catch any errors
+/**
+ * Artisan Product Action
+ * Handles product management for artisan users
+ */
+
 ob_start();
-
-// Set error reporting for debugging (remove in production)
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Don't display errors, we'll handle them
-ini_set('log_errors', 1);
-
 header('Content-Type: application/json');
-
-// Include core session management (handles session_start)
 require_once '../settings/core.php';
 require_once '../classes/artisan_class.php';
 
